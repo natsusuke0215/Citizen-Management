@@ -41,8 +41,8 @@ Hệ thống quản lý nhân khẩu hiện đại với tính năng quản lý 
 
 ### Bước 1: Clone repository
 ```bash
-git clone <repository-url>
-cd population-management-system
+git clone https://github.com/natsusuke0215/Citizen-Management.git
+cd Citizen-Management
 ```
 
 ### Bước 2: Cài đặt dependencies
@@ -63,7 +63,7 @@ npx prisma studio
 Tạo file `.env.local`:
 ```env
 JWT_SECRET=your-secret-key-here
-DATABASE_URL="file:./dev.db"
+DATABASE_URL="file:./prisma/dev.db"
 ```
 
 ### Bước 5: Chạy ứng dụng
