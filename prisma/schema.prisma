@@ -1,0 +1,146 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// Enums are not supported in SQLite, using String with constraints instead
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("USER")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  householdId String?
+  household   Household? @relation(fields: [householdId], references: [id])
+  requests    Request[]
+  bookings    CulturalCenterBooking[]
+
+  @@map("users")
+}
+
+model District {
+  id          String @id @default(cuid())
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  households Household[]
+
+  @@map("districts")
+}
+
+model Household {
+  id          String   @id @default(cuid())
+  householdId String   @unique // Số hộ khẩu
+  address     String
+  districtId  String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  district District @relation(fields: [districtId], references: [id])
+  persons  Person[]
+  members  User[]
+  requests Request[]
+
+  @@map("households")
+}
+
+model Person {
+  id           String   @id @default(cuid())
+  fullName     String
+  dateOfBirth  DateTime
+  gender       String
+  idNumber     String   @unique
+  relationship String   // Quan hệ với chủ hộ
+  householdId  String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  household Household @relation(fields: [householdId], references: [id])
+
+  @@map("persons")
+}
+
+model Request {
+  id          String        @id @default(cuid())
+  type        String
+  status      String        @default("PENDING")
+  description String
+  data        String?       // JSON data for request details
+  userId      String
+  householdId String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  // Relations
+  user      User       @relation(fields: [userId], references: [id])
+  household Household? @relation(fields: [householdId], references: [id])
+
+  @@map("requests")
+}
+
+model CulturalCenter {
+  id          String @id @default(cuid())
+  name        String
+  description String?
+  capacity    Int
+  location    String // Tọa độ hoặc địa chỉ
+  building    String // Tòa nhà A, B, C
+  floor       Int?
+  room        String?
+  amenities   String? // JSON array of amenities
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  bookings CulturalCenterBooking[]
+
+  @@map("cultural_centers")
+}
+
+model CulturalCenterBooking {
+  id              String             @id @default(cuid())
+  title           String
+  description     String?
+  startTime       DateTime
+  endTime         DateTime
+  visibility      String             @default("PUBLIC")
+  status          String             @default("PENDING")
+  culturalCenterId String
+  userId          String
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  // Relations
+  culturalCenter CulturalCenter @relation(fields: [culturalCenterId], references: [id])
+  user           User           @relation(fields: [userId], references: [id])
+
+  @@map("cultural_center_bookings")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  title     String
+  message   String
+  userId    String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@map("notifications")
+}
