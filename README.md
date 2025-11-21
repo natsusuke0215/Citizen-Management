@@ -53,17 +53,17 @@ npm install
 ### Bước 3: Thiết lập database
 ```bash
 # Tạo database và chạy migrations
-npx prisma db push
+npm run db:push
 
 # (Tùy chọn) Xem database với Prisma Studio
-npx prisma studio
+npm run db:studio
 ```
 
 ### Bước 4: Tạo file environment
 Tạo file `.env.local`:
 ```env
 JWT_SECRET=your-secret-key-here
-DATABASE_URL="file:./prisma/dev.db"
+DATABASE_URL="file:./database/dev.db"
 ```
 
 ### Bước 5: Chạy ứng dụng

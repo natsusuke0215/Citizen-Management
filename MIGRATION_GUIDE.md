@@ -15,7 +15,7 @@ citizen-management-backend/          # Backend repository
 │   ├── middleware/                  # Auth middleware
 │   ├── lib/                        # Utilities
 │   └── server.js                   # Express server
-├── prisma/
+├── database/
 │   └── schema.prisma               # Database schema
 └── package.json
 
@@ -38,10 +38,10 @@ git init
 ### 1.2 Copy files từ project gốc
 ```bash
 # Copy Prisma schema
-cp ../Citizen-Management/prisma/schema.prisma ./prisma/
+cp ../Citizen-Management/database/schema.prisma ./database/
 
 # Copy database file (nếu có)
-cp ../Citizen-Management/prisma/dev.db ./prisma/
+cp ../Citizen-Management/database/dev.db ./database/
 ```
 
 ### 1.3 Cài đặt dependencies
@@ -115,7 +115,7 @@ npm run dev
 
 ### 3.1 Backend (.env)
 ```env
-DATABASE_URL="file:./dev.db"
+DATABASE_URL="file:./database/dev.db"
 JWT_SECRET="your-super-secret-jwt-key"
 PORT=3001
 NODE_ENV=development

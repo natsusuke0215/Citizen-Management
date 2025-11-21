@@ -10,7 +10,7 @@ npm install
 ### Bước 2: Thiết lập database
 ```bash
 # Tạo database
-npx prisma db push
+npm run db:push
 
 # Tạo dữ liệu mẫu
 npm run db:seed
@@ -20,7 +20,7 @@ npm run db:seed
 Tạo file `.env.local`:
 ```env
 JWT_SECRET=your-secret-key-here
-DATABASE_URL="file:./prisma/dev.db"
+DATABASE_URL="file:./database/dev.db"
 NODE_ENV=development
 ```
 
@@ -46,21 +46,18 @@ Sau khi chạy seed, bạn có thể đăng nhập với:
 ## 📋 Cấu trúc dự án
 
 ```
-population-management-system/
-├── app/                    # Next.js 14 App Router
-│   ├── api/               # API routes
-│   ├── dashboard/         # Dashboard pages
-│   ├── login/            # Auth pages
-│   └── register/
-├── components/            # React components
-├── lib/                   # Utilities
-│   ├── prisma.ts         # Prisma client
-│   └── auth.ts           # Auth utilities
-├── prisma/               # Database schema
-│   └── schema.prisma
-├── scripts/              # Database scripts
-│   └── seed.ts           # Seed data
-└── public/               # Static files
+Citizen-Management/
+├── frontend/               # Giao diện Next.js (App Router, pages, styles)
+│   └── app/                # Tất cả UI components & routes
+├── backend/                # Logic phía server
+│   ├── api/                # Route handlers dùng chung
+│   ├── lib/                # Auth, Prisma helpers
+│   └── scripts/            # Seed & tiện ích backend
+├── database/               # Prisma schema & SQLite file
+│   ├── schema.prisma
+│   └── dev.db
+├── app/                    # Tệp định tuyến mỏng re-export từ frontend
+└── middleware.ts           # Re-export middleware từ backend
 ```
 
 ## 🗄️ Database Schema
