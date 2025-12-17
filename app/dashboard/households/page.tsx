@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Plus, Search, Edit, Trash2, Eye, MapPin } from 'lucide-react'
+import { Plus, Search, Edit, Trash2, Eye, MapPin, Users } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 interface Household {
