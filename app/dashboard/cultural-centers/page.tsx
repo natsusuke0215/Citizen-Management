@@ -226,15 +226,15 @@ export default function CulturalCentersPage() {
                   <div className="mt-2 grid grid-cols-2 gap-4 text-sm">
                     <div>
                       <p className="text-gray-500">Phòng</p>
-                      <p className="font-medium">{stats.centers}</p>
+                      <p className="font-medium text-black">{stats.centers}</p>
                     </div>
                     <div>
                       <p className="text-gray-500">Sức chứa</p>
-                      <p className="font-medium">{stats.totalCapacity}</p>
+                      <p className="font-medium text-black">{stats.totalCapacity}</p>
                     </div>
                     <div>
                       <p className="text-gray-500">Lịch đặt</p>
-                      <p className="font-medium">{stats.totalBookings}</p>
+                      <p className="font-medium text-black">{stats.totalBookings}</p>
                     </div>
                   </div>
                 </div>
@@ -247,14 +247,16 @@ export default function CulturalCentersPage() {
       {/* Filters */}
       <div className="mt-8 flex flex-col sm:flex-row gap-4">
         <div className="flex-1">
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-gray-400" />
+          <div className="relative w-full">
+            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <Search className="w-5 h-5 text-gray-400" />
             </div>
+            
+            {/* Input Field */}
             <input
               type="text"
+              className="block w-full pl-10 pr-3 py-2 border border-transparent rounded-md leading-5 bg-gray-700 text-gray-300 placeholder-gray-400 focus:outline-none focus:bg-white focus:text-gray-900 sm:text-sm transition duration-150 ease-in-out"
               placeholder="Tìm kiếm theo tên, mô tả hoặc địa điểm..."
-              className="input pl-10"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -321,12 +323,12 @@ export default function CulturalCentersPage() {
               <div className="flex items-center">
                 <Users className="h-4 w-4 text-gray-400 mr-2" />
                 <span className="text-gray-500">Sức chứa:</span>
-                <span className="ml-1 font-medium">{center.capacity}</span>
+                <span className="ml-1 font-medium text-black">{center.capacity}</span>
               </div>
               <div className="flex items-center">
                 <Calendar className="h-4 w-4 text-gray-400 mr-2" />
                 <span className="text-gray-500">Lịch đặt:</span>
-                <span className="ml-1 font-medium">{center._count.bookings}</span>
+                <span className="ml-1 font-medium text-black">{center._count.bookings}</span>
               </div>
             </div>
             

@@ -323,17 +323,17 @@ export default function MyHouseholdPage() {
               <div className="mt-4 space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-gray-500">Giới tính:</span>
-                  <span className="font-medium">{person.gender}</span>
+                  <span className="font-medium text-black">{person.gender}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">Ngày sinh:</span>
-                  <span className="font-medium">
+                  <span className="font-medium text-black">
                     {new Date(person.dateOfBirth).toLocaleDateString('vi-VN')}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">CMND/CCCD:</span>
-                  <span className="font-medium">{person.idNumber}</span>
+                  <span className="font-medium text-black">{person.idNumber}</span>
                 </div>
               </div>
             </div>
