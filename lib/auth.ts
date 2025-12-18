@@ -37,7 +37,7 @@ export async function authenticateUser(email: string, password: string) {
     include: {
       household: {
         include: {
-          district: true
+          districtRelation: true
         }
       }
     }

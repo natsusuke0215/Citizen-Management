@@ -262,20 +262,6 @@ export default function CulturalCentersPage() {
             />
           </div>
         </div>
-        <div className="sm:w-48">
-          <select
-            className="input"
-            value={selectedBuilding}
-            onChange={(e) => setSelectedBuilding(e.target.value)}
-          >
-            <option value="all">Tất cả tòa nhà</option>
-            {BUILDINGS.map((building) => (
-              <option key={building.id} value={building.id}>
-                {building.name}
-              </option>
-            ))}
-          </select>
-        </div>
       </div>
 
       {/* Centers Grid */}

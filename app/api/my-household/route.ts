@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
       include: {
         household: {
           include: {
-            district: true,
+            districtRelation: true,
             members: {
               select: {
                 id: true,
