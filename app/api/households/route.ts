@@ -6,7 +6,14 @@ export async function GET() {
     const households = await prisma.household.findMany({
       include: {
         districtRelation: true,
-        persons: true,
+        persons: {
+          where: {
+            status: 'ACTIVE'
+          },
+          orderBy: {
+            fullName: 'asc'
+          }
+        },
         members: {
           select: {
             id: true,
