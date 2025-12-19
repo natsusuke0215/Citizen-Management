@@ -29,18 +29,13 @@ interface Booking {
   createdAt: string
 }
 
-const BUILDINGS = [
-  { id: 'A', name: 'Tòa nhà A', color: 'bg-blue-500' },
-  { id: 'B', name: 'Tòa nhà B', color: 'bg-green-500' },
-  { id: 'C', name: 'Tòa nhà C', color: 'bg-purple-500' }
-]
+const BUILDINGS: never[] = []
 
 export default function BookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>([])
   const [centers, setCenters] = useState<CulturalCenter[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
-  const [selectedBuilding, setSelectedBuilding] = useState<string>('all')
   const [selectedStatus, setSelectedStatus] = useState<string>('all')
   const [showModal, setShowModal] = useState(false)
   const [editingBooking, setEditingBooking] = useState<Booking | null>(null)
@@ -195,14 +190,21 @@ export default function BookingsPage() {
   }
 
   const filteredBookings = bookings.filter(booking => {
-    const matchesSearch = booking.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (booking.description && booking.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      booking.culturalCenter.name.toLowerCase().includes(searchTerm.toLowerCase())
-    
-    const matchesBuilding = selectedBuilding === 'all' || booking.culturalCenter.building === selectedBuilding
+    const searchLower = (searchTerm || '').toLowerCase()
+
+    const valuesToSearch = [
+      booking.title,
+      booking.description,
+      booking.culturalCenter?.name
+    ]
+
+    const matchesSearch = valuesToSearch.some(value =>
+      (value || '').toLowerCase().includes(searchLower)
+    )
+
     const matchesStatus = selectedStatus === 'all' || booking.status === selectedStatus
     
-    return matchesSearch && matchesBuilding && matchesStatus
+    return matchesSearch && matchesStatus
   })
 
   const getStatusColor = (status: string) => {
@@ -237,7 +239,7 @@ export default function BookingsPage() {
         <div className="sm:flex-auto">
           <h1 className="text-2xl font-bold text-gray-900">Quản lý lịch đặt</h1>
           <p className="mt-2 text-sm text-gray-700">
-            Quản lý lịch đặt nhà văn hóa với chế độ công khai và riêng tư
+            Quản lý lịch đặt nhà văn hóa
           </p>
         </div>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
@@ -284,20 +286,6 @@ export default function BookingsPage() {
         <div className="sm:w-48">
           <select
             className="input"
-            value={selectedBuilding}
-            onChange={(e) => setSelectedBuilding(e.target.value)}
-          >
-            <option value="all">Tất cả tòa nhà</option>
-            {BUILDINGS.map((building) => (
-              <option key={building.id} value={building.id}>
-                {building.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="sm:w-48">
-          <select
-            className="input"
             value={selectedStatus}
             onChange={(e) => setSelectedStatus(e.target.value)}
           >
@@ -315,7 +303,7 @@ export default function BookingsPage() {
           <div key={booking.id} className="card">
             <div className="flex items-center justify-between">
               <div className="flex items-center">
-                <div className={`p-3 rounded-lg ${BUILDINGS.find(b => b.id === booking.culturalCenter.building)?.color || 'bg-gray-500'}`}>
+                <div className="p-3 rounded-lg bg-blue-500">
                   <Calendar className="h-6 w-6 text-white" />
                 </div>
                 <div className="ml-4">
@@ -323,9 +311,7 @@ export default function BookingsPage() {
                     {booking.title}
                   </h3>
                   <p className="text-sm text-gray-500">
-                    {booking.culturalCenter.name} - Tòa {booking.culturalCenter.building}
-                    {booking.culturalCenter.floor && ` - Tầng ${booking.culturalCenter.floor}`}
-                    {booking.culturalCenter.room && ` - Phòng ${booking.culturalCenter.room}`}
+                    {booking.culturalCenter.name}
                   </p>
                 </div>
               </div>
@@ -412,7 +398,7 @@ export default function BookingsPage() {
           <Calendar className="mx-auto h-12 w-12 text-gray-400" />
           <h3 className="mt-2 text-sm font-medium text-gray-900">Không có lịch đặt nào</h3>
           <p className="mt-1 text-sm text-gray-500">
-            {searchTerm || selectedBuilding !== 'all' || selectedStatus !== 'all'
+            {searchTerm || selectedStatus !== 'all'
               ? 'Không tìm thấy lịch đặt phù hợp với bộ lọc.' 
               : 'Bắt đầu bằng cách đặt lịch đầu tiên.'}
           </p>
@@ -473,9 +459,7 @@ export default function BookingsPage() {
                         <option value="">Chọn nhà văn hóa</option>
                         {centers.map((center) => (
                           <option key={center.id} value={center.id}>
-                            {center.name} - Tòa {center.building}
-                            {center.floor && ` - Tầng ${center.floor}`}
-                            {center.room && ` - Phòng ${center.room}`}
+                            {center.name}
                           </option>
                         ))}
                       </select>

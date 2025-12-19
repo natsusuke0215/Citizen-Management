@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Plus, Search, Edit, Trash2, Eye, Users, Calendar, CreditCard } from 'lucide-react'
+import { Plus, Search, Edit, Trash2, Eye, Users, Calendar, CreditCard, X } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 interface Person {
@@ -9,8 +9,9 @@ interface Person {
   fullName: string
   dateOfBirth: string
   gender: string
-  idNumber: string
-  relationship: string
+  idNumber: string | null
+  relationship: string | null
+  status: string
   household: {
     id: string
     householdId: string
@@ -29,6 +30,14 @@ export default function PersonsPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [showModal, setShowModal] = useState(false)
   const [editingPerson, setEditingPerson] = useState<Person | null>(null)
+  const [formData, setFormData] = useState({
+    fullName: '',
+    dateOfBirth: '',
+    gender: 'Nam',
+    idType: 'CCCD',
+    idNumber: '',
+    householdId: ''
+  })
 
   useEffect(() => {
     fetchPersons()
@@ -45,6 +54,51 @@ export default function PersonsPage() {
       toast.error('Có lỗi xảy ra khi tải danh sách nhân khẩu')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (!formData.fullName.trim() || !formData.dateOfBirth || !formData.gender || !formData.householdId) {
+      toast.error('Họ tên, ngày sinh, giới tính và hộ khẩu là bắt buộc')
+      return
+    }
+
+    try {
+      const response = await fetch('/api/persons', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          fullName: formData.fullName,
+          dateOfBirth: formData.dateOfBirth,
+          gender: formData.gender,
+          idType: formData.idType,
+          idNumber: formData.idNumber || null,
+          householdId: formData.householdId
+        })
+      })
+
+      if (response.ok) {
+        toast.success('Thêm nhân khẩu thành công!')
+        setShowModal(false)
+        setFormData({
+          fullName: '',
+          dateOfBirth: '',
+          gender: 'Nam',
+          idType: 'CCCD',
+          idNumber: '',
+          householdId: ''
+        })
+        fetchPersons()
+      } else {
+        const data = await response.json()
+        toast.error(data.message || 'Có lỗi xảy ra')
+      }
+    } catch (error) {
+      toast.error('Có lỗi xảy ra')
     }
   }
 
@@ -67,12 +121,20 @@ export default function PersonsPage() {
     }
   }
 
-  const filteredPersons = persons.filter(person =>
-    person.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    person.idNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    person.household.householdId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    person.household.address.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const filteredPersons = persons.filter(person => {
+    const searchLower = (searchTerm || '').toLowerCase()
+
+    const valuesToSearch = [
+      person.fullName,
+      person.idNumber,
+      person.household?.householdId,
+      person.household?.address
+    ]
+
+    return valuesToSearch.some(value =>
+      (value || '').toLowerCase().includes(searchLower)
+    )
+  })
 
   if (loading) {
     return (
@@ -139,10 +201,10 @@ export default function PersonsPage() {
                       Số CMND/CCCD
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Quan hệ
+                      Hộ khẩu
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Hộ khẩu
+                      Tình trạng
                     </th>
                     <th className="relative px-6 py-3">
                       <span className="sr-only">Thao tác</span>
@@ -171,35 +233,24 @@ export default function PersonsPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {person.relationship}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         <div>
                           <div className="font-medium">{person.household.householdId}</div>
                           <div className="text-xs text-gray-400">{person.household.address}</div>
                         </div>
                       </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {person.status === 'ACTIVE' && 'Đang thường trú'}
+                        {person.status === 'MOVED_OUT' && 'Đã chuyển đi'}
+                        {person.status === 'DECEASED' && 'Đã qua đời'}
+                        {!['ACTIVE', 'MOVED_OUT', 'DECEASED'].includes(person.status) && person.status}
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div className="flex items-center space-x-2">
-                          <button
-                            onClick={() => setEditingPerson(person)}
-                            className="text-primary-600 hover:text-primary-900"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => setEditingPerson(person)}
-                            className="text-indigo-600 hover:text-indigo-900"
-                          >
-                            <Edit className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(person.id)}
-                            className="text-red-600 hover:text-red-900"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
+                        <button
+                          onClick={() => handleDelete(person.id)}
+                          className="text-red-600 hover:text-red-900"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -217,6 +268,137 @@ export default function PersonsPage() {
           <p className="mt-1 text-sm text-gray-500">
             {searchTerm ? 'Không tìm thấy nhân khẩu phù hợp với từ khóa tìm kiếm.' : 'Bắt đầu bằng cách thêm nhân khẩu đầu tiên.'}
           </p>
+        </div>
+      )}
+
+      {/* Add Person Modal */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={() => setShowModal(false)} />
+
+            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+              <form onSubmit={handleSubmit}>
+                <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-medium text-gray-900">
+                      Thêm nhân khẩu mới
+                    </h3>
+                    <button
+                      type="button"
+                      onClick={() => setShowModal(false)}
+                      className="text-gray-400 hover:text-gray-600"
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">
+                        Họ và tên *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        className="mt-1 input"
+                        value={formData.fullName}
+                        onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                        placeholder="Nguyễn Văn A"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">
+                          Ngày sinh *
+                        </label>
+                        <input
+                          type="date"
+                          required
+                          className="mt-1 input"
+                          value={formData.dateOfBirth}
+                          onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">
+                          Giới tính *
+                        </label>
+                        <select
+                          className="mt-1 input"
+                          value={formData.gender}
+                          onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+                        >
+                          <option value="Nam">Nam</option>
+                          <option value="Nữ">Nữ</option>
+                          <option value="Khác">Khác</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">
+                          Loại giấy tờ
+                        </label>
+                        <select
+                          className="mt-1 input"
+                          value={formData.idType}
+                          onChange={(e) => setFormData({ ...formData, idType: e.target.value })}
+                        >
+                          <option value="CCCD">CCCD</option>
+                          <option value="CMND">CMND</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">
+                          Số CCCD/CMND
+                        </label>
+                        <input
+                          type="text"
+                          className="mt-1 input"
+                          value={formData.idNumber}
+                          onChange={(e) => setFormData({ ...formData, idNumber: e.target.value })}
+                          placeholder="0123456789"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">
+                        ID hộ khẩu *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        className="mt-1 input"
+                        value={formData.householdId}
+                        onChange={(e) => setFormData({ ...formData, householdId: e.target.value })}
+                        placeholder="Nhập ID hộ khẩu (khóa kỹ thuật)"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                  <button
+                    type="submit"
+                    className="btn btn-primary sm:ml-3"
+                  >
+                    Thêm mới
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowModal(false)}
+                    className="btn btn-secondary mt-3 sm:mt-0"
+                  >
+                    Hủy
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
       )}
     </div>

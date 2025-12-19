@@ -21,7 +21,8 @@ export async function GET() {
             id: true,
             name: true
           }
-        }
+        },
+        usageFee: true
       },
       orderBy: {
         startTime: 'desc'
@@ -56,7 +57,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { title, description, startTime, endTime, culturalCenterId, visibility } = await request.json()
+    const { title, description, startTime, endTime, culturalCenterId, visibility, type, fee } = await request.json()
 
     if (!title || !startTime || !endTime || !culturalCenterId) {
       return NextResponse.json(
@@ -125,7 +126,10 @@ export async function POST(request: NextRequest) {
         endTime: end,
         culturalCenterId,
         userId: user.id,
-        visibility: visibility || 'PUBLIC'
+        visibility: visibility || 'PUBLIC',
+        type: type || 'EVENT',
+        fee: fee ? parseFloat(fee) : null,
+        feePaid: false
       },
       include: {
         culturalCenter: {

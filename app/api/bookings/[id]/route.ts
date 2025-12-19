@@ -23,7 +23,7 @@ export async function PUT(
       )
     }
 
-    const { title, description, startTime, endTime, culturalCenterId, visibility } = await request.json()
+    const { title, description, startTime, endTime, culturalCenterId, visibility, type, fee } = await request.json()
 
     if (!title || !startTime || !endTime || !culturalCenterId) {
       return NextResponse.json(
@@ -112,7 +112,9 @@ export async function PUT(
         startTime: start,
         endTime: end,
         culturalCenterId,
-        visibility: visibility || 'PUBLIC'
+        visibility: visibility || 'PUBLIC',
+        type: type || undefined,
+        fee: fee !== undefined ? parseFloat(fee) : undefined
       },
       include: {
         culturalCenter: {

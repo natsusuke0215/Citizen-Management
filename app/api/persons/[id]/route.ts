@@ -11,8 +11,19 @@ export async function GET(
       include: {
         household: {
           include: {
-            district: true
+            districtRelation: true
           }
+        },
+        changeHistory: {
+          orderBy: { changeDate: 'desc' }
+        },
+        temporaryAbsences: {
+          where: { status: 'ACTIVE' },
+          orderBy: { startDate: 'desc' }
+        },
+        temporaryResidences: {
+          where: { status: 'ACTIVE' },
+          orderBy: { startDate: 'desc' }
         }
       }
     })
@@ -39,28 +50,56 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { fullName, dateOfBirth, gender, idNumber, relationship, householdId } = await request.json()
+    const { 
+      fullName, 
+      dateOfBirth, 
+      gender, 
+      placeOfBirth,
+      origin,
+      ethnicity,
+      occupation,
+      workplace,
+      idType,
+      idNumber, 
+      idIssueDate,
+      idIssuePlace,
+      registrationDate,
+      previousAddress,
+      relationship, 
+      householdId,
+      status,
+      moveOutDate,
+      moveOutPlace,
+      notes
+    } = await request.json()
 
-    if (!fullName || !dateOfBirth || !gender || !idNumber || !relationship || !householdId) {
+    if (!fullName || !dateOfBirth || !gender || !householdId) {
       return NextResponse.json(
-        { message: 'Tất cả các trường là bắt buộc' },
+        { message: 'Họ tên, ngày sinh, giới tính và hộ khẩu là bắt buộc' },
         { status: 400 }
       )
     }
 
-    // Check if ID number already exists (excluding current person)
-    const existingPerson = await prisma.person.findFirst({
-      where: {
-        idNumber,
-        id: { not: params.id }
-      }
+    // Get old data for history
+    const oldPerson = await prisma.person.findUnique({
+      where: { id: params.id }
     })
 
-    if (existingPerson) {
-      return NextResponse.json(
-        { message: 'Số CMND/CCCD đã tồn tại' },
-        { status: 400 }
-      )
+    // Check if ID number already exists (excluding current person, if provided)
+    if (idNumber) {
+      const existingPerson = await prisma.person.findFirst({
+        where: {
+          idNumber,
+          id: { not: params.id }
+        }
+      })
+
+      if (existingPerson) {
+        return NextResponse.json(
+          { message: 'Số CMND/CCCD đã tồn tại' },
+          { status: 400 }
+        )
+      }
     }
 
     const person = await prisma.person.update({
@@ -69,16 +108,42 @@ export async function PUT(
         fullName,
         dateOfBirth: new Date(dateOfBirth),
         gender,
-        idNumber,
-        relationship,
+        placeOfBirth: placeOfBirth || null,
+        origin: origin || null,
+        ethnicity: ethnicity || null,
+        occupation: occupation || null,
+        workplace: workplace || null,
+        idType: idType || null,
+        idNumber: idNumber || null,
+        idIssueDate: idIssueDate ? new Date(idIssueDate) : null,
+        idIssuePlace: idIssuePlace || null,
+        registrationDate: registrationDate ? new Date(registrationDate) : null,
+        previousAddress: previousAddress || null,
+        relationship: relationship || null,
+        status: status || 'ACTIVE',
+        moveOutDate: moveOutDate ? new Date(moveOutDate) : null,
+        moveOutPlace: moveOutPlace || null,
+        notes: notes || null,
         householdId
       },
       include: {
         household: {
           include: {
-            district: true
+            districtRelation: true
           }
         }
+      }
+    })
+
+    // Ghi lịch sử thay đổi
+    await prisma.personChangeHistory.create({
+      data: {
+        personId: person.id,
+        changeType: 'UPDATE',
+        changeDate: new Date(),
+        description: `Cập nhật thông tin nhân khẩu: ${fullName}`,
+        oldData: oldPerson ? JSON.stringify(oldPerson) : null,
+        newData: JSON.stringify(person)
       }
     })
 

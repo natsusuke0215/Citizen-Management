@@ -5,7 +5,15 @@ export async function GET() {
   try {
     const households = await prisma.household.findMany({
       include: {
-        district: true,
+        districtRelation: true,
+        persons: {
+          where: {
+            status: 'ACTIVE'
+          },
+          orderBy: {
+            fullName: 'asc'
+          }
+        },
         members: {
           select: {
             id: true,
@@ -31,11 +39,19 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { householdId, address, districtId } = await request.json()
+    const { 
+      householdId, 
+      ownerName, 
+      address, 
+      street, 
+      ward, 
+      district, 
+      districtId 
+    } = await request.json()
 
-    if (!householdId || !address || !districtId) {
+    if (!householdId || !ownerName || !address || !ward || !district || !districtId) {
       return NextResponse.json(
-        { message: 'Tất cả các trường là bắt buộc' },
+        { message: 'Số hộ khẩu, tên chủ hộ, địa chỉ, phường, quận và khu phố là bắt buộc' },
         { status: 400 }
       )
     }
@@ -55,12 +71,27 @@ export async function POST(request: NextRequest) {
     const household = await prisma.household.create({
       data: {
         householdId,
+        ownerName,
         address,
+        street: street || null,
+        ward,
+        district,
         districtId
       },
       include: {
-        district: true,
+        districtRelation: true,
         members: true
+      }
+    })
+
+    // Ghi lịch sử thay đổi
+    await prisma.householdChangeHistory.create({
+      data: {
+        householdId: household.id,
+        changeType: 'CREATE',
+        changeDate: new Date(),
+        description: `Tạo hộ khẩu mới: ${householdId}`,
+        newData: JSON.stringify(household)
       }
     })
 

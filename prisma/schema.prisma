@@ -42,35 +42,60 @@ model District {
 }
 
 model Household {
-  id          String   @id @default(cuid())
-  householdId String   @unique // Số hộ khẩu
-  address     String
-  districtId  String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id              String   @id @default(cuid())
+  householdId     String   @unique // Số hộ khẩu
+  ownerName       String   // Họ tên chủ hộ
+  address         String   // Số nhà
+  street          String?  // Đường phố (ấp)
+  ward            String   // Phường (xã, thị trấn)
+  district        String   // Quận (huyện)
+  districtId      String   // Khu phố ID
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   // Relations
-  district District @relation(fields: [districtId], references: [id])
-  persons  Person[]
-  members  User[]
-  requests Request[]
+  districtRelation District @relation(fields: [districtId], references: [id])
+  persons          Person[]
+  members          User[]
+  requests         Request[]
+  changeHistory    HouseholdChangeHistory[]
+  splitFromId      String?  // ID của hộ khẩu gốc khi tách hộ
+  splitFrom        Household? @relation("HouseholdSplit", fields: [splitFromId], references: [id])
+  splitTo          Household[] @relation("HouseholdSplit")
 
   @@map("households")
 }
 
 model Person {
-  id           String   @id @default(cuid())
-  fullName     String
-  dateOfBirth  DateTime
-  gender       String
-  idNumber     String   @unique
-  relationship String   // Quan hệ với chủ hộ
-  householdId  String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id                    String   @id @default(cuid())
+  fullName              String   // Họ và tên
+  dateOfBirth           DateTime // Ngày tháng năm sinh
+  placeOfBirth          String?  // Nơi sinh
+  origin                String?  // Nguyên quán
+  ethnicity             String?  // Dân tộc
+  gender                String   // Giới tính
+  occupation            String?  // Nghề nghiệp
+  workplace             String?  // Nơi làm việc
+  idType                String?  // Loại giấy tờ: CMND hoặc CCCD
+  idNumber              String?  @unique // Số CMND hoặc số CCCD
+  idIssueDate           DateTime? // Ngày cấp
+  idIssuePlace          String?  // Nơi cấp
+  registrationDate      DateTime? // Ngày tháng năm đăng ký thường trú
+  previousAddress       String?  // Địa chỉ nơi thường trú trước khi chuyển đến
+  relationship          String?  // Quan hệ với chủ hộ (nếu không phải chủ hộ)
+  status                String   @default("ACTIVE") // ACTIVE, MOVED_OUT, DECEASED
+  moveOutDate           DateTime? // Ngày chuyển đi
+  moveOutPlace          String?  // Nơi chuyển đến
+  notes                 String?  // Ghi chú (ví dụ: "Đã qua đời")
+  householdId           String
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
 
   // Relations
-  household Household @relation(fields: [householdId], references: [id])
+  household             Household @relation(fields: [householdId], references: [id])
+  changeHistory         PersonChangeHistory[]
+  temporaryAbsences     TemporaryAbsence[]
+  temporaryResidences   TemporaryResidence[]
 
   @@map("persons")
 }
@@ -94,40 +119,48 @@ model Request {
 }
 
 model CulturalCenter {
-  id          String @id @default(cuid())
-  name        String
-  description String?
-  capacity    Int
-  location    String // Tọa độ hoặc địa chỉ
-  building    String // Tòa nhà A, B, C
-  floor       Int?
-  room        String?
-  amenities   String? // JSON array of amenities
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id              String @id @default(cuid())
+  name            String
+  description     String?
+  capacity        Int
+  location        String // Tọa độ hoặc địa chỉ
+  building        String // Tòa nhà A, B, C
+  floor           Int?
+  room            String?
+  amenities       String? // JSON array of amenities
+  area            Float?  // Diện tích (m2)
+  yearBuilt       Int?    // Năm xây dựng
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   // Relations
-  bookings CulturalCenterBooking[]
+  bookings        CulturalCenterBooking[]
+  assets          CulturalCenterAsset[]
+  activities      CulturalCenterActivity[]
 
   @@map("cultural_centers")
 }
 
 model CulturalCenterBooking {
-  id              String             @id @default(cuid())
-  title           String
-  description     String?
-  startTime       DateTime
-  endTime         DateTime
-  visibility      String             @default("PUBLIC")
-  status          String             @default("PENDING")
-  culturalCenterId String
-  userId          String
-  createdAt       DateTime           @default(now())
-  updatedAt       DateTime           @updatedAt
+  id                String             @id @default(cuid())
+  title             String
+  description       String?
+  startTime         DateTime
+  endTime           DateTime
+  visibility        String             @default("PUBLIC")
+  status            String             @default("PENDING") // PENDING, APPROVED, REJECTED
+  type              String             @default("EVENT") // EVENT, WEDDING, MEETING, ACTIVITY
+  fee               Float?             // Phí sử dụng
+  feePaid           Boolean            @default(false)
+  culturalCenterId  String
+  userId            String
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
 
   // Relations
-  culturalCenter CulturalCenter @relation(fields: [culturalCenterId], references: [id])
-  user           User           @relation(fields: [userId], references: [id])
+  culturalCenter    CulturalCenter @relation(fields: [culturalCenterId], references: [id])
+  user              User           @relation(fields: [userId], references: [id])
+  usageFee          CulturalCenterUsageFee?
 
   @@map("cultural_center_bookings")
 }
@@ -141,4 +174,136 @@ model Notification {
   createdAt DateTime @default(now())
 
   @@map("notifications")
+}
+
+// Lịch sử thay đổi nhân khẩu
+model PersonChangeHistory {
+  id          String   @id @default(cuid())
+  personId    String
+  changeType  String   // ADD, UPDATE, MOVE_OUT, DECEASED, SPLIT_HOUSEHOLD
+  changeDate  DateTime
+  description String?  // Nội dung thay đổi
+  oldData     String?  // JSON data của dữ liệu cũ
+  newData     String?  // JSON data của dữ liệu mới
+  changedBy   String?  // User ID người thực hiện thay đổi
+  createdAt   DateTime @default(now())
+
+  // Relations
+  person      Person   @relation(fields: [personId], references: [id])
+
+  @@map("person_change_history")
+}
+
+// Lịch sử thay đổi hộ khẩu
+model HouseholdChangeHistory {
+  id          String   @id @default(cuid())
+  householdId String
+  changeType  String   // UPDATE, CHANGE_OWNER, SPLIT
+  changeDate  DateTime
+  description String   // Nội dung thay đổi
+  oldData     String?  // JSON data của dữ liệu cũ
+  newData     String?  // JSON data của dữ liệu mới
+  changedBy   String?  // User ID người thực hiện thay đổi
+  createdAt   DateTime @default(now())
+
+  // Relations
+  household   Household @relation(fields: [householdId], references: [id])
+
+  @@map("household_change_history")
+}
+
+// Tạm vắng (người đi xa dài ngày)
+model TemporaryAbsence {
+  id          String   @id @default(cuid())
+  personId    String
+  startDate   DateTime
+  endDate     DateTime?
+  reason      String?  // Lý do tạm vắng
+  destination String?  // Nơi đến
+  status      String   @default("ACTIVE") // ACTIVE, EXPIRED, RETURNED
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  person      Person   @relation(fields: [personId], references: [id])
+
+  @@map("temporary_absences")
+}
+
+// Tạm trú (người từ nơi khác đến cư trú tạm thời)
+model TemporaryResidence {
+  id              String   @id @default(cuid())
+  personId        String
+  householdId     String?  // Hộ khẩu tạm trú
+  startDate       DateTime
+  endDate         DateTime?
+  originalAddress String?  // Địa chỉ gốc
+  reason          String?  // Lý do tạm trú
+  status          String   @default("ACTIVE") // ACTIVE, EXPIRED, LEFT
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  person          Person   @relation(fields: [personId], references: [id])
+
+  @@map("temporary_residences")
+}
+
+// Tài sản nhà văn hóa
+model CulturalCenterAsset {
+  id                String   @id @default(cuid())
+  name              String   // Tên tài sản (bàn, ghế, loa, đài, màn hình...)
+  category          String?  // Loại tài sản
+  quantity          Int      @default(1)
+  condition         String   @default("GOOD") // GOOD, FAIR, POOR, DAMAGED
+  location          String?  // Vị trí trong nhà văn hóa
+  culturalCenterId  String?
+  notes             String?
+  lastChecked       DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  culturalCenter    CulturalCenter? @relation(fields: [culturalCenterId], references: [id])
+
+  @@map("cultural_center_assets")
+}
+
+// Hoạt động tại nhà văn hóa
+model CulturalCenterActivity {
+  id                String   @id @default(cuid())
+  title             String
+  description       String?
+  activityType      String   // MEETING, CULTURAL, SPORTS, PROPAGANDA
+  startDate         DateTime
+  endDate           DateTime?
+  culturalCenterId  String
+  organizer         String?  // Người tổ chức
+  participantCount  Int?
+  notes             String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  culturalCenter    CulturalCenter @relation(fields: [culturalCenterId], references: [id])
+
+  @@map("cultural_center_activities")
+}
+
+// Phí sử dụng nhà văn hóa
+model CulturalCenterUsageFee {
+  id                String   @id @default(cuid())
+  bookingId         String   @unique
+  amount            Float
+  paymentDate       DateTime?
+  paymentMethod     String?  // CASH, BANK_TRANSFER
+  receiptNumber     String?
+  notes             String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  booking           CulturalCenterBooking @relation(fields: [bookingId], references: [id])
+
+  @@map("cultural_center_usage_fees")
 }
