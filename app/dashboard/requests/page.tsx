@@ -81,9 +81,17 @@ export default function RequestsPage() {
   }
 
   const filteredRequests = requests.filter(request => {
-    const matchesSearch = request.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      request.user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (request.household && request.household.householdId.toLowerCase().includes(searchTerm.toLowerCase()))
+    const searchLower = (searchTerm || '').toLowerCase()
+
+    const valuesToSearch = [
+      request.description,
+      request.user?.name,
+      request.household?.householdId
+    ]
+
+    const matchesSearch = valuesToSearch.some(value =>
+      (value || '').toLowerCase().includes(searchLower)
+    )
     
     const matchesStatus = selectedStatus === 'all' || request.status === selectedStatus
     const matchesType = selectedType === 'all' || request.type === selectedType

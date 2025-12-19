@@ -97,7 +97,16 @@ export default function MyRequestsPage() {
   }
 
   const filteredRequests = requests.filter(request => {
-    const matchesSearch = request.description.toLowerCase().includes(searchTerm.toLowerCase())
+    const searchLower = (searchTerm || '').toLowerCase()
+
+    const valuesToSearch = [
+      request.description
+    ]
+
+    const matchesSearch = valuesToSearch.some(value =>
+      (value || '').toLowerCase().includes(searchLower)
+    )
+
     const matchesStatus = selectedStatus === 'all' || request.status === selectedStatus
     const matchesType = selectedType === 'all' || request.type === selectedType
     
