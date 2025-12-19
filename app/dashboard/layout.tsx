@@ -20,8 +20,8 @@ import {
   Split,
   Trash2,
   ArrowRightLeft,
-  Merge,
-  History
+  History,
+  UserPlus
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -106,10 +106,10 @@ export default function DashboardLayout({
 
   const householdSubMenu: NavigationSubItem[] = [
     { name: 'Thêm hộ khẩu', href: '/dashboard/households/add', icon: Plus },
+    { name: 'Đăng ký thường trú', href: '/dashboard/households/register-permanent', icon: UserPlus },
     { name: 'Tách hộ khẩu', href: '/dashboard/households/split', icon: Split },
     { name: 'Xóa hộ khẩu', href: '/dashboard/households/delete', icon: Trash2 },
     { name: 'Chuyển hộ khẩu', href: '/dashboard/households/transfer', icon: ArrowRightLeft },
-    { name: 'Nhập hộ khẩu', href: '/dashboard/households/merge', icon: Merge },
     { name: 'Lịch sử thay đổi', href: '/dashboard/households/history', icon: History },
   ]
 
