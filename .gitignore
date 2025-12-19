@@ -1,0 +1,55 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Next.js
+.next/
+out/
+build/
+
+# Production
+dist/
+
+# Env files - keep env.example tracked
+.env
+.env.local
+.env.*.local
+
+# Database files
+dev.db
+prisma/dev.db
+
+# Logs
+logs/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editors/IDEs
+.vscode/
+.idea/
+
+# TypeScript
+*.tsbuildinfo
+
+# Coverage
+coverage/
+
+# Misc cache
+.cache/
+
+# PEM or keys (if you later add RSA keys locally)
+*.pem
+*.key
+
+# Optional lockfiles depending on package manager
+# package-lock.json
+# pnpm-lock.yaml
+# yarn.lock
+
+*.txt
