@@ -107,10 +107,18 @@ export default function DistrictsPage() {
     }
   }
 
-  const filteredDistricts = districts.filter(district =>
-    district.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (district.description && district.description.toLowerCase().includes(searchTerm.toLowerCase()))
-  )
+  const filteredDistricts = districts.filter(district => {
+    const searchLower = (searchTerm || '').toLowerCase()
+
+    const valuesToSearch = [
+      district.name,
+      district.description
+    ]
+
+    return valuesToSearch.some(value =>
+      (value || '').toLowerCase().includes(searchLower)
+    )
+  })
 
   if (loading) {
     return (
