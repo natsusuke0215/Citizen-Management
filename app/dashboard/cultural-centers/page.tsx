@@ -98,9 +98,9 @@ export default function CulturalCentersPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fadeIn">
       {/* Header Section */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 animate-slideUp">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
             <Building className="h-8 w-8 text-navy-1" />
@@ -114,7 +114,7 @@ export default function CulturalCentersPage() {
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="group relative overflow-hidden bg-gradient-to-br from-navy-1 to-navy-2 rounded-[15px] shadow-drop hover:shadow-drop-lg transition-all duration-300 transform hover:-translate-y-1">
+        <div className="group relative overflow-hidden bg-gradient-to-br from-navy-1 to-navy-2 rounded-[15px] shadow-drop hover:shadow-drop-lg transition-all duration-300 transform hover:-translate-y-1 animate-slideUp" style={{ animationDelay: '0.1s' }}>
           <div className="absolute top-0 right-0 w-24 h-24 bg-white opacity-10 rounded-full -mr-12 -mt-12"></div>
           <div className="p-5 text-white relative">
             <div className="flex items-center justify-between mb-3">
@@ -127,7 +127,7 @@ export default function CulturalCentersPage() {
           </div>
         </div>
 
-        <div className="group relative overflow-hidden bg-gradient-to-br from-navy-2 to-navy-3 rounded-[15px] shadow-drop hover:shadow-drop-lg transition-all duration-300 transform hover:-translate-y-1">
+        <div className="group relative overflow-hidden bg-gradient-to-br from-navy-2 to-navy-3 rounded-[15px] shadow-drop hover:shadow-drop-lg transition-all duration-300 transform hover:-translate-y-1 animate-slideUp" style={{ animationDelay: '0.2s' }}>
           <div className="absolute top-0 right-0 w-24 h-24 bg-white opacity-10 rounded-full -mr-12 -mt-12"></div>
           <div className="p-5 text-white relative">
             <div className="flex items-center justify-between mb-3">
@@ -140,7 +140,7 @@ export default function CulturalCentersPage() {
           </div>
         </div>
 
-        <div className="group relative overflow-hidden bg-gradient-to-br from-navy-3 to-navy-1 rounded-[15px] shadow-drop hover:shadow-drop-lg transition-all duration-300 transform hover:-translate-y-1">
+        <div className="group relative overflow-hidden bg-gradient-to-br from-navy-3 to-navy-1 rounded-[15px] shadow-drop hover:shadow-drop-lg transition-all duration-300 transform hover:-translate-y-1 animate-slideUp" style={{ animationDelay: '0.3s' }}>
           <div className="absolute top-0 right-0 w-24 h-24 bg-white opacity-10 rounded-full -mr-12 -mt-12"></div>
           <div className="p-5 text-white relative">
             <div className="flex items-center justify-between mb-3">
@@ -153,7 +153,7 @@ export default function CulturalCentersPage() {
           </div>
         </div>
 
-        <div className="group relative overflow-hidden bg-gradient-to-br from-yellow-1 to-yellow-2 rounded-[15px] shadow-drop hover:shadow-drop-lg transition-all duration-300 transform hover:-translate-y-1">
+        <div className="group relative overflow-hidden bg-gradient-to-br from-yellow-1 to-yellow-2 rounded-[15px] shadow-drop hover:shadow-drop-lg transition-all duration-300 transform hover:-translate-y-1 animate-slideUp" style={{ animationDelay: '0.4s' }}>
           <div className="absolute top-0 right-0 w-24 h-24 bg-navy-1 opacity-10 rounded-full -mr-12 -mt-12"></div>
           <div className="p-5 text-navy-1 relative">
             <div className="flex items-center justify-between mb-3">
@@ -230,10 +230,11 @@ export default function CulturalCentersPage() {
       {/* Cultural Centers List */}
       {viewMode === 'grid' ? (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {filteredCenters.map((center) => (
+          {filteredCenters.map((center, index) => (
             <div
               key={center.id}
-              className="group relative bg-white rounded-[15px] shadow-drop hover:shadow-drop-lg transition-all duration-300 transform hover:-translate-y-2 overflow-hidden border border-gray-100"
+              className="group relative bg-white rounded-[15px] shadow-drop hover:shadow-drop-lg transition-all duration-300 transform hover:-translate-y-2 overflow-hidden border border-gray-100 animate-slideUp"
+              style={{ animationDelay: `${(index % 9) * 0.05}s` }}
             >
               {/* Decorative gradient overlay on hover */}
               <div className="absolute inset-0 bg-gradient-to-br from-navy-1/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -305,10 +306,11 @@ export default function CulturalCentersPage() {
         </div>
       ) : (
         <div className="space-y-4">
-          {filteredCenters.map((center) => (
+          {filteredCenters.map((center, index) => (
             <div
               key={center.id}
-              className="group bg-white rounded-[15px] shadow-drop hover:shadow-drop-lg transition-all duration-300 border border-gray-100 overflow-hidden"
+              className="group bg-white rounded-[15px] shadow-drop hover:shadow-drop-lg transition-all duration-300 border border-gray-100 overflow-hidden animate-slideUp"
+              style={{ animationDelay: `${(index % 9) * 0.05}s` }}
             >
               <div className="p-6 flex items-start gap-6">
                 {/* Icon */}

@@ -226,9 +226,9 @@ export default function PersonsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fadeIn">
       {/* Header Section */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 animate-slideUp">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
             <Users className="h-8 w-8 text-navy-1" />
@@ -249,7 +249,7 @@ export default function PersonsPage() {
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="group relative overflow-hidden bg-gradient-to-br from-navy-1 to-navy-2 rounded-[15px] shadow-drop hover:shadow-drop-lg transition-all duration-300 transform hover:-translate-y-1">
+        <div className="group relative overflow-hidden bg-gradient-to-br from-navy-1 to-navy-2 rounded-[15px] shadow-drop hover:shadow-drop-lg transition-all duration-300 transform hover:-translate-y-1 animate-slideUp" style={{ animationDelay: '0.1s' }}>
           <div className="absolute top-0 right-0 w-24 h-24 bg-white opacity-10 rounded-full -mr-12 -mt-12"></div>
           <div className="p-5 text-white relative">
             <div className="flex items-center justify-between mb-3">
@@ -262,7 +262,7 @@ export default function PersonsPage() {
           </div>
         </div>
 
-        <div className="group relative overflow-hidden bg-gradient-to-br from-emerald-400 to-emerald-500 rounded-[15px] shadow-drop hover:shadow-drop-lg transition-all duration-300 transform hover:-translate-y-1">
+        <div className="group relative overflow-hidden bg-gradient-to-br from-emerald-400 to-emerald-500 rounded-[15px] shadow-drop hover:shadow-drop-lg transition-all duration-300 transform hover:-translate-y-1 animate-slideUp" style={{ animationDelay: '0.2s' }}>
           <div className="absolute top-0 right-0 w-24 h-24 bg-white opacity-10 rounded-full -mr-12 -mt-12"></div>
           <div className="p-5 text-white relative">
             <div className="flex items-center justify-between mb-3">
@@ -275,7 +275,7 @@ export default function PersonsPage() {
           </div>
         </div>
 
-        <div className="group relative overflow-hidden bg-gradient-to-br from-amber-400 to-amber-500 rounded-[15px] shadow-drop hover:shadow-drop-lg transition-all duration-300 transform hover:-translate-y-1">
+        <div className="group relative overflow-hidden bg-gradient-to-br from-amber-400 to-amber-500 rounded-[15px] shadow-drop hover:shadow-drop-lg transition-all duration-300 transform hover:-translate-y-1 animate-slideUp" style={{ animationDelay: '0.3s' }}>
           <div className="absolute top-0 right-0 w-24 h-24 bg-white opacity-10 rounded-full -mr-12 -mt-12"></div>
           <div className="p-5 text-white relative">
             <div className="flex items-center justify-between mb-3">
@@ -288,7 +288,7 @@ export default function PersonsPage() {
           </div>
         </div>
 
-        <div className="group relative overflow-hidden bg-gradient-to-br from-gray-400 to-gray-500 rounded-[15px] shadow-drop hover:shadow-drop-lg transition-all duration-300 transform hover:-translate-y-1">
+        <div className="group relative overflow-hidden bg-gradient-to-br from-gray-400 to-gray-500 rounded-[15px] shadow-drop hover:shadow-drop-lg transition-all duration-300 transform hover:-translate-y-1 animate-slideUp" style={{ animationDelay: '0.4s' }}>
           <div className="absolute top-0 right-0 w-24 h-24 bg-white opacity-10 rounded-full -mr-12 -mt-12"></div>
           <div className="p-5 text-white relative">
             <div className="flex items-center justify-between mb-3">
@@ -392,7 +392,7 @@ export default function PersonsPage() {
 
       {/* Person Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {paginatedPersons.map((person) => {
+        {paginatedPersons.map((person, index) => {
           const getStatusInfo = () => {
             switch (person.status) {
               case 'ACTIVE':
@@ -410,7 +410,8 @@ export default function PersonsPage() {
           return (
             <div
               key={person.id}
-              className="group bg-white rounded-[15px] shadow-drop hover:shadow-drop-lg transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 overflow-hidden"
+              className="group bg-white rounded-[15px] shadow-drop hover:shadow-drop-lg transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 overflow-hidden animate-slideUp"
+              style={{ animationDelay: `${(index % 9) * 0.05}s` }}
             >
               {/* Card Header */}
               <div className="bg-gradient-to-r from-navy-1 to-navy-2 p-4 text-white">
