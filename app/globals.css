@@ -88,7 +88,55 @@ a {
 }
 
 .input {
-  @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200;
+  @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200 bg-white text-black;
+}
+
+/* Ensure native form controls use white background and black text regardless of color-scheme */
+input,
+textarea,
+select {
+  background-color: #ffffff;
+  color: #000000;
+  border-color: #d1d5db; /* tailwind gray-300 */
+}
+
+input::placeholder,
+textarea::placeholder {
+  /* Make placeholder darker so it's readable before user types */
+  color: #000000;
+  opacity: 0.6;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2); /* primary-500 at 20% */
+  border-color: #2563eb; /* primary-500 */
+}
+
+/* Target inputs that have Tailwind utility classes (higher specificity) */
+input[class],
+textarea[class],
+select[class] {
+  /* slightly off-white background so inputs look lighter than full white */
+  background-color: #f3f4f6; /* tailwind gray-100 */
+  color: #111827; /* tailwind gray-900 */
+  border-color: #d1d5db; /* tailwind gray-300 */
+}
+
+input[class]::placeholder,
+textarea[class]::placeholder {
+  color: #6b7280; /* tailwind gray-500 */
+  opacity: 1;
+}
+
+input[class]:focus,
+textarea[class]:focus,
+select[class]:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  border-color: #2563eb;
 }
 
 .card {
@@ -105,4 +153,23 @@ a {
 
 .nav-link.active {
   @apply bg-primary-50 text-primary-600 border-r-2 border-primary-600;
+}
+
+/* Fix browser autofill background/text (Chrome / Edge) */
+input:-webkit-autofill,
+textarea:-webkit-autofill,
+select:-webkit-autofill,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #f3f4f6 inset !important;
+  box-shadow: 0 0 0 1000px #f3f4f6 inset !important;
+  -webkit-text-fill-color: #111827 !important;
+  transition: background-color 5000s ease-in-out 0s !important;
+}
+
+/* Edge internal autofill (non-standard) */
+input:-internal-autofill-selected {
+  background-color: #f3f4f6 !important;
+  color: #111827 !important;
 }
