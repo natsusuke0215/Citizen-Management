@@ -341,15 +341,18 @@ export default function RegisterPermanentPage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Địa chỉ nơi thường trú trước khi chuyển đến
+                  Địa chỉ thường trú trước khi chuyển đến
                 </label>
                 <input
                   type="text"
                   className="input"
                   value={formData.previousAddress}
                   onChange={(e) => setFormData({ ...formData, previousAddress: e.target.value })}
-                  placeholder="Nhập địa chỉ cũ (nếu có)"
+                  placeholder='Nhập địa chỉ thường trú trước đây, nếu là con mới sinh có thể ghi "mới sinh"'
                 />
+                <p className="mt-1 text-xs text-gray-500">
+                  Nếu gia đình sinh thêm con tại địa chỉ hiện tại, bạn có thể ghi <span className="italic">"mới sinh"</span>.
+                </p>
               </div>
 
               <div>
@@ -545,5 +548,6 @@ export default function RegisterPermanentPage() {
     </div>
   )
 }
+
 
 
