@@ -173,3 +173,51 @@ input:-internal-autofill-selected {
   background-color: #f3f4f6 !important;
   color: #111827 !important;
 }
+
+/* Style number input spinners: make arrows lighter and less prominent */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  opacity: 0.6;
+  filter: brightness(1.2) saturate(0.2);
+}
+
+/* Reduce prominence of spinner on inputs that use utility classes */
+input[type="number"][class]::-webkit-inner-spin-button,
+input[type="number"][class]::-webkit-outer-spin-button {
+  opacity: 0.6;
+  filter: brightness(1.2) saturate(0.2);
+}
+
+/* Firefox: remove default spinner UI to use textfield look (keeps up/down with OS) */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* If you prefer to hide spinners entirely on Chromium, uncomment below:
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+*/
+
+/* Hide native number spinners and make them visually match the input background */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"][class]::-webkit-inner-spin-button,
+input[type="number"][class]::-webkit-outer-spin-button {
+  /* show spinner but style it to match the input background */
+  -webkit-appearance: inner-spin-button;
+  appearance: inner-spin-button;
+  width: 2.2rem;
+  height: 100%;
+  background-color: #f3f4f6;
+  color: #374151; /* tailwind gray-700 for arrow */
+  -webkit-text-fill-color: #374151 !important;
+  border-left: 1px solid rgba(0, 0, 0, 0.06);
+  border-top-right-radius: 0.375rem;
+  border-bottom-right-radius: 0.375rem;
+  display: block;
+  box-sizing: border-box;
+  padding: 0.15rem 0;
+  pointer-events: auto;
+}
+
+/* Keep keyboard increment usable; for Firefox we already use textfield appearance above */
