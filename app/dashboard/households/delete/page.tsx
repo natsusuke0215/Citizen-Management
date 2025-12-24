@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Trash2, AlertTriangle, Search } from 'lucide-react'
+import { Trash2, AlertTriangle, Search, Home, Users, Sparkles } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 interface Person {
@@ -133,29 +133,40 @@ export default function DeleteHouseholdPage() {
   }
 
   return (
-    <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Xóa hộ khẩu</h1>
-        <p className="mt-2 text-sm text-gray-700">
-          Chọn hộ khẩu cần xóa khỏi hệ thống
-        </p>
+    <div className="space-y-6">
+      {/* Header Section */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
+            <Trash2 className="h-8 w-8 text-rose-600" />
+            Xóa hộ khẩu
+          </h1>
+          <p className="mt-2 text-sm text-gray-600">
+            Chọn hộ khẩu cần xóa khỏi hệ thống
+          </p>
+        </div>
       </div>
 
       <div className="space-y-6">
         {/* Chọn hộ khẩu */}
-        <div className="bg-white shadow rounded-lg p-6">
-          <h2 className="text-lg font-semibold mb-4">Chọn hộ khẩu cần xóa</h2>
+        <div className="bg-white rounded-[15px] shadow-drop p-6 border border-gray-100">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-3 bg-gradient-to-br from-rose-500 to-rose-600 rounded-[10px]">
+              <Home className="h-6 w-6 text-white" />
+            </div>
+            <h2 className="text-xl font-bold text-gray-900">Chọn hộ khẩu cần xóa</h2>
+          </div>
           
           {/* Tìm kiếm */}
           <div className="mb-4">
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <Search className="h-5 w-5 text-gray-400" />
               </div>
               <input
                 type="text"
                 placeholder="Tìm kiếm theo số hộ khẩu, chủ hộ, địa chỉ..."
-                className="input pl-10"
+                className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-[8px] bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all duration-200"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -214,24 +225,50 @@ export default function DeleteHouseholdPage() {
         {/* Thông tin hộ khẩu */}
         {selectedHousehold && (
           <>
-            <div className="bg-white shadow rounded-lg p-6">
-              <h2 className="text-lg font-semibold mb-4">Thông tin hộ khẩu</h2>
-              <div className="space-y-2">
-                <p><strong>Số hộ khẩu:</strong> {selectedHousehold.householdId}</p>
-                <p><strong>Chủ hộ:</strong> {selectedHousehold.ownerName}</p>
-                <p><strong>Địa chỉ:</strong> {selectedHousehold.address}, {selectedHousehold.street || ''}, {selectedHousehold.ward}, {selectedHousehold.district}</p>
-                <p><strong>Khu phố:</strong> {selectedHousehold.districtRelation.name}</p>
-                <p><strong>Số thành viên:</strong> {selectedHousehold.persons.length}</p>
-                <p><strong>Số người dùng liên kết:</strong> {selectedHousehold.members.length}</p>
+            <div className="bg-white rounded-[15px] shadow-drop p-6 border border-gray-100">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-3 bg-gradient-to-br from-rose-500 to-rose-600 rounded-[10px]">
+                  <AlertTriangle className="h-6 w-6 text-white" />
+                </div>
+                <h2 className="text-xl font-bold text-gray-900">Thông tin hộ khẩu</h2>
+              </div>
+              
+              <div className="bg-gray-50 rounded-[10px] p-5 border border-gray-200 space-y-3 mb-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div>
+                    <span className="text-sm font-semibold text-gray-600">Số hộ khẩu:</span>
+                    <p className="text-base font-semibold text-gray-900">{selectedHousehold.householdId}</p>
+                  </div>
+                  <div>
+                    <span className="text-sm font-semibold text-gray-600">Chủ hộ:</span>
+                    <p className="text-base font-semibold text-gray-900">{selectedHousehold.ownerName}</p>
+                  </div>
+                  <div className="md:col-span-2">
+                    <span className="text-sm font-semibold text-gray-600">Địa chỉ:</span>
+                    <p className="text-base text-gray-900">{selectedHousehold.address}, {selectedHousehold.street || ''}, {selectedHousehold.ward}, {selectedHousehold.district}</p>
+                  </div>
+                  <div>
+                    <span className="text-sm font-semibold text-gray-600">Khu phố:</span>
+                    <p className="text-base text-gray-900">{selectedHousehold.districtRelation.name}</p>
+                  </div>
+                  <div>
+                    <span className="text-sm font-semibold text-gray-600">Số thành viên:</span>
+                    <p className="text-base font-semibold text-gray-900">{selectedHousehold.persons.length} người</p>
+                  </div>
+                  <div>
+                    <span className="text-sm font-semibold text-gray-600">Số người dùng liên kết:</span>
+                    <p className="text-base font-semibold text-gray-900">{selectedHousehold.members.length} người</p>
+                  </div>
+                </div>
               </div>
 
               {selectedHousehold.persons.length > 0 && (
-                <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <div className="flex items-start gap-2">
-                    <AlertTriangle className="h-5 w-5 text-yellow-600 mt-0.5" />
+                <div className="p-4 bg-amber-50 border-2 border-amber-300 rounded-[10px]">
+                  <div className="flex items-start gap-3">
+                    <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="font-medium text-yellow-800">Cảnh báo</p>
-                      <p className="text-sm text-yellow-700">
+                      <p className="font-semibold text-amber-800 mb-1">Cảnh báo</p>
+                      <p className="text-sm text-amber-700">
                         Hộ khẩu này có {selectedHousehold.persons.length} thành viên. 
                         Bạn cần chuyển hoặc xóa các thành viên trước khi xóa hộ khẩu.
                       </p>
@@ -241,12 +278,12 @@ export default function DeleteHouseholdPage() {
               )}
 
               {selectedHousehold.members.length > 0 && (
-                <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <div className="flex items-start gap-2">
-                    <AlertTriangle className="h-5 w-5 text-yellow-600 mt-0.5" />
+                <div className="mt-4 p-4 bg-amber-50 border-2 border-amber-300 rounded-[10px]">
+                  <div className="flex items-start gap-3">
+                    <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="font-medium text-yellow-800">Cảnh báo</p>
-                      <p className="text-sm text-yellow-700">
+                      <p className="font-semibold text-amber-800 mb-1">Cảnh báo</p>
+                      <p className="text-sm text-amber-700">
                         Hộ khẩu này có {selectedHousehold.members.length} người dùng liên kết. 
                         Bạn cần hủy liên kết trước khi xóa hộ khẩu.
                       </p>
@@ -256,17 +293,19 @@ export default function DeleteHouseholdPage() {
               )}
 
               {selectedHousehold.persons.length === 0 && selectedHousehold.members.length === 0 && (
-                <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-                  <div className="flex items-start gap-2">
-                    <AlertTriangle className="h-5 w-5 text-red-600 mt-0.5" />
-                    <div>
-                      <p className="font-medium text-red-800">Xác nhận xóa</p>
-                      <p className="text-sm text-red-700 mb-3">
+                <div className="mt-4 p-5 bg-gradient-to-br from-rose-50 to-red-50 border-2 border-rose-300 rounded-[10px]">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 bg-rose-500 rounded-[8px]">
+                      <AlertTriangle className="h-5 w-5 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-bold text-rose-800 mb-1">Xác nhận xóa</p>
+                      <p className="text-sm text-rose-700 mb-4">
                         Hành động này không thể hoàn tác. Vui lòng nhập số hộ khẩu để xác nhận.
                       </p>
                       <input
                         type="text"
-                        className="input"
+                        className="w-full px-4 py-3 border-2 border-rose-300 rounded-[8px] bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all duration-200"
                         value={confirmText}
                         onChange={(e) => setConfirmText(e.target.value)}
                         placeholder={`Nhập "${selectedHousehold.householdId}" để xác nhận`}
@@ -279,8 +318,13 @@ export default function DeleteHouseholdPage() {
 
             {/* Danh sách thành viên */}
             {selectedHousehold.persons.length > 0 && (
-              <div className="bg-white shadow rounded-lg p-6">
-                <h2 className="text-lg font-semibold mb-4">Danh sách thành viên</h2>
+              <div className="bg-white rounded-[15px] shadow-drop p-6 border border-gray-100">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="p-3 bg-gradient-to-br from-yellow-1 to-yellow-2 rounded-[10px]">
+                    <Users className="h-6 w-6 text-navy-1" />
+                  </div>
+                  <h2 className="text-xl font-bold text-gray-900">Danh sách thành viên</h2>
+                </div>
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
@@ -309,11 +353,11 @@ export default function DeleteHouseholdPage() {
         )}
 
         {/* Buttons */}
-        <div className="flex justify-end gap-4">
+        <div className="flex justify-end gap-4 pt-4 border-t border-gray-200">
           <button
             type="button"
             onClick={() => router.back()}
-            className="btn btn-secondary"
+            className="px-6 py-3 text-sm font-semibold text-gray-700 bg-white border-2 border-gray-300 rounded-[8px] hover:bg-gray-50 transition-all duration-200"
           >
             Hủy
           </button>
@@ -321,7 +365,7 @@ export default function DeleteHouseholdPage() {
             type="button"
             onClick={handleDelete}
             disabled={loading || !selectedHousehold || selectedHousehold.persons.length > 0 || selectedHousehold.members.length > 0 || confirmText !== selectedHousehold?.householdId}
-            className="btn btn-danger"
+            className="px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-rose-500 to-rose-600 rounded-[8px] hover:shadow-drop-lg transition-all duration-200 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none inline-flex items-center"
           >
             <Trash2 className="h-4 w-4 mr-2" />
             {loading ? 'Đang xử lý...' : 'Xóa hộ khẩu'}

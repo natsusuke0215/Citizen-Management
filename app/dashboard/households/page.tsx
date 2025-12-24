@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Plus, Search, Edit, Trash2, Eye, MapPin, Users, X } from 'lucide-react'
+import { Plus, Search, Edit, Trash2, Eye, MapPin, Users, X, Home, Building2, TrendingUp, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 interface Person {
@@ -86,6 +86,10 @@ export default function HouseholdsPage() {
     householdType: 'THƯỜNG_TRÚ',
     issueDate: ''
   })
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage, setItemsPerPage] = useState(30)
   
   // Members form state
   const [memberCount, setMemberCount] = useState(1)
@@ -417,174 +421,337 @@ export default function HouseholdsPage() {
     )
   })
 
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredHouseholds.length / itemsPerPage)
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+  const paginatedHouseholds = filteredHouseholds.slice(startIndex, endIndex)
+
+  // Reset to page 1 when search term or items per page changes
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchTerm, itemsPerPage])
+
+  // Calculate statistics
+  const totalHouseholds = households.length
+  const totalMembers = households.reduce((sum, h) => sum + h.persons.length, 0)
+  const avgMembersPerHousehold = totalHouseholds > 0 ? (totalMembers / totalHouseholds).toFixed(1) : '0'
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600"></div>
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-navy-1"></div>
       </div>
     )
   }
 
   return (
-    <div>
-      <div className="sm:flex sm:items-center">
-        <div className="sm:flex-auto">
-          <h1 className="text-2xl font-bold text-gray-900">Quản lý hộ khẩu</h1>
-          <p className="mt-2 text-sm text-gray-700">
+    <div className="space-y-6 animate-fadeIn">
+      {/* Header Section */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 animate-slideUp">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
+            <Home className="h-8 w-8 text-navy-1" />
+            Quản lý hộ khẩu
+          </h1>
+          <p className="mt-2 text-sm text-gray-600">
             Quản lý thông tin hộ khẩu và thành viên trong hệ thống
           </p>
         </div>
-        <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-          <button
-            onClick={handleAdd}
-            className="btn btn-primary inline-flex items-center"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Thêm hộ khẩu
-          </button>
+        <button
+          onClick={handleAdd}
+          className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-navy-1 to-navy-2 text-white rounded-[8px] font-medium hover:shadow-drop-lg transition-all duration-200 transform hover:-translate-y-0.5"
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Thêm hộ khẩu
+        </button>
+      </div>
+
+      {/* Statistics Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="group relative overflow-hidden bg-gradient-to-br from-navy-1 to-navy-2 rounded-[15px] shadow-drop hover:shadow-drop-lg transition-all duration-300 transform hover:-translate-y-1 animate-slideUp" style={{ animationDelay: '0.1s' }}>
+          <div className="absolute top-0 right-0 w-24 h-24 bg-white opacity-10 rounded-full -mr-12 -mt-12"></div>
+          <div className="p-5 text-white relative">
+            <div className="flex items-center justify-between mb-3">
+              <div className="p-2.5 bg-white bg-opacity-20 rounded-[8px] backdrop-blur-sm">
+                <Home className="h-6 w-6" />
+              </div>
+            </div>
+            <div className="text-3xl font-bold mb-1">{totalHouseholds}</div>
+            <div className="text-sm opacity-90">Tổng số hộ khẩu</div>
+          </div>
+        </div>
+
+        <div className="group relative overflow-hidden bg-gradient-to-br from-navy-2 to-navy-3 rounded-[15px] shadow-drop hover:shadow-drop-lg transition-all duration-300 transform hover:-translate-y-1 animate-slideUp" style={{ animationDelay: '0.2s' }}>
+          <div className="absolute top-0 right-0 w-24 h-24 bg-white opacity-10 rounded-full -mr-12 -mt-12"></div>
+          <div className="p-5 text-white relative">
+            <div className="flex items-center justify-between mb-3">
+              <div className="p-2.5 bg-white bg-opacity-20 rounded-[8px] backdrop-blur-sm">
+                <Users className="h-6 w-6" />
+              </div>
+            </div>
+            <div className="text-3xl font-bold mb-1">{totalMembers}</div>
+            <div className="text-sm opacity-90">Tổng số thành viên</div>
+          </div>
+        </div>
+
+        <div className="group relative overflow-hidden bg-gradient-to-br from-yellow-1 to-yellow-2 rounded-[15px] shadow-drop hover:shadow-drop-lg transition-all duration-300 transform hover:-translate-y-1 animate-slideUp" style={{ animationDelay: '0.3s' }}>
+          <div className="absolute top-0 right-0 w-24 h-24 bg-white opacity-10 rounded-full -mr-12 -mt-12"></div>
+          <div className="p-5 text-navy-1 relative">
+            <div className="flex items-center justify-between mb-3">
+              <div className="p-2.5 bg-navy-1 bg-opacity-10 rounded-[8px] backdrop-blur-sm">
+                <TrendingUp className="h-6 w-6" />
+              </div>
+            </div>
+            <div className="text-3xl font-bold mb-1">{avgMembersPerHousehold}</div>
+            <div className="text-sm opacity-90">Trung bình thành viên/hộ</div>
+          </div>
         </div>
       </div>
 
       {/* Search */}
-      <div className="mt-6">
+      <div className="bg-white rounded-[15px] shadow-drop p-4">
         <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
             <Search className="h-5 w-5 text-gray-400" />
           </div>
           <input
             type="text"
             placeholder="Tìm kiếm theo số hộ khẩu, chủ hộ, địa chỉ..."
-            className="input pl-10"
+            className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-[8px] bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-navy-1 focus:border-transparent transition-all duration-200"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
       </div>
 
-      {/* Table */}
-      <div className="mt-8 flex flex-col">
-        <div className="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
-          <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
-            <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
-              <table className="min-w-full divide-y divide-gray-300">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Số hộ khẩu
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Chủ hộ
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Số thành viên
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Địa chỉ
-                    </th>
-                    <th className="relative px-6 py-3">
-                      <span className="sr-only">Thao tác</span>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredHouseholds.map((household) => {
-                    const owner = getOwner(household)
-                    const fullAddress = [
-                      household.address,
-                      household.street,
-                      household.ward,
-                      household.district,
-                      household.districtRelation.name
-                    ].filter(Boolean).join(', ')
-                    
-                    return (
-                      <tr key={household.id}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          {household.householdId}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {owner ? owner.fullName : household.ownerName}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          <div className="flex items-center">
-                            <Users className="h-4 w-4 text-gray-400 mr-2" />
-                            {household.persons.length} thành viên
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-500">
-                          <div className="flex items-center">
-                            <MapPin className="h-4 w-4 text-gray-400 mr-2 flex-shrink-0" />
-                            <span>{fullAddress}</span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <div className="flex items-center justify-end space-x-2">
-                            <button
-                              onClick={() => handleView(household)}
-                              className="text-primary-600 hover:text-primary-900"
-                              title="Xem chi tiết"
-                            >
-                              <Eye className="h-4 w-4" />
-                            </button>
-                            <button
-                              onClick={() => handleEdit(household)}
-                              className="text-indigo-600 hover:text-indigo-900"
-                              title="Chỉnh sửa"
-                            >
-                              <Edit className="h-4 w-4" />
-                            </button>
-                            <button
-                              onClick={() => handleDelete(household.id)}
-                              className="text-red-600 hover:text-red-900"
-                              title="Xóa"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
+      {/* Pagination Controls */}
+      {filteredHouseholds.length > 0 && (
+        <div className="bg-white rounded-[15px] shadow-drop p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <label className="text-sm font-medium text-gray-700">Hiển thị:</label>
+            <select
+              value={itemsPerPage}
+              onChange={(e) => setItemsPerPage(Number(e.target.value))}
+              className="px-3 py-2 border border-gray-300 rounded-[8px] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-navy-1 focus:border-transparent"
+            >
+              <option value={20}>20</option>
+              <option value={30}>30</option>
+              <option value={50}>50</option>
+            </select>
+            <span className="text-sm text-gray-600">
+              / trang (Tổng: {filteredHouseholds.length} hộ khẩu)
+            </span>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+              className="p-2 rounded-[8px] border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+            
+            <div className="flex items-center gap-1">
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                let pageNum: number
+                if (totalPages <= 5) {
+                  pageNum = i + 1
+                } else if (currentPage <= 3) {
+                  pageNum = i + 1
+                } else if (currentPage >= totalPages - 2) {
+                  pageNum = totalPages - 4 + i
+                } else {
+                  pageNum = currentPage - 2 + i
+                }
+                
+                return (
+                  <button
+                    key={pageNum}
+                    onClick={() => setCurrentPage(pageNum)}
+                    className={`px-3 py-1 rounded-[8px] text-sm font-medium transition-colors ${
+                      currentPage === pageNum
+                        ? 'bg-navy-1 text-white'
+                        : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                )
+              })}
             </div>
+            
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+              className="p-2 rounded-[8px] border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </button>
+            
+            <span className="text-sm text-gray-600 ml-2">
+              Trang {currentPage} / {totalPages}
+            </span>
           </div>
         </div>
+      )}
+
+      {/* Household Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {paginatedHouseholds.map((household, index) => {
+          const owner = getOwner(household)
+          const fullAddress = [
+            household.address,
+            household.street,
+            household.ward,
+            household.district,
+            household.districtRelation.name
+          ].filter(Boolean).join(', ')
+          
+          return (
+            <div
+              key={household.id}
+              className="group bg-white rounded-[15px] shadow-drop hover:shadow-drop-lg transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 overflow-hidden animate-slideUp"
+              style={{ animationDelay: `${(index % 9) * 0.05}s` }}
+            >
+              {/* Card Header */}
+              <div className="bg-gradient-to-r from-navy-1 to-navy-2 p-4 text-white">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="p-2 bg-white bg-opacity-20 rounded-[8px] backdrop-blur-sm">
+                      <Home className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <div className="font-bold text-lg">{household.householdId}</div>
+                      <div className="text-xs opacity-90">Số hộ khẩu</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => handleView(household)}
+                      className="p-2 hover:bg-white hover:bg-opacity-20 rounded-[8px] transition-colors"
+                      title="Xem chi tiết"
+                    >
+                      <Eye className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => handleEdit(household)}
+                      className="p-2 hover:bg-white hover:bg-opacity-20 rounded-[8px] transition-colors"
+                      title="Chỉnh sửa"
+                    >
+                      <Edit className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(household.id)}
+                      className="p-2 hover:bg-white hover:bg-opacity-20 rounded-[8px] transition-colors"
+                      title="Xóa"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card Body */}
+              <div className="p-5 space-y-4">
+                <div>
+                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                    Chủ hộ
+                  </div>
+                  <div className="text-base font-semibold text-gray-900">
+                    {owner ? owner.fullName : household.ownerName}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 p-3 bg-yellow-2 rounded-[8px]">
+                  <div className="p-2 bg-yellow-1 rounded-[6px]">
+                    <Users className="h-4 w-4 text-navy-1" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-semibold text-navy-1">
+                      {household.persons.length} thành viên
+                    </div>
+                    <div className="text-xs text-gray-600">Trong hộ khẩu</div>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 flex items-center gap-1">
+                    <MapPin className="h-3 w-3" />
+                    Địa chỉ
+                  </div>
+                  <div className="text-sm text-gray-700 line-clamp-2">
+                    {fullAddress}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )
+        })}
       </div>
 
       {filteredHouseholds.length === 0 && (
-        <div className="text-center py-12">
-          <Users className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-2 text-sm font-medium text-gray-900">Không có hộ khẩu nào</h3>
-          <p className="mt-1 text-sm text-gray-500">
+        <div className="text-center py-16 bg-white rounded-[15px] shadow-drop">
+          <div className="relative inline-block">
+            <div className="absolute inset-0 bg-gradient-to-br from-navy-1 to-navy-2 opacity-10 rounded-full blur-2xl"></div>
+            <Home className="h-16 w-16 text-gray-400 mx-auto relative" />
+          </div>
+          <h3 className="mt-4 text-lg font-semibold text-gray-900">Không có hộ khẩu nào</h3>
+          <p className="mt-2 text-sm text-gray-500 max-w-md mx-auto">
             {searchTerm ? 'Không tìm thấy hộ khẩu phù hợp với từ khóa tìm kiếm.' : 'Bắt đầu bằng cách thêm hộ khẩu đầu tiên.'}
           </p>
+          {!searchTerm && (
+            <button
+              onClick={handleAdd}
+              className="mt-6 inline-flex items-center px-6 py-3 bg-gradient-to-r from-navy-1 to-navy-2 text-white rounded-[8px] font-medium hover:shadow-drop-lg transition-all duration-200 transform hover:-translate-y-0.5"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Thêm hộ khẩu đầu tiên
+            </button>
+          )}
         </div>
       )}
 
       {/* Add/Edit Modal */}
       {(modalType === 'add' || modalType === 'edit') && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-gray-900">
-                {modalType === 'add' ? 'Thêm hộ khẩu mới' : 'Chỉnh sửa hộ khẩu'}
-              </h3>
-              <button
-                onClick={() => {
-                  setModalType(null)
-                  setSelectedHousehold(null)
-                }}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <X className="h-5 w-5" />
-              </button>
+        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm overflow-y-auto h-full w-full z-50 flex items-start justify-center py-8 px-4">
+          <div className="relative w-full max-w-4xl bg-white rounded-[15px] shadow-drop-lg border border-gray-200 my-8">
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-navy-1 to-navy-2 p-6 rounded-t-[15px] text-white">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-white bg-opacity-20 rounded-[8px] backdrop-blur-sm">
+                    {modalType === 'add' ? (
+                      <Plus className="h-6 w-6" />
+                    ) : (
+                      <Edit className="h-6 w-6" />
+                    )}
+                  </div>
+                  <h3 className="text-xl font-bold">
+                    {modalType === 'add' ? 'Thêm hộ khẩu mới' : 'Chỉnh sửa hộ khẩu'}
+                  </h3>
+                </div>
+                <button
+                  onClick={() => {
+                    setModalType(null)
+                    setSelectedHousehold(null)
+                  }}
+                  className="p-2 hover:bg-white hover:bg-opacity-20 rounded-[8px] transition-colors"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
             </div>
             
-            <form onSubmit={handleSubmit} className="space-y-6 max-h-[90vh] overflow-y-auto">
-              {/* Thông tin hộ khẩu */}
-              <div>
-                <h4 className="text-md font-semibold text-gray-900 mb-4">Thông tin hộ khẩu</h4>
+            <div className="p-6 max-h-[calc(90vh-120px)] overflow-y-auto">
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Thông tin hộ khẩu */}
+                <div className="bg-gray-50 rounded-[12px] p-5 border border-gray-200">
+                  <h4 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <Building2 className="h-5 w-5 text-navy-1" />
+                    Thông tin hộ khẩu
+                  </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -721,10 +888,13 @@ export default function HouseholdsPage() {
                 </div>
               </div>
 
-              {/* Thông tin thành viên */}
-              {modalType === 'add' && (
-                <div>
-                  <h4 className="text-md font-semibold text-gray-900 mb-4">Thông tin thành viên</h4>
+                {/* Thông tin thành viên */}
+                {modalType === 'add' && (
+                  <div className="bg-gray-50 rounded-[12px] p-5 border border-gray-200">
+                    <h4 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                      <Users className="h-5 w-5 text-navy-1" />
+                      Thông tin thành viên
+                    </h4>
                   <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Số lượng thành viên <span className="text-red-500">*</span>
@@ -898,28 +1068,29 @@ export default function HouseholdsPage() {
                       </div>
                     </div>
                   ))}
+                  </div>
+                )}
+
+                <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setModalType(null)
+                      setSelectedHousehold(null)
+                    }}
+                    className="px-6 py-2.5 text-sm font-semibold text-gray-700 bg-white border-2 border-gray-300 rounded-[8px] hover:bg-gray-50 transition-all duration-200"
+                  >
+                    Hủy
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-6 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-navy-1 to-navy-2 rounded-[8px] hover:shadow-drop-lg transition-all duration-200 transform hover:-translate-y-0.5"
+                  >
+                    {modalType === 'add' ? 'Thêm hộ khẩu' : 'Cập nhật'}
+                  </button>
                 </div>
-              )}
-              
-              <div className="flex justify-end space-x-3 pt-4 border-t">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setModalType(null)
-                    setSelectedHousehold(null)
-                  }}
-                  className="btn btn-secondary"
-                >
-                  Hủy
-                </button>
-                <button
-                  type="submit"
-                  className="btn btn-primary"
-                >
-                  {modalType === 'add' ? 'Thêm' : 'Cập nhật'}
-                </button>
-              </div>
-            </form>
+              </form>
+            </div>
           </div>
         </div>
       )}

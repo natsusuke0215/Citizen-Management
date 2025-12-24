@@ -34,11 +34,27 @@ body {
 body {
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+      135deg,
+      #F1E4D2 0%,
+      #FFFFFF 25%,
+      #F1E4D2 50%,
+      #FFFFFF 75%,
+      #F1E4D2 100%
+    );
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 a {
@@ -140,11 +156,40 @@ select[class]:focus {
 }
 
 .card {
-  @apply bg-white rounded-lg shadow-md border border-gray-200 p-6;
+  @apply bg-white rounded-[15px] shadow-drop border border-gray-200 p-6;
 }
 
 .sidebar {
   @apply bg-white shadow-lg border-r border-gray-200;
+}
+
+/* New color palette utilities */
+.bg-navy-1 { background-color: #516089; }
+.bg-navy-2 { background-color: #586995; }
+.bg-navy-3 { background-color: #7874F9; }
+.bg-yellow-1 { background-color: #E9B880; }
+.bg-yellow-2 { background-color: #F1E4D2; }
+.bg-gradient-1 { background-color: #FFFFFF; }
+
+.text-navy-1 { color: #516089; }
+.text-navy-2 { color: #586995; }
+.text-navy-3 { color: #7874F9; }
+.text-yellow-1 { color: #E9B880; }
+.text-yellow-2 { color: #F1E4D2; }
+
+.border-navy-1 { border-color: #516089; }
+.border-navy-2 { border-color: #586995; }
+.border-navy-3 { border-color: #7874F9; }
+.border-yellow-1 { border-color: #E9B880; }
+.border-yellow-2 { border-color: #F1E4D2; }
+
+/* Drop shadow effect */
+.shadow-drop {
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1), 0px 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+.shadow-drop-lg {
+  box-shadow: 0px 10px 15px rgba(0, 0, 0, 0.1), 0px 4px 6px rgba(0, 0, 0, 0.05);
 }
 
 .nav-link {
@@ -153,6 +198,38 @@ select[class]:focus {
 
 .nav-link.active {
   @apply bg-primary-50 text-primary-600 border-r-2 border-primary-600;
+}
+
+/* Enhanced navigation links with new color scheme */
+.nav-link-enhanced {
+  @apply flex items-center px-3 py-2.5 text-sm font-medium text-gray-700 rounded-[8px] transition-all duration-200;
+  color: #374151;
+}
+
+.nav-link-enhanced:hover {
+  background-color: #F1E4D2;
+  color: #516089;
+}
+
+.nav-link-enhanced.active {
+  background: linear-gradient(135deg, #516089 0%, #586995 100%);
+  color: white;
+  box-shadow: 0px 2px 4px rgba(81, 96, 137, 0.2);
+}
+
+.nav-link-sub {
+  @apply flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-[8px] transition-all duration-200;
+}
+
+.nav-link-sub:hover {
+  background-color: #F1E4D2;
+  color: #516089;
+}
+
+.nav-link-sub.active {
+  background-color: #E9B880;
+  color: #516089;
+  font-weight: 600;
 }
 
 /* Fix browser autofill background/text (Chrome / Edge) */
@@ -172,4 +249,158 @@ select:-webkit-autofill:focus {
 input:-internal-autofill-selected {
   background-color: #f3f4f6 !important;
   color: #111827 !important;
+}
+
+/* Style number input spinners: make arrows lighter and less prominent */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  opacity: 0.6;
+  filter: brightness(1.2) saturate(0.2);
+}
+
+/* Reduce prominence of spinner on inputs that use utility classes */
+input[type="number"][class]::-webkit-inner-spin-button,
+input[type="number"][class]::-webkit-outer-spin-button {
+  opacity: 0.6;
+  filter: brightness(1.2) saturate(0.2);
+}
+
+/* Firefox: remove default spinner UI to use textfield look (keeps up/down with OS) */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* If you prefer to hide spinners entirely on Chromium, uncomment below:
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+*/
+
+/* Hide native number spinners and make them visually match the input background */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"][class]::-webkit-inner-spin-button,
+input[type="number"][class]::-webkit-outer-spin-button {
+  /* show spinner but style it to match the input background */
+  -webkit-appearance: inner-spin-button;
+  appearance: inner-spin-button;
+  width: 2.2rem;
+  height: 100%;
+  background-color: #f3f4f6;
+  color: #374151; /* tailwind gray-700 for arrow */
+  -webkit-text-fill-color: #374151 !important;
+  border-left: 1px solid rgba(0, 0, 0, 0.06);
+  border-top-right-radius: 0.375rem;
+  border-bottom-right-radius: 0.375rem;
+  display: block;
+  box-sizing: border-box;
+  padding: 0.15rem 0;
+  pointer-events: auto;
+}
+
+/* Keep keyboard increment usable; for Firefox we already use textfield appearance above */
+
+/* Custom range input styles for volume slider */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-track {
+  background: #e5e7eb;
+  height: 8px;
+  border-radius: 4px;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #516089;
+  cursor: pointer;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  margin-top: -5px;
+}
+
+input[type="range"]::-moz-range-track {
+  background: #e5e7eb;
+  height: 8px;
+  border-radius: 4px;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #516089;
+  cursor: pointer;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Animation keyframes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Animation utility classes */
+.animate-fadeIn {
+  animation: fadeIn 0.6s ease-out;
+}
+
+.animate-slideUp {
+  animation: slideUp 0.6s ease-out;
+  animation-fill-mode: both;
+}
+
+.animate-slideDown {
+  animation: slideDown 0.6s ease-out;
+}
+
+.animate-scaleIn {
+  animation: scaleIn 0.4s ease-out;
 }

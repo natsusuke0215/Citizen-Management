@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowRightLeft, Search } from 'lucide-react'
+import { ArrowRightLeft, Search, Home, MapPin, Sparkles } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 interface District {
@@ -163,29 +163,40 @@ export default function TransferHouseholdPage() {
   }
 
   return (
-    <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Chuyển hộ khẩu</h1>
-        <p className="mt-2 text-sm text-gray-700">
-          Chuyển hộ khẩu sang địa chỉ mới
-        </p>
+    <div className="space-y-6">
+      {/* Header Section */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
+            <ArrowRightLeft className="h-8 w-8 text-navy-1" />
+            Chuyển hộ khẩu
+          </h1>
+          <p className="mt-2 text-sm text-gray-600">
+            Chuyển hộ khẩu sang địa chỉ mới
+          </p>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Chọn hộ khẩu */}
-        <div className="bg-white shadow rounded-lg p-6">
-          <h2 className="text-lg font-semibold mb-4">Chọn hộ khẩu cần chuyển</h2>
+        <div className="bg-white rounded-[15px] shadow-drop p-6 border border-gray-100">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-3 bg-gradient-to-br from-navy-1 to-navy-2 rounded-[10px]">
+              <Home className="h-6 w-6 text-white" />
+            </div>
+            <h2 className="text-xl font-bold text-gray-900">Chọn hộ khẩu cần chuyển</h2>
+          </div>
           
           {/* Tìm kiếm */}
           <div className="mb-4">
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <Search className="h-5 w-5 text-gray-400" />
               </div>
               <input
                 type="text"
                 placeholder="Tìm kiếm theo số hộ khẩu, chủ hộ, địa chỉ..."
-                className="input pl-10"
+                className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-[8px] bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-navy-1 focus:border-transparent transition-all duration-200"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -241,20 +252,30 @@ export default function TransferHouseholdPage() {
           </div>
 
           {selectedHousehold && (
-            <div className="mt-4 p-4 bg-primary-50 border border-primary-200 rounded-lg">
-              <h3 className="font-medium mb-2 text-primary-900">Hộ khẩu đã chọn:</h3>
-              <p><strong>Số hộ khẩu:</strong> {selectedHousehold.householdId}</p>
-              <p><strong>Chủ hộ:</strong> {selectedHousehold.ownerName}</p>
-              <p><strong>Địa chỉ hiện tại:</strong> {selectedHousehold.address}, {selectedHousehold.street || ''}, {selectedHousehold.ward}, {selectedHousehold.district}</p>
-              <p><strong>Khu phố:</strong> {selectedHousehold.districtRelation.name}</p>
+            <div className="mt-4 p-4 bg-gradient-to-r from-navy-1 to-navy-2 text-white rounded-[8px] shadow-drop">
+              <div className="flex items-center gap-2 mb-3">
+                <Home className="h-5 w-5" />
+                <h3 className="font-semibold">Hộ khẩu đã chọn</h3>
+              </div>
+              <div className="space-y-1 text-sm">
+                <p><strong>Số hộ khẩu:</strong> {selectedHousehold.householdId}</p>
+                <p><strong>Chủ hộ:</strong> {selectedHousehold.ownerName}</p>
+                <p><strong>Địa chỉ hiện tại:</strong> {selectedHousehold.address}, {selectedHousehold.street || ''}, {selectedHousehold.ward}, {selectedHousehold.district}</p>
+                <p><strong>Khu phố:</strong> {selectedHousehold.districtRelation.name}</p>
+              </div>
             </div>
           )}
         </div>
 
         {/* Địa chỉ mới */}
         {selectedHousehold && (
-          <div className="bg-white shadow rounded-lg p-6">
-            <h2 className="text-lg font-semibold mb-4">Địa chỉ mới</h2>
+          <div className="bg-white rounded-[15px] shadow-drop p-6 border border-gray-100">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-3 bg-gradient-to-br from-yellow-1 to-yellow-2 rounded-[10px]">
+                <MapPin className="h-6 w-6 text-navy-1" />
+              </div>
+              <h2 className="text-xl font-bold text-gray-900">Địa chỉ mới</h2>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -359,18 +380,18 @@ export default function TransferHouseholdPage() {
         )}
 
         {/* Buttons */}
-        <div className="flex justify-end gap-4">
+        <div className="flex justify-end gap-4 pt-4 border-t border-gray-200">
           <button
             type="button"
             onClick={() => router.back()}
-            className="btn btn-secondary"
+            className="px-6 py-3 text-sm font-semibold text-gray-700 bg-white border-2 border-gray-300 rounded-[8px] hover:bg-gray-50 transition-all duration-200"
           >
             Hủy
           </button>
           <button
             type="submit"
             disabled={loading || !selectedHousehold}
-            className="btn btn-primary"
+            className="px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-navy-1 to-navy-2 rounded-[8px] hover:shadow-drop-lg transition-all duration-200 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none inline-flex items-center"
           >
             <ArrowRightLeft className="h-4 w-4 mr-2" />
             {loading ? 'Đang xử lý...' : 'Chuyển hộ khẩu'}

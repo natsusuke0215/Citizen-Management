@@ -21,9 +21,11 @@ import {
   Trash2,
   ArrowRightLeft,
   History,
-  UserPlus
+  UserPlus,
+  FileDown
 } from 'lucide-react'
 import toast from 'react-hot-toast'
+import AudioPlayer from '@/components/AudioPlayer'
 
 interface User {
   id: string
@@ -113,6 +115,12 @@ export default function DashboardLayout({
     { name: 'Lịch sử thay đổi', href: '/dashboard/households/history', icon: History },
   ]
 
+  const personSubMenu: NavigationSubItem[] = [
+    { name: 'Danh sách nhân khẩu', href: '/dashboard/persons', icon: Users },
+    { name: 'Cấp giấy tạm trú', href: '/dashboard/persons/temporary-residence', icon: FileDown },
+    { name: 'Cấp giấy tạm vắng', href: '/dashboard/persons/temporary-absence', icon: FileDown },
+  ]
+
   const navigation: NavigationItem[] = user?.role === 'ADMIN' ? [
     { name: 'Tổng quan', href: '/dashboard', icon: Home },
     { 
@@ -121,18 +129,20 @@ export default function DashboardLayout({
       icon: Users,
       subItems: householdSubMenu
     },
-    { name: 'Quản lý nhân khẩu', href: '/dashboard/persons', icon: Users },
-    { name: 'Khu phố', href: '/dashboard/districts', icon: Building },
+    { 
+      name: 'Quản lý nhân khẩu',
+      href: '/dashboard/persons',
+      icon: Users,
+      subItems: personSubMenu
+    },
     { name: 'Nhà văn hóa', href: '/dashboard/cultural-centers', icon: Building },
-    { name: 'Yêu cầu', href: '/dashboard/requests', icon: FileText },
-    { name: 'Đặt lịch', href: '/dashboard/bookings', icon: Calendar },
+    // Chỉ admin mới có thể thêm lịch
+    { name: 'Thêm lịch', href: '/dashboard/bookings', icon: Calendar },
     { name: 'Cài đặt', href: '/dashboard/settings', icon: Settings },
   ] : [
     { name: 'Tổng quan', href: '/dashboard', icon: Home },
     { name: 'Hộ khẩu của tôi', href: '/dashboard/my-household', icon: Users },
-    { name: 'Yêu cầu', href: '/dashboard/my-requests', icon: FileText },
     { name: 'Nhà văn hóa', href: '/dashboard/cultural-centers', icon: Building },
-    { name: 'Đặt lịch', href: '/dashboard/bookings', icon: Calendar },
     { name: 'Cài đặt', href: '/dashboard/settings', icon: Settings },
   ]
 
@@ -141,64 +151,75 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 lg:flex">
+    <div className="min-h-screen bg-gradient-to-br from-yellow-2 via-white to-yellow-2 lg:flex">
       {/* Mobile sidebar */}
-      <div className={`fixed inset-0 z-50 lg:hidden ${sidebarOpen ? 'block' : 'hidden'}`}>
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-75" onClick={() => setSidebarOpen(false)} />
-        <div className="relative flex-1 flex flex-col max-w-xs w-full bg-white">
-          <div className="absolute top-0 right-0 -mr-12 pt-2">
+      <div className={`fixed inset-0 z-50 lg:hidden transition-opacity duration-300 ${sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+        <div 
+          className="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm" 
+          onClick={() => setSidebarOpen(false)} 
+        />
+        <div className={`relative flex-1 flex flex-col w-80 max-w-[85vw] bg-white h-full transform transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+          {/* Mobile Header */}
+          <div className="flex-shrink-0 flex items-center justify-between px-6 py-5 border-b border-gray-200">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-gradient-to-br from-navy-1 to-navy-2 rounded-[10px] shadow-drop">
+                <Building className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-lg font-bold text-gray-900 leading-tight">Quản lý nhân khẩu</h1>
+                <p className="text-xs text-gray-500">Hệ thống quản lý</p>
+              </div>
+            </div>
             <button
               type="button"
-              className="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+              className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-[8px] transition-colors"
               onClick={() => setSidebarOpen(false)}
             >
-              <X className="h-6 w-6 text-white" />
+              <X className="h-6 w-6" />
             </button>
           </div>
-          <div className="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
-            <div className="flex-shrink-0 flex items-center px-4">
-              <Building className="h-8 w-8 text-primary-600" />
-              <span className="ml-2 text-xl font-bold text-gray-900">Quản lý nhân khẩu</span>
-            </div>
-            <nav className="mt-5 px-2 space-y-1">
+          
+          {/* Mobile Navigation */}
+          <div className="flex-1 overflow-y-auto px-4 py-6">
+            <nav className="space-y-2">
               {navigation.map((item) => (
-                <div key={item.name}>
+                <div key={item.name} className="space-y-1">
                   {item.subItems ? (
                     <>
-                      <div className="flex items-center">
+                      <div className="flex items-center gap-2">
                         <Link
                           href={item.href}
-                          className="nav-link group flex-1 flex items-center px-2 py-2 text-base font-medium rounded-md"
+                          className="nav-link group flex-1 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-[10px] transition-all duration-200"
                           onClick={() => setSidebarOpen(false)}
                         >
-                          <item.icon className="mr-4 h-6 w-6" />
-                          {item.name}
+                          <item.icon className="h-5 w-5 flex-shrink-0" />
+                          <span className="flex-1">{item.name}</span>
                         </Link>
                         <button
                           onClick={(e) => {
                             e.stopPropagation()
                             toggleMenu(item.name)
                           }}
-                          className="px-2 py-2 text-gray-400 hover:text-gray-600"
+                          className="p-2 text-gray-400 hover:text-navy-1 hover:bg-gray-50 rounded-[8px] transition-all duration-200"
                         >
                           {expandedMenus.has(item.name) ? (
-                            <ChevronDown className="h-5 w-5" />
+                            <ChevronDown className="h-4 w-4" />
                           ) : (
-                            <ChevronRight className="h-5 w-5" />
+                            <ChevronRight className="h-4 w-4" />
                           )}
                         </button>
                       </div>
                       {expandedMenus.has(item.name) && (
-                        <div className="ml-4 mt-1 space-y-1">
+                        <div className="ml-4 pl-4 border-l-2 border-gray-100 space-y-1 mt-2">
                           {item.subItems.map((subItem) => (
                             <Link
                               key={subItem.name}
                               href={subItem.href}
-                              className="nav-link group flex items-center px-2 py-2 text-sm font-medium rounded-md"
+                              className="nav-link-sub group flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-[8px] transition-all duration-200"
                               onClick={() => setSidebarOpen(false)}
                             >
-                              <subItem.icon className="mr-3 h-5 w-5" />
-                              {subItem.name}
+                              <subItem.icon className="h-4 w-4 flex-shrink-0" />
+                              <span>{subItem.name}</span>
                             </Link>
                           ))}
                         </div>
@@ -207,97 +228,126 @@ export default function DashboardLayout({
                   ) : (
                     <Link
                       href={item.href}
-                      className="nav-link group flex items-center px-2 py-2 text-base font-medium rounded-md"
+                      className="nav-link group flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-[10px] transition-all duration-200"
                       onClick={() => setSidebarOpen(false)}
                     >
-                      <item.icon className="mr-4 h-6 w-6" />
-                      {item.name}
+                      <item.icon className="h-5 w-5 flex-shrink-0" />
+                      <span>{item.name}</span>
                     </Link>
                   )}
                 </div>
               ))}
             </nav>
           </div>
+          
+          {/* Mobile User Profile Footer */}
+          <div className="flex-shrink-0 border-t border-gray-200 bg-gray-50 p-4">
+            <div className="flex items-center gap-3">
+              <div className="flex-shrink-0">
+                <div className="h-12 w-12 rounded-full bg-gradient-to-br from-navy-1 to-navy-2 flex items-center justify-center shadow-drop">
+                  <span className="text-base font-semibold text-white">
+                    {user.name.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-gray-900 truncate">{user.name}</p>
+                <p className="text-xs text-gray-500 truncate">
+                  {user.role === 'ADMIN' ? 'Quản trị viên' : 'Người dùng'}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Desktop sidebar */}
       <div className="hidden lg:flex lg:flex-shrink-0">
-        <div className="flex flex-col w-64">
-          <div className="flex flex-col h-0 flex-1 sidebar">
-            <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
-              <div className="flex items-center flex-shrink-0 px-4">
-                <Building className="h-8 w-8 text-primary-600" />
-                <span className="ml-2 text-xl font-bold text-gray-900">Quản lý nhân khẩu</span>
+        <div className="flex flex-col w-72 bg-white border-r border-gray-200 sidebar sticky top-0 h-screen">
+          {/* Sidebar Header */}
+          <div className="flex-shrink-0 flex items-center px-6 py-6 border-b border-gray-200">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-gradient-to-br from-navy-1 to-navy-2 rounded-[10px] shadow-drop">
+                <Building className="h-6 w-6 text-white" />
               </div>
-              <nav className="mt-5 flex-1 px-2 space-y-1">
-                {navigation.map((item) => (
-                  <div key={item.name}>
-                    {item.subItems ? (
-                      <>
-                        <div className="flex items-center">
-                          <Link
-                            href={item.href}
-                            className="nav-link group flex-1 flex items-center px-2 py-2 text-sm font-medium rounded-md"
-                          >
-                            <item.icon className="mr-3 h-5 w-5" />
-                            {item.name}
-                          </Link>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              toggleMenu(item.name)
-                            }}
-                            className="px-2 py-2 text-gray-400 hover:text-gray-600"
-                          >
-                            {expandedMenus.has(item.name) ? (
-                              <ChevronDown className="h-4 w-4" />
-                            ) : (
-                              <ChevronRight className="h-4 w-4" />
-                            )}
-                          </button>
-                        </div>
-                        {expandedMenus.has(item.name) && (
-                          <div className="ml-4 mt-1 space-y-1">
-                            {item.subItems.map((subItem) => (
-                              <Link
-                                key={subItem.name}
-                                href={subItem.href}
-                                className="nav-link group flex items-center px-2 py-2 text-sm font-medium rounded-md"
-                              >
-                                <subItem.icon className="mr-3 h-4 w-4" />
-                                {subItem.name}
-                              </Link>
-                            ))}
-                          </div>
-                        )}
-                      </>
-                    ) : (
+              <div>
+                <h1 className="text-lg font-bold text-gray-900 leading-tight">Quản lý nhân khẩu</h1>
+                <p className="text-xs text-gray-500">Hệ thống quản lý</p>
+              </div>
+            </div>
+          </div>
+          
+          {/* Navigation Menu */}
+          <nav className="flex-1 overflow-y-auto px-4 py-6 space-y-2">
+            {navigation.map((item) => (
+              <div key={item.name} className="space-y-1">
+                {item.subItems ? (
+                  <>
+                    <div className="flex items-center gap-2">
                       <Link
                         href={item.href}
-                        className="nav-link group flex items-center px-2 py-2 text-sm font-medium rounded-md"
+                        className="nav-link-enhanced group flex-1 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-[10px] transition-all duration-200"
                       >
-                        <item.icon className="mr-3 h-5 w-5" />
-                        {item.name}
+                        <item.icon className="h-5 w-5 flex-shrink-0" />
+                        <span className="flex-1">{item.name}</span>
                       </Link>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          toggleMenu(item.name)
+                        }}
+                        className="p-2 text-gray-400 hover:text-navy-1 hover:bg-gray-50 rounded-[8px] transition-all duration-200"
+                      >
+                        {expandedMenus.has(item.name) ? (
+                          <ChevronDown className="h-4 w-4" />
+                        ) : (
+                          <ChevronRight className="h-4 w-4" />
+                        )}
+                      </button>
+                    </div>
+                    {expandedMenus.has(item.name) && (
+                      <div className="ml-4 pl-4 border-l-2 border-gray-100 space-y-1 mt-2">
+                        {item.subItems.map((subItem) => (
+                          <Link
+                            key={subItem.name}
+                            href={subItem.href}
+                            className="nav-link-sub group flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-[8px] transition-all duration-200"
+                          >
+                            <subItem.icon className="h-4 w-4 flex-shrink-0" />
+                            <span>{subItem.name}</span>
+                          </Link>
+                        ))}
+                      </div>
                     )}
-                  </div>
-                ))}
-              </nav>
-            </div>
-            <div className="flex-shrink-0 flex border-t border-gray-200 p-4">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className="h-8 w-8 rounded-full bg-primary-600 flex items-center justify-center">
-                    <span className="text-sm font-medium text-white">
-                      {user.name.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
+                  </>
+                ) : (
+                  <Link
+                    href={item.href}
+                    className="nav-link-enhanced group flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-[10px] transition-all duration-200"
+                  >
+                    <item.icon className="h-5 w-5 flex-shrink-0" />
+                    <span>{item.name}</span>
+                  </Link>
+                )}
+              </div>
+            ))}
+          </nav>
+          
+          {/* User Profile Footer */}
+          <div className="flex-shrink-0 border-t border-gray-200 bg-gray-50 p-4">
+            <div className="flex items-center gap-3">
+              <div className="flex-shrink-0">
+                <div className="h-12 w-12 rounded-full bg-gradient-to-br from-navy-1 to-navy-2 flex items-center justify-center shadow-drop">
+                  <span className="text-base font-semibold text-white">
+                    {user.name.charAt(0).toUpperCase()}
+                  </span>
                 </div>
-                <div className="ml-3">
-                  <p className="text-sm font-medium text-gray-700">{user.name}</p>
-                  <p className="text-xs text-gray-500">{user.role === 'ADMIN' ? 'Quản trị viên' : 'Người dùng'}</p>
-                </div>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-gray-900 truncate">{user.name}</p>
+                <p className="text-xs text-gray-500 truncate">
+                  {user.role === 'ADMIN' ? 'Quản trị viên' : 'Người dùng'}
+                </p>
               </div>
             </div>
           </div>
@@ -307,53 +357,58 @@ export default function DashboardLayout({
       {/* Main content */}
       <div className="flex flex-col flex-1 min-h-screen">
         {/* Top bar */}
-        <div className="sticky top-0 z-10 flex-shrink-0 flex h-16 bg-white shadow">
+        <div className="sticky top-0 z-10 flex-shrink-0 flex h-16 bg-white border-b border-gray-200 shadow-sm">
           <button
             type="button"
-            className="px-4 border-r border-gray-200 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500 lg:hidden"
+            className="px-4 border-r border-gray-200 text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-colors lg:hidden"
             onClick={() => setSidebarOpen(true)}
           >
             <Menu className="h-6 w-6" />
           </button>
-          <div className="flex-1 px-4 flex justify-between">
-            <div className="flex-1 flex">
-              <div className="w-full flex md:ml-0">
-                <div className="relative w-full text-gray-400 focus-within:text-gray-600">
-                  <div className="absolute inset-y-0 left-0 flex items-center pointer-events-none">
-                    <span className="text-sm text-gray-500">Chào mừng, {user.name}!</span>
-                  </div>
-                </div>
-              </div>
+          <div className="flex-1 px-6 flex items-center justify-between">
+            <div className="flex items-center">
+              <span className="text-sm font-medium text-gray-700">
+                Chào mừng, <span className="text-navy-1 font-semibold">{user.name}</span>!
+              </span>
             </div>
-            <div className="ml-4 flex items-center md:ml-6">
+            <div className="flex items-center gap-3">
               <button
                 type="button"
-                className="bg-white p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                className="relative p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-[8px] transition-all duration-200"
               >
-                <Bell className="h-6 w-6" />
+                <Bell className="h-5 w-5" />
                 {notifications > 0 && (
-                  <span className="absolute -mt-1 -mr-1 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                  <span className="absolute top-1 right-1 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-semibold">
                     {notifications}
                   </span>
                 )}
               </button>
               <button
                 onClick={handleLogout}
-                className="ml-3 bg-white p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-[8px] transition-all duration-200"
+                title="Đăng xuất"
               >
-                <LogOut className="h-6 w-6" />
+                <LogOut className="h-5 w-5" />
               </button>
             </div>
           </div>
         </div>
 
         {/* Page content */}
-        <main className="flex-1 bg-gray-50">
+        <main className="flex-1 bg-gradient-to-br from-yellow-2 via-white to-yellow-2 min-h-screen">
           <div className="px-4 sm:px-6 md:px-8 py-6">
             {children}
           </div>
         </main>
       </div>
+
+      {/* Dashboard Background Music Player */}
+      <AudioPlayer 
+        src="/assets/audio/background-dashboard.mp3"
+        storageKey="dashboardMusicEnabled"
+        loop={true}
+        volume={0.3}
+      />
     </div>
   )
 }

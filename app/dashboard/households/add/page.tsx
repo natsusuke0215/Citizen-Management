@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Plus, X } from 'lucide-react'
+import { Plus, X, Home, Users, Building2, Sparkles } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 interface District {
@@ -154,18 +154,29 @@ export default function AddHouseholdPage() {
   }
 
   return (
-    <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Thêm hộ khẩu mới</h1>
-        <p className="mt-2 text-sm text-gray-700">
-          Điền thông tin để thêm hộ khẩu mới vào hệ thống
-        </p>
+    <div className="space-y-6">
+      {/* Header Section */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
+            <Home className="h-8 w-8 text-navy-1" />
+            Thêm hộ khẩu mới
+          </h1>
+          <p className="mt-2 text-sm text-gray-600">
+            Điền thông tin để thêm hộ khẩu mới vào hệ thống
+          </p>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Thông tin hộ khẩu */}
-        <div className="bg-white shadow rounded-lg p-6">
-          <h2 className="text-lg font-semibold mb-4">Thông tin hộ khẩu</h2>
+        <div className="bg-white rounded-[15px] shadow-drop p-6 border border-gray-100">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-3 bg-gradient-to-br from-navy-1 to-navy-2 rounded-[10px]">
+              <Building2 className="h-6 w-6 text-white" />
+            </div>
+            <h2 className="text-xl font-bold text-gray-900">Thông tin hộ khẩu</h2>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -303,9 +314,14 @@ export default function AddHouseholdPage() {
         </div>
 
         {/* Thành viên */}
-        <div className="bg-white shadow rounded-lg p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold">Thành viên trong hộ</h2>
+        <div className="bg-white rounded-[15px] shadow-drop p-6 border border-gray-100">
+          <div className="flex justify-between items-center mb-6">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-gradient-to-br from-yellow-1 to-yellow-2 rounded-[10px]">
+                <Users className="h-6 w-6 text-navy-1" />
+              </div>
+              <h2 className="text-xl font-bold text-gray-900">Thành viên trong hộ</h2>
+            </div>
             <div className="flex items-center gap-2">
               <label className="text-sm text-gray-700">Số thành viên:</label>
               <input
@@ -466,18 +482,18 @@ export default function AddHouseholdPage() {
         </div>
 
         {/* Buttons */}
-        <div className="flex justify-end gap-4">
+        <div className="flex justify-end gap-4 pt-4 border-t border-gray-200">
           <button
             type="button"
             onClick={() => router.back()}
-            className="btn btn-secondary"
+            className="px-6 py-3 text-sm font-semibold text-gray-700 bg-white border-2 border-gray-300 rounded-[8px] hover:bg-gray-50 transition-all duration-200"
           >
             Hủy
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="btn btn-primary"
+            className="px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-navy-1 to-navy-2 rounded-[8px] hover:shadow-drop-lg transition-all duration-200 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
           >
             {loading ? 'Đang xử lý...' : 'Thêm hộ khẩu'}
           </button>
