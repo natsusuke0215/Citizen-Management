@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Plus, Search, Edit, Trash2, Eye, MapPin, Users, X, Home, Building2, TrendingUp, Sparkles } from 'lucide-react'
+import { Plus, Search, Edit, Trash2, Eye, MapPin, Users, X, Home, Building2, TrendingUp, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 interface Person {
@@ -86,6 +86,10 @@ export default function HouseholdsPage() {
     householdType: 'THƯỜNG_TRÚ',
     issueDate: ''
   })
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage, setItemsPerPage] = useState(30)
   
   // Members form state
   const [memberCount, setMemberCount] = useState(1)
@@ -417,6 +421,17 @@ export default function HouseholdsPage() {
     )
   })
 
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredHouseholds.length / itemsPerPage)
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+  const paginatedHouseholds = filteredHouseholds.slice(startIndex, endIndex)
+
+  // Reset to page 1 when search term or items per page changes
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchTerm, itemsPerPage])
+
   // Calculate statistics
   const totalHouseholds = households.length
   const totalMembers = households.reduce((sum, h) => sum + h.persons.length, 0)
@@ -510,9 +525,81 @@ export default function HouseholdsPage() {
         </div>
       </div>
 
+      {/* Pagination Controls */}
+      {filteredHouseholds.length > 0 && (
+        <div className="bg-white rounded-[15px] shadow-drop p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <label className="text-sm font-medium text-gray-700">Hiển thị:</label>
+            <select
+              value={itemsPerPage}
+              onChange={(e) => setItemsPerPage(Number(e.target.value))}
+              className="px-3 py-2 border border-gray-300 rounded-[8px] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-navy-1 focus:border-transparent"
+            >
+              <option value={20}>20</option>
+              <option value={30}>30</option>
+              <option value={50}>50</option>
+            </select>
+            <span className="text-sm text-gray-600">
+              / trang (Tổng: {filteredHouseholds.length} hộ khẩu)
+            </span>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+              className="p-2 rounded-[8px] border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+            
+            <div className="flex items-center gap-1">
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                let pageNum: number
+                if (totalPages <= 5) {
+                  pageNum = i + 1
+                } else if (currentPage <= 3) {
+                  pageNum = i + 1
+                } else if (currentPage >= totalPages - 2) {
+                  pageNum = totalPages - 4 + i
+                } else {
+                  pageNum = currentPage - 2 + i
+                }
+                
+                return (
+                  <button
+                    key={pageNum}
+                    onClick={() => setCurrentPage(pageNum)}
+                    className={`px-3 py-1 rounded-[8px] text-sm font-medium transition-colors ${
+                      currentPage === pageNum
+                        ? 'bg-navy-1 text-white'
+                        : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                )
+              })}
+            </div>
+            
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+              className="p-2 rounded-[8px] border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </button>
+            
+            <span className="text-sm text-gray-600 ml-2">
+              Trang {currentPage} / {totalPages}
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* Household Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredHouseholds.map((household) => {
+        {paginatedHouseholds.map((household) => {
           const owner = getOwner(household)
           const fullAddress = [
             household.address,
