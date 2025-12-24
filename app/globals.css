@@ -34,11 +34,27 @@ body {
 body {
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+      135deg,
+      #F1E4D2 0%,
+      #FFFFFF 25%,
+      #F1E4D2 50%,
+      #FFFFFF 75%,
+      #F1E4D2 100%
+    );
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 a {
@@ -140,11 +156,40 @@ select[class]:focus {
 }
 
 .card {
-  @apply bg-white rounded-lg shadow-md border border-gray-200 p-6;
+  @apply bg-white rounded-[15px] shadow-drop border border-gray-200 p-6;
 }
 
 .sidebar {
   @apply bg-white shadow-lg border-r border-gray-200;
+}
+
+/* New color palette utilities */
+.bg-navy-1 { background-color: #516089; }
+.bg-navy-2 { background-color: #586995; }
+.bg-navy-3 { background-color: #7874F9; }
+.bg-yellow-1 { background-color: #E9B880; }
+.bg-yellow-2 { background-color: #F1E4D2; }
+.bg-gradient-1 { background-color: #FFFFFF; }
+
+.text-navy-1 { color: #516089; }
+.text-navy-2 { color: #586995; }
+.text-navy-3 { color: #7874F9; }
+.text-yellow-1 { color: #E9B880; }
+.text-yellow-2 { color: #F1E4D2; }
+
+.border-navy-1 { border-color: #516089; }
+.border-navy-2 { border-color: #586995; }
+.border-navy-3 { border-color: #7874F9; }
+.border-yellow-1 { border-color: #E9B880; }
+.border-yellow-2 { border-color: #F1E4D2; }
+
+/* Drop shadow effect */
+.shadow-drop {
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1), 0px 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+.shadow-drop-lg {
+  box-shadow: 0px 10px 15px rgba(0, 0, 0, 0.1), 0px 4px 6px rgba(0, 0, 0, 0.05);
 }
 
 .nav-link {
@@ -153,6 +198,38 @@ select[class]:focus {
 
 .nav-link.active {
   @apply bg-primary-50 text-primary-600 border-r-2 border-primary-600;
+}
+
+/* Enhanced navigation links with new color scheme */
+.nav-link-enhanced {
+  @apply flex items-center px-3 py-2.5 text-sm font-medium text-gray-700 rounded-[8px] transition-all duration-200;
+  color: #374151;
+}
+
+.nav-link-enhanced:hover {
+  background-color: #F1E4D2;
+  color: #516089;
+}
+
+.nav-link-enhanced.active {
+  background: linear-gradient(135deg, #516089 0%, #586995 100%);
+  color: white;
+  box-shadow: 0px 2px 4px rgba(81, 96, 137, 0.2);
+}
+
+.nav-link-sub {
+  @apply flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-[8px] transition-all duration-200;
+}
+
+.nav-link-sub:hover {
+  background-color: #F1E4D2;
+  color: #516089;
+}
+
+.nav-link-sub.active {
+  background-color: #E9B880;
+  color: #516089;
+  font-weight: 600;
 }
 
 /* Fix browser autofill background/text (Chrome / Edge) */
