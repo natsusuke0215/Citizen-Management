@@ -10,6 +10,7 @@ This directory contains static assets for the application.
 - `images/` - Image files for backgrounds, logos, and icons
   - `backgrounds/` - Background images for pages
     - `login.jpg` - Login page background (optional)
+    - `register.jpg` - Register page background (optional)
     - `landing.jpg` - Landing page background (optional)
   - `logos/` - Logo files
     - `logo.png` - Main system logo (optional)
@@ -25,6 +26,7 @@ Place your audio files in the respective directories. The files will be accessib
 ### Image Files
 Place your image files in the respective directories. The system will automatically detect and use them:
 - `/assets/images/backgrounds/login.jpg` - For login page background
+- `/assets/images/backgrounds/register.jpg` - For register page background
 - `/assets/images/backgrounds/landing.jpg` - For landing page background
 - `/assets/images/logos/logo.png` - For system logo
 

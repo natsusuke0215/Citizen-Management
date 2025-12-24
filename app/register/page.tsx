@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Building, Eye, EyeOff } from 'lucide-react'
@@ -8,6 +8,51 @@ import toast from 'react-hot-toast'
 import AudioPlayer from '@/components/AudioPlayer'
 
 export default function RegisterPage() {
+  const [bgImage, setBgImage] = useState<string | null>(null)
+  const [defaultBgImage, setDefaultBgImage] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
+
+  useEffect(() => {
+    // Load persisted background from localStorage if present (has highest priority)
+    try {
+      const stored = localStorage.getItem('registerBackground')
+      if (stored) {
+        setBgImage(stored)
+        return // User custom image takes priority
+      }
+    } catch (e) {
+      // ignore
+    }
+
+    // Try to load default background image from assets
+    const checkDefaultImage = () => {
+      // Try different image formats in order
+      const formats = ['jpg', 'jpeg', 'png', 'webp']
+      let formatIndex = 0
+      
+      const tryNextFormat = () => {
+        if (formatIndex >= formats.length) return
+        
+        const img = new Image()
+        const format = formats[formatIndex]
+        img.src = `/assets/images/backgrounds/register.${format}`
+        
+        img.onload = () => {
+          setDefaultBgImage(img.src)
+        }
+        
+        img.onerror = () => {
+          formatIndex++
+          tryNextFormat()
+        }
+      }
+      
+      tryNextFormat()
+    }
+    
+    checkDefaultImage()
+  }, [])
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -69,9 +114,54 @@ export default function RegisterPage() {
     }
   }
 
+  const triggerFileSelect = () => {
+    fileInputRef.current?.click()
+  }
+
+  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => {
+      const result = reader.result as string
+      setBgImage(result)
+      try {
+        localStorage.setItem('registerBackground', result)
+      } catch (err) {
+        // ignore
+      }
+    }
+    reader.readAsDataURL(file)
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-2 via-white to-yellow-2 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full">
+    <div
+      className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative"
+      style={{
+        backgroundImage: bgImage || defaultBgImage ? `url(${bgImage || defaultBgImage})` : undefined,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
+      {/* Background overlay when no custom image */}
+      {!bgImage && !defaultBgImage && (
+        <div className="absolute inset-0 bg-gradient-to-br from-yellow-2 via-white to-yellow-2"></div>
+      )}
+      {(bgImage || defaultBgImage) && (
+        <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm"></div>
+      )}
+
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={onFileChange}
+      />
+      {/* Card container */}
+      <div className="max-w-md w-full relative z-10">
         <div className="bg-white/95 backdrop-blur-sm rounded-[15px] shadow-drop-lg p-8 border border-gray-200">
           <div className="space-y-8">
             <div>
@@ -203,6 +293,16 @@ export default function RegisterPage() {
           </div>
         </div>
       </div>
+
+      {/* Change background button */}
+      <button
+        type="button"
+        onClick={triggerFileSelect}
+        className="fixed bottom-6 right-6 z-50 bg-white/90 backdrop-blur-sm border border-gray-200 rounded-full px-4 py-2.5 shadow-drop hover:shadow-drop-lg focus:outline-none transition-all duration-200 text-sm font-medium text-gray-700 hover:text-navy-1"
+        title="Đổi hình nền"
+      >
+        Đổi hình nền
+      </button>
 
       {/* Background Music Player */}
       <AudioPlayer 

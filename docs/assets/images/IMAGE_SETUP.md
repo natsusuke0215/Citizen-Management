@@ -6,6 +6,7 @@
 public/assets/images/
 ├── backgrounds/     # Hình nền cho các trang
 │   ├── login.jpg    # Hình nền trang đăng nhập
+│   ├── register.jpg # Hình nền trang đăng ký
 │   ├── landing.jpg  # Hình nền trang chủ
 │   └── dashboard.jpg # Hình nền dashboard (tùy chọn)
 ├── logos/           # Logo và branding
@@ -18,6 +19,13 @@ public/assets/images/
 ### Trang đăng nhập (`/login`)
 1. Đặt file vào: `public/assets/images/backgrounds/login.jpg`
 2. Tên file có thể là: `login.jpg`, `login.png`, `login.webp`, hoặc `login.jpeg`
+3. Kích thước khuyến nghị: **1920x1080px** hoặc lớn hơn
+4. Định dạng: JPG, PNG, WebP
+5. Hệ thống sẽ tự động tìm và sử dụng hình ảnh
+
+### Trang đăng ký (`/register`)
+1. Đặt file vào: `public/assets/images/backgrounds/register.jpg`
+2. Tên file có thể là: `register.jpg`, `register.png`, `register.webp`, hoặc `register.jpeg`
 3. Kích thước khuyến nghị: **1920x1080px** hoặc lớn hơn
 4. Định dạng: JPG, PNG, WebP
 5. Hệ thống sẽ tự động tìm và sử dụng hình ảnh
@@ -58,6 +66,7 @@ public/assets/images/
 
 Người dùng có thể tùy chỉnh hình nền thông qua:
 - **Trang đăng nhập**: Nút "Đổi hình nền" ở góc dưới bên phải
+- **Trang đăng ký**: Nút "Đổi hình nền" ở góc dưới bên phải
 - Hình ảnh được lưu trong localStorage và có ưu tiên cao nhất
 
 ## 💡 Gợi ý
