@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { FileDown, User, Calendar, CreditCard, MapPin } from 'lucide-react'
+import { FileDown, User, Calendar, CreditCard, MapPin, Home, Sparkles, FileText } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { exportTemporaryResidencePdf } from '@/lib/pdf-client'
 
@@ -102,26 +102,32 @@ export default function TemporaryResidencePage() {
 
   return (
     <div className="space-y-6">
-      <div className="sm:flex sm:items-center">
-        <div className="sm:flex-auto">
-          <h1 className="text-2xl font-bold text-gray-900">Cấp giấy tạm trú</h1>
-          <p className="mt-2 text-sm text-gray-700">
+      {/* Header Section */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
+            <FileText className="h-8 w-8 text-navy-1" />
+            Cấp giấy tạm trú
+          </h1>
+          <p className="mt-2 text-sm text-gray-600">
             Điền thông tin người từ nơi khác đến tạm trú tại địa phương này. Sau khi lưu, hệ thống sẽ tự động tải file PDF.
           </p>
         </div>
       </div>
 
-      <div className="bg-white shadow rounded-lg p-6">
-        <h2 className="text-lg font-semibold mb-6 flex items-center gap-2">
-          <FileDown className="h-5 w-5 text-primary-600" />
-          Thông tin người tạm trú
-        </h2>
+      <div className="bg-white rounded-[15px] shadow-drop p-6 border border-gray-100">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-3 bg-gradient-to-br from-navy-1 to-navy-2 rounded-[10px]">
+            <User className="h-6 w-6 text-white" />
+          </div>
+          <h2 className="text-xl font-bold text-gray-900">Thông tin người tạm trú</h2>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Thông tin cá nhân */}
-          <div>
-            <h3 className="text-md font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <User className="h-4 w-4 text-primary-600" />
+          <div className="bg-gray-50 rounded-[12px] p-5 border border-gray-200 mb-6">
+            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <User className="h-5 w-5 text-navy-1" />
               Thông tin cá nhân
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -200,9 +206,9 @@ export default function TemporaryResidencePage() {
           </div>
 
           {/* Thông tin địa chỉ */}
-          <div>
-            <h3 className="text-md font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-primary-600" />
+          <div className="bg-gray-50 rounded-[12px] p-5 border border-gray-200 mb-6">
+            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <MapPin className="h-5 w-5 text-navy-1" />
               Thông tin địa chỉ
             </h3>
             <div className="grid grid-cols-1 gap-4">
@@ -242,9 +248,9 @@ export default function TemporaryResidencePage() {
           </div>
 
           {/* Thông tin tạm trú */}
-          <div>
-            <h3 className="text-md font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-primary-600" />
+          <div className="bg-gray-50 rounded-[12px] p-5 border border-gray-200 mb-6">
+            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <Calendar className="h-5 w-5 text-navy-1" />
               Thông tin tạm trú
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -287,22 +293,32 @@ export default function TemporaryResidencePage() {
             </div>
           </div>
 
-          <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
-            <p className="text-sm text-blue-800">
-              <strong>Lưu ý:</strong> Sau khi bấm <strong>Lưu và tải PDF</strong>, hệ thống sẽ:
-              <ul className="list-disc list-inside mt-2 space-y-1">
-                <li>Tạo bản ghi nhân khẩu tạm trú (nếu chưa có trong hệ thống)</li>
-                <li>Tạo giấy xác nhận tạm trú</li>
-                <li>Tự động tải file PDF giấy tạm trú</li>
-              </ul>
-            </p>
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-[10px] p-5">
+            <div className="flex items-start gap-3">
+              <div className="p-2 bg-blue-500 rounded-[8px]">
+                <Sparkles className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-blue-900 mb-2">
+                  Lưu ý:
+                </p>
+                <p className="text-sm text-blue-800 mb-3">
+                  Sau khi bấm <strong>Lưu và tải PDF</strong>, hệ thống sẽ:
+                </p>
+                <ul className="list-disc list-inside space-y-1 text-sm text-blue-700">
+                  <li>Tạo bản ghi nhân khẩu tạm trú (nếu chưa có trong hệ thống)</li>
+                  <li>Tạo giấy xác nhận tạm trú</li>
+                  <li>Tự động tải file PDF giấy tạm trú</li>
+                </ul>
+              </div>
+            </div>
           </div>
 
-          <div className="flex justify-end pt-4 border-t">
+          <div className="flex justify-end pt-4 border-t border-gray-200">
             <button 
               type="submit" 
               disabled={loading}
-              className="btn btn-primary inline-flex items-center"
+              className="px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-navy-1 to-navy-2 rounded-[8px] hover:shadow-drop-lg transition-all duration-200 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none inline-flex items-center"
             >
               <FileDown className="h-4 w-4 mr-2" />
               {loading ? 'Đang xử lý...' : 'Lưu và tải PDF'}
