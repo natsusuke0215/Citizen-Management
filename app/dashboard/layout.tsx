@@ -25,6 +25,7 @@ import {
   FileDown
 } from 'lucide-react'
 import toast from 'react-hot-toast'
+import AudioPlayer from '@/components/AudioPlayer'
 
 interface User {
   id: string
@@ -364,6 +365,14 @@ export default function DashboardLayout({
           </div>
         </main>
       </div>
+
+      {/* Dashboard Background Music Player */}
+      <AudioPlayer 
+        src="/assets/audio/background-dashboard.mp3"
+        storageKey="dashboardMusicEnabled"
+        loop={true}
+        volume={0.3}
+      />
     </div>
   )
 }
