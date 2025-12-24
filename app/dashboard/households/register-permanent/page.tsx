@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Search, UserPlus } from 'lucide-react'
+import { Search, UserPlus, Home, Users, Sparkles, CheckCircle } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 interface Household {
@@ -167,32 +167,40 @@ export default function RegisterPermanentPage() {
   }
 
   return (
-    <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-          <UserPlus className="h-6 w-6" />
-          Đăng ký thường trú
-        </h1>
-        <p className="mt-2 text-sm text-gray-700">
-          Thêm thành viên thường trú mới vào hộ khẩu có sẵn
-        </p>
+    <div className="space-y-6">
+      {/* Header Section */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
+            <UserPlus className="h-8 w-8 text-navy-1" />
+            Đăng ký thường trú
+          </h1>
+          <p className="mt-2 text-sm text-gray-600">
+            Thêm thành viên thường trú mới vào hộ khẩu có sẵn
+          </p>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Chọn hộ khẩu */}
-        <div className="bg-white shadow rounded-lg p-6">
-          <h2 className="text-lg font-semibold mb-4">Chọn hộ khẩu</h2>
+        <div className="bg-white rounded-[15px] shadow-drop p-6 border border-gray-100">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-3 bg-gradient-to-br from-navy-1 to-navy-2 rounded-[10px]">
+              <Home className="h-6 w-6 text-white" />
+            </div>
+            <h2 className="text-xl font-bold text-gray-900">Chọn hộ khẩu</h2>
+          </div>
           
           {/* Search */}
           <div className="mb-4">
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <Search className="h-5 w-5 text-gray-400" />
               </div>
               <input
                 type="text"
                 placeholder="Tìm kiếm theo số hộ khẩu, chủ hộ, địa chỉ..."
-                className="input pl-10"
+                className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-[8px] bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-navy-1 focus:border-transparent transition-all duration-200"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -200,19 +208,21 @@ export default function RegisterPermanentPage() {
           </div>
 
           {/* Household list */}
-          <div className="max-h-60 overflow-y-auto border rounded-lg">
+          <div className="max-h-60 overflow-y-auto border border-gray-200 rounded-[8px]">
             {filteredHouseholds.length === 0 ? (
-              <div className="p-4 text-center text-gray-500">
+              <div className="p-8 text-center text-gray-500">
                 {searchTerm ? 'Không tìm thấy hộ khẩu nào' : 'Chưa có hộ khẩu nào'}
               </div>
             ) : (
-              <div className="divide-y">
+              <div className="divide-y divide-gray-200">
                 {filteredHouseholds.map((household) => (
                   <div
                     key={household.id}
                     onClick={() => setSelectedHouseholdId(household.id)}
-                    className={`p-4 cursor-pointer hover:bg-gray-50 transition-colors ${
-                      selectedHouseholdId === household.id ? 'bg-primary-50 border-l-4 border-primary-600' : ''
+                    className={`p-4 cursor-pointer transition-all duration-200 ${
+                      selectedHouseholdId === household.id 
+                        ? 'bg-gradient-to-r from-navy-1 to-navy-2 text-white' 
+                        : 'hover:bg-gray-50'
                     }`}
                   >
                     <div className="flex justify-between items-start">
@@ -234,10 +244,9 @@ export default function RegisterPermanentPage() {
                         </div>
                       </div>
                       {selectedHouseholdId === household.id && (
-                        <div className="text-primary-600">
-                          <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                          </svg>
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="h-5 w-5" />
+                          <span className="text-sm font-semibold">Đã chọn</span>
                         </div>
                       )}
                     </div>
@@ -248,9 +257,13 @@ export default function RegisterPermanentPage() {
           </div>
 
           {selectedHousehold && (
-            <div className="mt-4 p-4 bg-primary-50 rounded-lg border border-primary-200">
-              <div className="text-sm font-medium text-primary-900">
-                Đã chọn: {selectedHousehold.householdId} - {selectedHousehold.ownerName}
+            <div className="mt-4 p-4 bg-gradient-to-r from-navy-1 to-navy-2 text-white rounded-[8px] shadow-drop">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-5 w-5" />
+                <div>
+                  <div className="text-sm font-semibold">Đã chọn hộ khẩu</div>
+                  <div className="text-sm opacity-90">{selectedHousehold.householdId} - {selectedHousehold.ownerName}</div>
+                </div>
               </div>
             </div>
           )}
@@ -258,8 +271,13 @@ export default function RegisterPermanentPage() {
 
         {/* Thông tin nhân khẩu */}
         {selectedHouseholdId && (
-          <div className="bg-white shadow rounded-lg p-6">
-            <h2 className="text-lg font-semibold mb-4">Thông tin nhân khẩu đăng ký thường trú</h2>
+          <div className="bg-white rounded-[15px] shadow-drop p-6 border border-gray-100">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-3 bg-gradient-to-br from-yellow-1 to-yellow-2 rounded-[10px]">
+                <UserPlus className="h-6 w-6 text-navy-1" />
+              </div>
+              <h2 className="text-xl font-bold text-gray-900">Thông tin nhân khẩu đăng ký thường trú</h2>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -528,18 +546,18 @@ export default function RegisterPermanentPage() {
         )}
 
         {/* Buttons */}
-        <div className="flex justify-end gap-4">
+        <div className="flex justify-end gap-4 pt-4 border-t border-gray-200">
           <button
             type="button"
             onClick={() => router.back()}
-            className="btn btn-secondary"
+            className="px-6 py-3 text-sm font-semibold text-gray-700 bg-white border-2 border-gray-300 rounded-[8px] hover:bg-gray-50 transition-all duration-200"
           >
             Hủy
           </button>
           <button
             type="submit"
             disabled={loading || !selectedHouseholdId}
-            className="btn btn-primary"
+            className="px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-navy-1 to-navy-2 rounded-[8px] hover:shadow-drop-lg transition-all duration-200 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
           >
             {loading ? 'Đang xử lý...' : 'Đăng ký thường trú'}
           </button>

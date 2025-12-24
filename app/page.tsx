@@ -42,9 +42,9 @@ export default function HomePage() {
             <Sparkles className="h-4 w-4 text-navy-1" />
             <span className="text-sm font-medium text-navy-1">Hệ thống quản lý thông minh</span>
           </div>
-          <h2 className="text-5xl font-bold text-gray-900 sm:text-6xl md:text-7xl">
+          <h2 className="text-5xl font-bold text-gray-900 sm:text-6xl md:text-7xl leading-tight">
             Quản lý nhân khẩu
-            <span className="block mt-2 bg-gradient-to-r from-navy-1 to-navy-3 bg-clip-text text-transparent">
+            <span className="block mt-2 bg-gradient-to-r from-navy-1 to-navy-3 bg-clip-text text-transparent leading-tight pb-2">
               hiện đại và hiệu quả
             </span>
           </h2>
@@ -172,7 +172,7 @@ export default function HomePage() {
               <span className="text-lg font-bold">Hệ thống quản lý nhân khẩu</span>
             </div>
             <p className="text-white/80">
-              © 2024 Hệ thống quản lý nhân khẩu. Tất cả quyền được bảo lưu.
+              © 2025 Hệ thống quản lý nhân khẩu. Tất cả quyền được bảo lưu.
             </p>
           </div>
         </div>
