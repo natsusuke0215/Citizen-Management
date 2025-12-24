@@ -36,7 +36,6 @@ export default function BookingsPage() {
   const [centers, setCenters] = useState<CulturalCenter[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
-  const [selectedStatus, setSelectedStatus] = useState<string>('all')
   const [showModal, setShowModal] = useState(false)
   const [editingBooking, setEditingBooking] = useState<Booking | null>(null)
   const [formData, setFormData] = useState({
@@ -167,28 +166,6 @@ export default function BookingsPage() {
     }
   }
 
-  const handleStatusChange = async (id: string, status: 'APPROVED' | 'REJECTED') => {
-    try {
-      const response = await fetch(`/api/bookings/${id}/status`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ status }),
-      })
-
-      if (response.ok) {
-        toast.success(`Lịch đặt đã được ${status === 'APPROVED' ? 'duyệt' : 'từ chối'}!`)
-        fetchBookings()
-      } else {
-        const data = await response.json()
-        toast.error(data.message || 'Có lỗi xảy ra')
-      }
-    } catch (error) {
-      toast.error('Có lỗi xảy ra')
-    }
-  }
-
   const filteredBookings = bookings.filter(booking => {
     const searchLower = (searchTerm || '').toLowerCase()
 
@@ -202,28 +179,8 @@ export default function BookingsPage() {
       (value || '').toLowerCase().includes(searchLower)
     )
 
-    const matchesStatus = selectedStatus === 'all' || booking.status === selectedStatus
-    
-    return matchesSearch && matchesStatus
+    return matchesSearch
   })
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'APPROVED': return 'bg-green-100 text-green-800'
-      case 'REJECTED': return 'bg-red-100 text-red-800'
-      case 'PENDING': return 'bg-yellow-100 text-yellow-800'
-      default: return 'bg-gray-100 text-gray-800'
-    }
-  }
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'APPROVED': return 'Đã duyệt'
-      case 'REJECTED': return 'Từ chối'
-      case 'PENDING': return 'Chờ duyệt'
-      default: return status
-    }
-  }
 
   if (loading) {
     return (
@@ -283,18 +240,6 @@ export default function BookingsPage() {
             />
           </div>
         </div>
-        <div className="sm:w-48">
-          <select
-            className="input"
-            value={selectedStatus}
-            onChange={(e) => setSelectedStatus(e.target.value)}
-          >
-            <option value="all">Tất cả trạng thái</option>
-            <option value="PENDING">Chờ duyệt</option>
-            <option value="APPROVED">Đã duyệt</option>
-            <option value="REJECTED">Từ chối</option>
-          </select>
-        </div>
       </div>
 
       {/* Bookings List */}
@@ -316,9 +261,6 @@ export default function BookingsPage() {
                 </div>
               </div>
               <div className="flex items-center space-x-2">
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(booking.status)}`}>
-                  {getStatusText(booking.status)}
-                </span>
                 <div className="flex items-center">
                   {booking.visibility === 'PUBLIC' ? (
                     <span title="Công khai">
@@ -359,22 +301,6 @@ export default function BookingsPage() {
                 Tạo lúc: {new Date(booking.createdAt).toLocaleString('vi-VN')}
               </div>
               <div className="flex items-center space-x-2">
-                {booking.status === 'PENDING' && (
-                  <>
-                    <button
-                      onClick={() => handleStatusChange(booking.id, 'APPROVED')}
-                      className="text-green-600 hover:text-green-900 text-sm"
-                    >
-                      Duyệt
-                    </button>
-                    <button
-                      onClick={() => handleStatusChange(booking.id, 'REJECTED')}
-                      className="text-red-600 hover:text-red-900 text-sm"
-                    >
-                      Từ chối
-                    </button>
-                  </>
-                )}
                 <button
                   onClick={() => handleEdit(booking)}
                   className="text-indigo-600 hover:text-indigo-900"
@@ -398,8 +324,8 @@ export default function BookingsPage() {
           <Calendar className="mx-auto h-12 w-12 text-gray-400" />
           <h3 className="mt-2 text-sm font-medium text-gray-900">Không có lịch đặt nào</h3>
           <p className="mt-1 text-sm text-gray-500">
-            {searchTerm || selectedStatus !== 'all'
-              ? 'Không tìm thấy lịch đặt phù hợp với bộ lọc.' 
+            {searchTerm
+              ? 'Không tìm thấy lịch đặt phù hợp với từ khóa tìm kiếm.'
               : 'Bắt đầu bằng cách đặt lịch đầu tiên.'}
           </p>
         </div>

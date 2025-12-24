@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Plus, Search, Edit, Trash2, Eye, Users, Calendar, CreditCard, X } from 'lucide-react'
+import { Plus, Search, Edit, Trash2, Users, Calendar, CreditCard, X } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 interface Person {
@@ -37,6 +37,16 @@ export default function PersonsPage() {
     idType: 'CCCD',
     idNumber: '',
     householdId: ''
+  })
+
+  const [showChangeModal, setShowChangeModal] = useState(false)
+  const [selectedPerson, setSelectedPerson] = useState<Person | null>(null)
+  const [changeForm, setChangeForm] = useState({
+    changeType: 'MOVE_OUT' as 'MOVE_OUT' | 'DECEASED',
+    changeDate: new Date().toISOString().split('T')[0],
+    moveOutDate: '',
+    moveOutPlace: '',
+    notes: ''
   })
 
   useEffect(() => {
@@ -118,6 +128,56 @@ export default function PersonsPage() {
       }
     } catch (error) {
       toast.error('Có lỗi xảy ra khi xóa nhân khẩu')
+    }
+  }
+
+  const openChangeModal = (person: Person) => {
+    setSelectedPerson(person)
+    setChangeForm({
+      changeType: 'MOVE_OUT',
+      changeDate: new Date().toISOString().split('T')[0],
+      moveOutDate: '',
+      moveOutPlace: '',
+      notes: ''
+    })
+    setShowChangeModal(true)
+  }
+
+  const handleChangeSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!selectedPerson) return
+
+    try {
+      const body: any = {
+        changeType: changeForm.changeType,
+        changeDate: changeForm.changeDate
+      }
+
+      if (changeForm.changeType === 'MOVE_OUT') {
+        body.moveOutDate = changeForm.moveOutDate || changeForm.changeDate
+        body.moveOutPlace = changeForm.moveOutPlace || undefined
+        body.notes = changeForm.notes || undefined
+      }
+
+      const response = await fetch(`/api/persons/${selectedPerson.id}/changes`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      })
+
+      if (response.ok) {
+        toast.success('Ghi nhận thay đổi nhân khẩu thành công!')
+        setShowChangeModal(false)
+        setSelectedPerson(null)
+        fetchPersons()
+      } else {
+        const data = await response.json()
+        toast.error(data.message || 'Có lỗi xảy ra khi ghi nhận thay đổi')
+      }
+    } catch (error) {
+      toast.error('Có lỗi xảy ra khi ghi nhận thay đổi')
     }
   }
 
@@ -245,6 +305,13 @@ export default function PersonsPage() {
                         {!['ACTIVE', 'MOVED_OUT', 'DECEASED'].includes(person.status) && person.status}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button
+                          onClick={() => openChangeModal(person)}
+                          className="text-indigo-600 hover:text-indigo-900 mr-3"
+                        >
+                          <Edit className="h-4 w-4 inline-block mr-1" />
+                          Thay đổi
+                        </button>
                         <button
                           onClick={() => handleDelete(person.id)}
                           className="text-red-600 hover:text-red-900"
@@ -391,6 +458,138 @@ export default function PersonsPage() {
                   <button
                     type="button"
                     onClick={() => setShowModal(false)}
+                    className="btn btn-secondary mt-3 sm:mt-0"
+                  >
+                    Hủy
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Change Person Status Modal */}
+      {showChangeModal && selectedPerson && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div
+              className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+              onClick={() => setShowChangeModal(false)}
+            />
+
+            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+              <form onSubmit={handleChangeSubmit}>
+                <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-medium text-gray-900">
+                      Thay đổi nhân khẩu: {selectedPerson.fullName}
+                    </h3>
+                    <button
+                      type="button"
+                      onClick={() => setShowChangeModal(false)}
+                      className="text-gray-400 hover:text-gray-600"
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Loại thay đổi
+                      </label>
+                      <select
+                        className="input"
+                        value={changeForm.changeType}
+                        onChange={(e) =>
+                          setChangeForm({
+                            ...changeForm,
+                            changeType: e.target.value as 'MOVE_OUT' | 'DECEASED'
+                          })
+                        }
+                      >
+                        <option value="MOVE_OUT">Chuyển đi nơi khác</option>
+                        <option value="DECEASED">Nhân khẩu qua đời</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Ngày thay đổi
+                      </label>
+                      <input
+                        type="date"
+                        className="input"
+                        value={changeForm.changeDate}
+                        onChange={(e) => setChangeForm({ ...changeForm, changeDate: e.target.value })}
+                        required
+                      />
+                    </div>
+
+                    {changeForm.changeType === 'MOVE_OUT' && (
+                      <>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Ngày chuyển đi
+                          </label>
+                          <input
+                            type="date"
+                            className="input"
+                            value={changeForm.moveOutDate}
+                            onChange={(e) =>
+                              setChangeForm({ ...changeForm, moveOutDate: e.target.value })
+                            }
+                            placeholder="Nếu bỏ trống sẽ dùng Ngày thay đổi"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Nơi chuyển đến
+                          </label>
+                          <input
+                            type="text"
+                            className="input"
+                            value={changeForm.moveOutPlace}
+                            onChange={(e) =>
+                              setChangeForm({ ...changeForm, moveOutPlace: e.target.value })
+                            }
+                            placeholder="Nhập địa chỉ nơi chuyển đến"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Ghi chú
+                          </label>
+                          <textarea
+                            className="input"
+                            rows={2}
+                            value={changeForm.notes}
+                            onChange={(e) =>
+                              setChangeForm({ ...changeForm, notes: e.target.value })
+                            }
+                            placeholder="Ví dụ: chuyển đi theo hộ khẩu khác..."
+                          />
+                        </div>
+                      </>
+                    )}
+
+                    {changeForm.changeType === 'DECEASED' && (
+                      <p className="text-xs text-gray-500">
+                        Khi lưu, hệ thống sẽ cập nhật tình trạng thành <strong>Đã qua đời</strong> và
+                        tự động ghi chú là <strong>“Đã qua đời”</strong>.
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                  <button type="submit" className="btn btn-primary sm:ml-3">
+                    Lưu thay đổi
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowChangeModal(false)}
                     className="btn btn-secondary mt-3 sm:mt-0"
                   >
                     Hủy

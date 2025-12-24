@@ -21,7 +21,8 @@ import {
   Trash2,
   ArrowRightLeft,
   History,
-  UserPlus
+  UserPlus,
+  FileDown
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -113,6 +114,12 @@ export default function DashboardLayout({
     { name: 'Lịch sử thay đổi', href: '/dashboard/households/history', icon: History },
   ]
 
+  const personSubMenu: NavigationSubItem[] = [
+    { name: 'Danh sách nhân khẩu', href: '/dashboard/persons', icon: Users },
+    { name: 'Cấp giấy tạm trú', href: '/dashboard/persons/temporary-residence', icon: FileDown },
+    { name: 'Cấp giấy tạm vắng', href: '/dashboard/persons/temporary-absence', icon: FileDown },
+  ]
+
   const navigation: NavigationItem[] = user?.role === 'ADMIN' ? [
     { name: 'Tổng quan', href: '/dashboard', icon: Home },
     { 
@@ -121,18 +128,20 @@ export default function DashboardLayout({
       icon: Users,
       subItems: householdSubMenu
     },
-    { name: 'Quản lý nhân khẩu', href: '/dashboard/persons', icon: Users },
-    { name: 'Khu phố', href: '/dashboard/districts', icon: Building },
+    { 
+      name: 'Quản lý nhân khẩu',
+      href: '/dashboard/persons',
+      icon: Users,
+      subItems: personSubMenu
+    },
     { name: 'Nhà văn hóa', href: '/dashboard/cultural-centers', icon: Building },
-    { name: 'Yêu cầu', href: '/dashboard/requests', icon: FileText },
-    { name: 'Đặt lịch', href: '/dashboard/bookings', icon: Calendar },
+    // Chỉ admin mới có thể thêm lịch
+    { name: 'Thêm lịch', href: '/dashboard/bookings', icon: Calendar },
     { name: 'Cài đặt', href: '/dashboard/settings', icon: Settings },
   ] : [
     { name: 'Tổng quan', href: '/dashboard', icon: Home },
     { name: 'Hộ khẩu của tôi', href: '/dashboard/my-household', icon: Users },
-    { name: 'Yêu cầu', href: '/dashboard/my-requests', icon: FileText },
     { name: 'Nhà văn hóa', href: '/dashboard/cultural-centers', icon: Building },
-    { name: 'Đặt lịch', href: '/dashboard/bookings', icon: Calendar },
     { name: 'Cài đặt', href: '/dashboard/settings', icon: Settings },
   ]
 

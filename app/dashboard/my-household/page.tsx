@@ -1,14 +1,18 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Users, MapPin, Building, Plus, Edit, Trash2, UserPlus, UserMinus } from 'lucide-react'
+import { Users, MapPin, Building, Plus, Edit, Trash2, UserPlus, UserMinus, FileDown } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { exportHouseholdPdf, type Household as PdfHousehold, type Citizen } from '@/lib/pdf-client'
 
 interface Household {
   id: string
   householdId: string
   address: string
-  district: {
+  street?: string
+  ward?: string
+  district?: string
+  districtRelation?: {
     id: string
     name: string
   }
@@ -182,6 +186,46 @@ export default function MyHouseholdPage() {
     }
   }
 
+  const handleExportPdf = () => {
+    if (!household || persons.length === 0) {
+      toast.error('Không có dữ liệu để xuất PDF')
+      return
+    }
+
+    try {
+      // Tìm chủ hộ
+      const owner = persons.find(p => !p.relationship || p.relationship === 'Chủ hộ') || persons[0]
+      
+      // Lấy thông tin địa chỉ
+      const districtName = household.districtRelation?.name || household.district?.name || ''
+      const wardName = household.ward || ''
+      const streetName = household.street || ''
+      
+      // Chuyển đổi dữ liệu từ API sang format PDF
+      const pdfData: PdfHousehold = {
+        householdId: household.householdId,
+        ownerName: owner.fullName,
+        address: [household.address, streetName].filter(Boolean).join(', '),
+        ward: wardName,
+        district: districtName,
+        members: persons.map((person): Citizen => ({
+          fullName: person.fullName,
+          dateOfBirth: person.dateOfBirth,
+          idNumber: person.idNumber,
+          permanentAddress: [household.address, streetName, wardName, districtName].filter(Boolean).join(', '),
+          gender: person.gender,
+          relationship: person.relationship || 'Chủ hộ',
+        })),
+      }
+
+      exportHouseholdPdf(pdfData)
+      toast.success('Đã tạo file PDF thành công!')
+    } catch (error) {
+      console.error('Error exporting PDF:', error)
+      toast.error('Có lỗi xảy ra khi tạo file PDF')
+    }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -221,10 +265,17 @@ export default function MyHouseholdPage() {
           </button>
           <button
             onClick={handleUpdateHousehold}
-            className="btn btn-secondary inline-flex items-center"
+            className="btn btn-secondary inline-flex items-center mr-2"
           >
             <Edit className="h-4 w-4 mr-2" />
             Yêu cầu cập nhật
+          </button>
+          <button
+            onClick={handleExportPdf}
+            className="btn btn-primary inline-flex items-center"
+          >
+            <FileDown className="h-4 w-4 mr-2" />
+            Lưu và tải PDF
           </button>
         </div>
       </div>

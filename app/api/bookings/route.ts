@@ -127,6 +127,8 @@ export async function POST(request: NextRequest) {
         culturalCenterId,
         userId: user.id,
         visibility: visibility || 'PUBLIC',
+        // Mặc định duyệt luôn lịch đặt mới
+        status: 'APPROVED',
         type: type || 'EVENT',
         fee: fee ? parseFloat(fee) : null,
         feePaid: false
