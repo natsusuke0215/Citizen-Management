@@ -9,16 +9,48 @@ import AudioPlayer from '@/components/AudioPlayer'
 
 export default function LoginPage() {
   const [bgImage, setBgImage] = useState<string | null>(null)
+  const [defaultBgImage, setDefaultBgImage] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement | null>(null)
 
   useEffect(() => {
-    // Load persisted background from localStorage if present
+    // Load persisted background from localStorage if present (has highest priority)
     try {
       const stored = localStorage.getItem('loginBackground')
-      if (stored) setBgImage(stored)
+      if (stored) {
+        setBgImage(stored)
+        return // User custom image takes priority
+      }
     } catch (e) {
       // ignore
     }
+
+    // Try to load default background image from assets
+    const checkDefaultImage = () => {
+      // Try different image formats in order
+      const formats = ['jpg', 'jpeg', 'png', 'webp']
+      let formatIndex = 0
+      
+      const tryNextFormat = () => {
+        if (formatIndex >= formats.length) return
+        
+        const img = new Image()
+        const format = formats[formatIndex]
+        img.src = `/assets/images/backgrounds/login.${format}`
+        
+        img.onload = () => {
+          setDefaultBgImage(img.src)
+        }
+        
+        img.onerror = () => {
+          formatIndex++
+          tryNextFormat()
+        }
+      }
+      
+      tryNextFormat()
+    }
+    
+    checkDefaultImage()
   }, [])
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -82,17 +114,17 @@ export default function LoginPage() {
     <div
       className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative"
       style={{
-        backgroundImage: bgImage ? `url(${bgImage})` : undefined,
+        backgroundImage: bgImage || defaultBgImage ? `url(${bgImage || defaultBgImage})` : undefined,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
       }}
     >
       {/* Background overlay when no custom image */}
-      {!bgImage && (
+      {!bgImage && !defaultBgImage && (
         <div className="absolute inset-0 bg-gradient-to-br from-yellow-2 via-white to-yellow-2"></div>
       )}
-      {bgImage && (
+      {(bgImage || defaultBgImage) && (
         <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm"></div>
       )}
 
