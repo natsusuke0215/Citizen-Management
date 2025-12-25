@@ -28,20 +28,37 @@ export function middleware(request: NextRequest) {
   // Role-based Access Control
   const role = user.role
 
-  // FACILITY_MANAGER Restrictions
+  // Account Management: Only TEAM_LEADER can access
+  if (pathname.startsWith('/dashboard/accounts')) {
+    if (role !== 'TEAM_LEADER' && role !== 'ADMIN' && role !== 'LEADER') {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    }
+  }
+
+  // Household Management: TEAM_LEADER and DEPUTY only
+  if (pathname.startsWith('/dashboard/households')) {
+    if (role !== 'TEAM_LEADER' && role !== 'ADMIN' && role !== 'LEADER' && role !== 'DEPUTY') {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    }
+  }
+
+  // Resident Management (Persons): TEAM_LEADER and DEPUTY only
+  if (pathname.startsWith('/dashboard/persons')) {
+    if (role !== 'TEAM_LEADER' && role !== 'ADMIN' && role !== 'LEADER' && role !== 'DEPUTY') {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    }
+  }
+
+  // FACILITY_MANAGER: Additional restrictions for other paths
   if (role === 'FACILITY_MANAGER') {
-    // List of restricted paths (starts with)
     const restrictedPaths = [
-      '/dashboard/households',
-      '/dashboard/persons',
       '/dashboard/districts',
       '/dashboard/requests',
       '/dashboard/my-household',
     ]
 
     if (restrictedPaths.some(path => pathname.startsWith(path))) {
-       // Redirect to allowed area
-       return NextResponse.redirect(new URL('/dashboard/cultural-centers', request.url))
+      return NextResponse.redirect(new URL('/dashboard', request.url))
     }
   }
 

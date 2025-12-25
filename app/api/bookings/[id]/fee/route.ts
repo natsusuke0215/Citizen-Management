@@ -47,9 +47,9 @@ export async function POST(
     }
 
     const user = verifyToken(token)
-    if (!user || user.role !== 'ADMIN') {
+    if (!user || (user.role !== 'TEAM_LEADER' && user.role !== 'ADMIN' && user.role !== 'LEADER' && user.role !== 'DEPUTY')) {
       return NextResponse.json(
-        { message: 'Chỉ admin mới có quyền quản lý phí sử dụng' },
+        { message: 'Chỉ tổ trưởng và tổ phó mới có quyền quản lý phí sử dụng' },
         { status: 403 }
       )
     }

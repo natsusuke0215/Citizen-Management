@@ -22,7 +22,8 @@ import {
   ArrowRightLeft,
   History,
   UserPlus,
-  FileDown
+  FileDown,
+  Shield
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import AudioPlayer from '@/components/AudioPlayer'
@@ -106,6 +107,7 @@ export default function DashboardLayout({
     })
   }
 
+  // Define all menu sub-items
   const householdSubMenu: NavigationSubItem[] = [
     { name: 'Thêm hộ khẩu', href: '/dashboard/households/add', icon: Plus },
     { name: 'Đăng ký thường trú', href: '/dashboard/households/register-permanent', icon: UserPlus },
@@ -121,46 +123,54 @@ export default function DashboardLayout({
     { name: 'Cấp giấy tạm vắng', href: '/dashboard/persons/temporary-absence', icon: FileDown },
   ]
 
-  const getNavigation = (role: string): NavigationItem[] => {
-    // ADMIN, LEADER, DEPUTY get full access
-    if (['ADMIN', 'LEADER', 'DEPUTY'].includes(role)) {
-      return [
-        { name: 'Tổng quan', href: '/dashboard', icon: Home },
-        { 
-          name: 'Quản lý hộ khẩu', 
-          href: '/dashboard/households', 
-          icon: Users,
-          subItems: householdSubMenu
-        },
-        { 
-          name: 'Quản lý nhân khẩu',
-          href: '/dashboard/persons',
-          icon: Users,
-          subItems: personSubMenu
-        },
-        { name: 'Nhà văn hóa', href: '/dashboard/cultural-centers', icon: Building },
-        { name: 'Thêm lịch', href: '/dashboard/bookings', icon: Calendar },
-        { name: 'Cài đặt', href: '/dashboard/settings', icon: Settings },
-      ]
+  // Define ALL menu items (complete list)
+  const allMenuItems: NavigationItem[] = [
+    { name: 'Tổng quan', href: '/dashboard', icon: Home },
+    { 
+      name: 'Quản lý hộ khẩu', 
+      href: '/dashboard/households', 
+      icon: Users,
+      subItems: householdSubMenu
+    },
+    { 
+      name: 'Quản lý nhân khẩu',
+      href: '/dashboard/persons',
+      icon: Users,
+      subItems: personSubMenu
+    },
+    { name: 'Quản lý tài khoản', href: '/dashboard/accounts', icon: Shield },
+    { name: 'Nhà văn hóa', href: '/dashboard/cultural-centers', icon: Building },
+    { name: 'Thêm lịch', href: '/dashboard/bookings', icon: Calendar },
+    { name: 'Cài đặt', href: '/dashboard/settings', icon: Settings },
+  ]
+
+  // Filter function based on role
+  const filterMenuByRole = (role: string): NavigationItem[] => {
+    // TEAM_LEADER (Tổ trưởng): Has access to ALL modules (gộp từ ADMIN và LEADER)
+    if (role === 'TEAM_LEADER' || role === 'ADMIN' || role === 'LEADER') {
+      return allMenuItems
     }
 
-    // FACILITY_MANAGER gets limited access
+    // DEPUTY (Tổ phó): Has access to everything EXCEPT 'Account Mgmt'
+    if (role === 'DEPUTY') {
+      return allMenuItems.filter(item => item.name !== 'Quản lý tài khoản')
+    }
+
+    // FACILITY_MANAGER: LIMITED access - ONLY Dashboard, Cultural House, Schedule, Settings
     if (role === 'FACILITY_MANAGER') {
-      return [
-        { name: 'Tổng quan', href: '/dashboard', icon: Home },
-        { name: 'Nhà văn hóa', href: '/dashboard/cultural-centers', icon: Building },
-        { name: 'Quản lý lịch', href: '/dashboard/bookings', icon: Calendar },
-        { name: 'Cài đặt', href: '/dashboard/settings', icon: Settings },
-      ]
+      const allowedItems = ['Tổng quan', 'Nhà văn hóa', 'Thêm lịch', 'Cài đặt']
+      return allMenuItems.filter(item => allowedItems.includes(item.name))
     }
 
-    // Default USER
+    // Fallback: Return basic menu for unknown roles
     return [
       { name: 'Tổng quan', href: '/dashboard', icon: Home },
-      { name: 'Hộ khẩu của tôi', href: '/dashboard/my-household', icon: Users },
-      { name: 'Nhà văn hóa', href: '/dashboard/cultural-centers', icon: Building },
       { name: 'Cài đặt', href: '/dashboard/settings', icon: Settings },
     ]
+  }
+
+  const getNavigation = (role: string): NavigationItem[] => {
+    return filterMenuByRole(role)
   }
 
   const navigation: NavigationItem[] = user ? getNavigation(user.role) : []
@@ -272,7 +282,9 @@ export default function DashboardLayout({
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-gray-900 truncate">{user.name}</p>
                 <p className="text-xs text-gray-500 truncate">
-                  {user.role === 'ADMIN' ? 'Quản trị viên' : 'Người dùng'}
+                  {(user.role === 'TEAM_LEADER' || user.role === 'ADMIN' || user.role === 'LEADER') ? 'Tổ trưởng' : 
+                   user.role === 'DEPUTY' ? 'Tổ phó' : 
+                   user.role === 'FACILITY_MANAGER' ? 'Quản lý CSVC' : 'Người dùng'}
                 </p>
               </div>
             </div>
@@ -365,7 +377,9 @@ export default function DashboardLayout({
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-gray-900 truncate">{user.name}</p>
                 <p className="text-xs text-gray-500 truncate">
-                  {user.role === 'ADMIN' ? 'Quản trị viên' : 'Người dùng'}
+                  {(user.role === 'TEAM_LEADER' || user.role === 'ADMIN' || user.role === 'LEADER') ? 'Tổ trưởng' : 
+                   user.role === 'DEPUTY' ? 'Tổ phó' : 
+                   user.role === 'FACILITY_MANAGER' ? 'Quản lý CSVC' : 'Người dùng'}
                 </p>
               </div>
             </div>

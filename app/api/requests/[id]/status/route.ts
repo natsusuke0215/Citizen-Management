@@ -23,9 +23,9 @@ export async function PATCH(
       )
     }
 
-    if (user.role !== 'ADMIN') {
+    if (user.role !== 'TEAM_LEADER' && user.role !== 'ADMIN' && user.role !== 'LEADER' && user.role !== 'DEPUTY') {
       return NextResponse.json(
-        { message: 'Chỉ admin mới có quyền duyệt yêu cầu' },
+        { message: 'Chỉ tổ trưởng và tổ phó mới có quyền duyệt yêu cầu' },
         { status: 403 }
       )
     }

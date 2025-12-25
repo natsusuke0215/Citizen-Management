@@ -61,7 +61,7 @@ export async function PUT(
       )
     }
 
-    if (existingBooking.userId !== user.id && user.role !== 'ADMIN') {
+    if (existingBooking.userId !== user.id && user.role !== 'TEAM_LEADER' && user.role !== 'ADMIN' && user.role !== 'LEADER' && user.role !== 'DEPUTY') {
       return NextResponse.json(
         { message: 'Bạn không có quyền chỉnh sửa lịch đặt này' },
         { status: 403 }
@@ -178,7 +178,7 @@ export async function DELETE(
       )
     }
 
-    if (booking.userId !== user.id && user.role !== 'ADMIN') {
+    if (booking.userId !== user.id && user.role !== 'TEAM_LEADER' && user.role !== 'ADMIN' && user.role !== 'LEADER' && user.role !== 'DEPUTY') {
       return NextResponse.json(
         { message: 'Bạn không có quyền xóa lịch đặt này' },
         { status: 403 }

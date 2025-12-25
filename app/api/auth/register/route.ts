@@ -32,7 +32,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const user = await createUser(email, password, name, 'USER')
+    // Default new registrations to FACILITY_MANAGER role
+    // Role can be changed later by TEAM_LEADER through account management
+    const user = await createUser(email, password, name, 'FACILITY_MANAGER')
 
     return NextResponse.json({
       message: 'Đăng ký thành công',

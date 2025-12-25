@@ -41,7 +41,7 @@ interface UserData {
   id: string
   email: string
   name: string
-  role: 'ADMIN' | 'USER'
+  role: 'TEAM_LEADER' | 'DEPUTY' | 'FACILITY_MANAGER'
   phone?: string
   address?: string
   avatar?: string
