@@ -8,7 +8,7 @@ export interface UserPayload {
   id: string
   email: string
   name: string
-  role: 'ADMIN' | 'USER'
+  role: string
 }
 
 export async function hashPassword(password: string): Promise<string> {
@@ -26,6 +26,15 @@ export function generateToken(payload: UserPayload): string {
 export function verifyToken(token: string): UserPayload | null {
   try {
     return jwt.verify(token, JWT_SECRET) as UserPayload
+  } catch {
+    return null
+  }
+}
+
+// Hàm an toàn dùng cho Middleware (chỉ decode, không verify signature để tránh lỗi trên Edge)
+export function decodeTokenOnly(token: string): UserPayload | null {
+  try {
+    return jwt.decode(token) as UserPayload
   } catch {
     return null
   }
@@ -51,7 +60,7 @@ export async function authenticateUser(email: string, password: string) {
   return userWithoutPassword
 }
 
-export async function createUser(email: string, password: string, name: string, role: 'ADMIN' | 'USER' = 'USER') {
+export async function createUser(email: string, password: string, name: string, role: string = 'USER') {
   const hashedPassword = await hashPassword(password)
   
   return prisma.user.create({

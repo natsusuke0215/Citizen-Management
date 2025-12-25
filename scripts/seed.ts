@@ -58,6 +58,39 @@ async function main() {
     }
   })
 
+  // Tạo Tổ trưởng
+  const leaderPassword = await bcrypt.hash('123456', 12)
+  await prisma.user.create({
+    data: {
+      email: 'totruong@gmail.com',
+      password: leaderPassword,
+      name: 'Nguyễn Văn Tổ Trưởng',
+      role: 'LEADER'
+    }
+  })
+
+  // Tạo Tổ phó
+  const deputyPassword = await bcrypt.hash('123456', 12)
+  await prisma.user.create({
+    data: {
+      email: 'topho@gmail.com',
+      password: deputyPassword,
+      name: 'Trần Thị Tổ Phó',
+      role: 'DEPUTY'
+    }
+  })
+
+  // Cán bộ quản lý CSVC
+  const managerPassword = await bcrypt.hash('123456', 12)
+  await prisma.user.create({
+    data: {
+      email: 'quanlycsvc@gmail.com',
+      password: managerPassword,
+      name: 'Lê Văn Quản Lý',
+      role: 'FACILITY_MANAGER'
+    }
+  })
+
   // Tạo khu phố
   const district1 = await prisma.district.create({
     data: {
@@ -353,6 +386,9 @@ async function main() {
 
   console.log('✅ Dữ liệu mẫu đã được tạo thành công!')
   console.log('👤 Admin: admin@example.com / admin123')
+  console.log('👤 Tổ trưởng: totruong@gmail.com / 123456')
+  console.log('👤 Tổ phó: topho@gmail.com / 123456')
+  console.log('👤 QL CSVC: quanlycsvc@gmail.com / 123456')
   console.log('👤 User: user@example.com / user123')
 }
 

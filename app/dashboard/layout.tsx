@@ -31,7 +31,7 @@ interface User {
   id: string
   email: string
   name: string
-  role: 'ADMIN' | 'USER'
+  role: string
 }
 
 interface NavigationSubItem {
@@ -121,30 +121,49 @@ export default function DashboardLayout({
     { name: 'Cấp giấy tạm vắng', href: '/dashboard/persons/temporary-absence', icon: FileDown },
   ]
 
-  const navigation: NavigationItem[] = user?.role === 'ADMIN' ? [
-    { name: 'Tổng quan', href: '/dashboard', icon: Home },
-    { 
-      name: 'Quản lý hộ khẩu', 
-      href: '/dashboard/households', 
-      icon: Users,
-      subItems: householdSubMenu
-    },
-    { 
-      name: 'Quản lý nhân khẩu',
-      href: '/dashboard/persons',
-      icon: Users,
-      subItems: personSubMenu
-    },
-    { name: 'Nhà văn hóa', href: '/dashboard/cultural-centers', icon: Building },
-    // Chỉ admin mới có thể thêm lịch
-    { name: 'Thêm lịch', href: '/dashboard/bookings', icon: Calendar },
-    { name: 'Cài đặt', href: '/dashboard/settings', icon: Settings },
-  ] : [
-    { name: 'Tổng quan', href: '/dashboard', icon: Home },
-    { name: 'Hộ khẩu của tôi', href: '/dashboard/my-household', icon: Users },
-    { name: 'Nhà văn hóa', href: '/dashboard/cultural-centers', icon: Building },
-    { name: 'Cài đặt', href: '/dashboard/settings', icon: Settings },
-  ]
+  const getNavigation = (role: string): NavigationItem[] => {
+    // ADMIN, LEADER, DEPUTY get full access
+    if (['ADMIN', 'LEADER', 'DEPUTY'].includes(role)) {
+      return [
+        { name: 'Tổng quan', href: '/dashboard', icon: Home },
+        { 
+          name: 'Quản lý hộ khẩu', 
+          href: '/dashboard/households', 
+          icon: Users,
+          subItems: householdSubMenu
+        },
+        { 
+          name: 'Quản lý nhân khẩu',
+          href: '/dashboard/persons',
+          icon: Users,
+          subItems: personSubMenu
+        },
+        { name: 'Nhà văn hóa', href: '/dashboard/cultural-centers', icon: Building },
+        { name: 'Thêm lịch', href: '/dashboard/bookings', icon: Calendar },
+        { name: 'Cài đặt', href: '/dashboard/settings', icon: Settings },
+      ]
+    }
+
+    // FACILITY_MANAGER gets limited access
+    if (role === 'FACILITY_MANAGER') {
+      return [
+        { name: 'Tổng quan', href: '/dashboard', icon: Home },
+        { name: 'Nhà văn hóa', href: '/dashboard/cultural-centers', icon: Building },
+        { name: 'Quản lý lịch', href: '/dashboard/bookings', icon: Calendar },
+        { name: 'Cài đặt', href: '/dashboard/settings', icon: Settings },
+      ]
+    }
+
+    // Default USER
+    return [
+      { name: 'Tổng quan', href: '/dashboard', icon: Home },
+      { name: 'Hộ khẩu của tôi', href: '/dashboard/my-household', icon: Users },
+      { name: 'Nhà văn hóa', href: '/dashboard/cultural-centers', icon: Building },
+      { name: 'Cài đặt', href: '/dashboard/settings', icon: Settings },
+    ]
+  }
+
+  const navigation: NavigationItem[] = user ? getNavigation(user.role) : []
 
   if (!user) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>
