@@ -31,7 +31,7 @@ interface User {
   id: string
   email: string
   name: string
-  role: 'ADMIN' | 'USER'
+  role: string
 }
 
 interface NavigationSubItem {
@@ -121,30 +121,49 @@ export default function DashboardLayout({
     { name: 'Cấp giấy tạm vắng', href: '/dashboard/persons/temporary-absence', icon: FileDown },
   ]
 
-  const navigation: NavigationItem[] = user?.role === 'ADMIN' ? [
-    { name: 'Tổng quan', href: '/dashboard', icon: Home },
-    { 
-      name: 'Quản lý hộ khẩu', 
-      href: '/dashboard/households', 
-      icon: Users,
-      subItems: householdSubMenu
-    },
-    { 
-      name: 'Quản lý nhân khẩu',
-      href: '/dashboard/persons',
-      icon: Users,
-      subItems: personSubMenu
-    },
-    { name: 'Nhà văn hóa', href: '/dashboard/cultural-centers', icon: Building },
-    // Chỉ admin mới có thể thêm lịch
-    { name: 'Thêm lịch', href: '/dashboard/bookings', icon: Calendar },
-    { name: 'Cài đặt', href: '/dashboard/settings', icon: Settings },
-  ] : [
-    { name: 'Tổng quan', href: '/dashboard', icon: Home },
-    { name: 'Hộ khẩu của tôi', href: '/dashboard/my-household', icon: Users },
-    { name: 'Nhà văn hóa', href: '/dashboard/cultural-centers', icon: Building },
-    { name: 'Cài đặt', href: '/dashboard/settings', icon: Settings },
-  ]
+  const getNavigation = (role: string): NavigationItem[] => {
+    // ADMIN, LEADER, DEPUTY get full access
+    if (['ADMIN', 'LEADER', 'DEPUTY'].includes(role)) {
+      return [
+        { name: 'Tổng quan', href: '/dashboard', icon: Home },
+        { 
+          name: 'Quản lý hộ khẩu', 
+          href: '/dashboard/households', 
+          icon: Users,
+          subItems: householdSubMenu
+        },
+        { 
+          name: 'Quản lý nhân khẩu',
+          href: '/dashboard/persons',
+          icon: Users,
+          subItems: personSubMenu
+        },
+        { name: 'Nhà văn hóa', href: '/dashboard/cultural-centers', icon: Building },
+        { name: 'Thêm lịch', href: '/dashboard/bookings', icon: Calendar },
+        { name: 'Cài đặt', href: '/dashboard/settings', icon: Settings },
+      ]
+    }
+
+    // FACILITY_MANAGER gets limited access
+    if (role === 'FACILITY_MANAGER') {
+      return [
+        { name: 'Tổng quan', href: '/dashboard', icon: Home },
+        { name: 'Nhà văn hóa', href: '/dashboard/cultural-centers', icon: Building },
+        { name: 'Quản lý lịch', href: '/dashboard/bookings', icon: Calendar },
+        { name: 'Cài đặt', href: '/dashboard/settings', icon: Settings },
+      ]
+    }
+
+    // Default USER
+    return [
+      { name: 'Tổng quan', href: '/dashboard', icon: Home },
+      { name: 'Hộ khẩu của tôi', href: '/dashboard/my-household', icon: Users },
+      { name: 'Nhà văn hóa', href: '/dashboard/cultural-centers', icon: Building },
+      { name: 'Cài đặt', href: '/dashboard/settings', icon: Settings },
+    ]
+  }
+
+  const navigation: NavigationItem[] = user ? getNavigation(user.role) : []
 
   if (!user) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>
@@ -262,8 +281,8 @@ export default function DashboardLayout({
       </div>
 
       {/* Desktop sidebar */}
-      <div className="hidden lg:flex lg:flex-shrink-0">
-        <div className="flex flex-col w-72 bg-white border-r border-gray-200 sidebar sticky top-0 h-screen">
+      <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
+        <div className="flex flex-col flex-grow w-72 bg-white border-r border-gray-200 sidebar h-full">
           {/* Sidebar Header */}
           <div className="flex-shrink-0 flex items-center px-6 py-6 border-b border-gray-200">
             <div className="flex items-center gap-3">
@@ -355,7 +374,7 @@ export default function DashboardLayout({
       </div>
 
       {/* Main content */}
-      <div className="flex flex-col flex-1 min-h-screen">
+      <div className="flex flex-col flex-1 min-h-screen lg:pl-72">
         {/* Top bar */}
         <div className="sticky top-0 z-10 flex-shrink-0 flex h-16 bg-white border-b border-gray-200 shadow-sm">
           <button
