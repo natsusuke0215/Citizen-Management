@@ -143,6 +143,7 @@ model CulturalCenter {
   amenities       String? // JSON array of amenities
   area            Float?  // Diện tích (m2)
   yearBuilt       Int?    // Năm xây dựng
+  imageUrl        String? // Đường dẫn hình ảnh phòng/sân
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -272,7 +273,14 @@ model CulturalCenterAsset {
   location          String?  // Vị trí trong nhà văn hóa
   culturalCenterId  String?
   notes             String?
+  imageUrl          String?  // Đường dẫn hình ảnh thiết bị
   lastChecked       DateTime?
+  // Chi tiết số lượng theo tình trạng (cho các thiết bị có số lượng lớn)
+  goodQuantity      Int?     // Số lượng tình trạng tốt
+  fairQuantity      Int?     // Số lượng tình trạng khá
+  poorQuantity      Int?     // Số lượng tình trạng kém
+  damagedQuantity   Int?     // Số lượng tình trạng hỏng
+  repairingQuantity Int?     // Số lượng đang sửa chữa
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
