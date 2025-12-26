@@ -197,7 +197,7 @@ async function main() {
     }
   })
 
-  // Tạo nhà văn hóa
+  // Tạo nhà văn hóa - Phòng bên trong
   await prisma.culturalCenter.create({
     data: {
       id: 'center-1',
@@ -210,7 +210,7 @@ async function main() {
       room: 'Hội trường',
       area: 240.0,
       yearBuilt: 2018,
-      amenities: JSON.stringify(['Máy chiếu', 'Âm thanh', 'Điều hòa', 'Sân khấu'])
+      amenities: JSON.stringify(['Máy chiếu', 'Âm thanh', 'Điều hòa', 'Sân khấu', 'Màn hình LED', 'Micro không dây', 'Bàn ghế di động'])
     }
   })
 
@@ -218,7 +218,7 @@ async function main() {
     data: {
       id: 'center-2',
       name: 'Phòng chức năng 1',
-      description: 'Phòng chức năng trên tầng 2',
+      description: 'Phòng chức năng trên tầng 2, phù hợp cho các cuộc họp nhỏ và lớp học',
       capacity: 50,
       location: 'Tầng 2, Nhà văn hóa Tổ dân phố 7',
       building: 'Nhà văn hóa',
@@ -226,7 +226,7 @@ async function main() {
       room: 'Phòng 201',
       area: 80.0,
       yearBuilt: 2018,
-      amenities: JSON.stringify(['Máy chiếu', 'Điều hòa'])
+      amenities: JSON.stringify(['Máy chiếu', 'Điều hòa', 'Bảng trắng', 'Bàn ghế', 'WiFi'])
     }
   })
 
@@ -234,7 +234,7 @@ async function main() {
     data: {
       id: 'center-3',
       name: 'Phòng chức năng 2',
-      description: 'Phòng chức năng trên tầng 2',
+      description: 'Phòng chức năng trên tầng 2, phù hợp cho các hoạt động nhóm nhỏ',
       capacity: 30,
       location: 'Tầng 2, Nhà văn hóa Tổ dân phố 7',
       building: 'Nhà văn hóa',
@@ -242,7 +242,120 @@ async function main() {
       room: 'Phòng 202',
       area: 50.0,
       yearBuilt: 2018,
-      amenities: JSON.stringify(['Máy chiếu'])
+      amenities: JSON.stringify(['Máy chiếu', 'Điều hòa', 'Bảng trắng', 'WiFi'])
+    }
+  })
+
+  await prisma.culturalCenter.create({
+    data: {
+      id: 'center-4',
+      name: 'Phòng chức năng 3',
+      description: 'Phòng chức năng trên tầng 2, có không gian yên tĩnh phù hợp cho học tập',
+      capacity: 40,
+      location: 'Tầng 2, Nhà văn hóa Tổ dân phố 7',
+      building: 'Nhà văn hóa',
+      floor: 2,
+      room: 'Phòng 203',
+      area: 65.0,
+      yearBuilt: 2018,
+      amenities: JSON.stringify(['Máy chiếu', 'Điều hòa', 'Bảng trắng', 'Bàn ghế', 'WiFi', 'Tủ sách'])
+    }
+  })
+
+  await prisma.culturalCenter.create({
+    data: {
+      id: 'center-5',
+      name: 'Phòng đa năng tầng 3',
+      description: 'Phòng đa năng trên tầng 3, có thể tổ chức các hoạt động thể dục thể thao nhẹ',
+      capacity: 60,
+      location: 'Tầng 3, Nhà văn hóa Tổ dân phố 7',
+      building: 'Nhà văn hóa',
+      floor: 3,
+      room: 'Phòng 301',
+      area: 100.0,
+      yearBuilt: 2018,
+      amenities: JSON.stringify(['Máy chiếu', 'Điều hòa', 'Gương tập', 'Sàn gỗ', 'Hệ thống âm thanh', 'WiFi'])
+    }
+  })
+
+  await prisma.culturalCenter.create({
+    data: {
+      id: 'center-6',
+      name: 'Phòng họp nhỏ tầng 1',
+      description: 'Phòng họp nhỏ gọn trên tầng 1, phù hợp cho các cuộc họp nội bộ',
+      capacity: 20,
+      location: 'Tầng 1, Nhà văn hóa Tổ dân phố 7',
+      building: 'Nhà văn hóa',
+      floor: 1,
+      room: 'Phòng 101',
+      area: 35.0,
+      yearBuilt: 2018,
+      amenities: JSON.stringify(['Máy chiếu', 'Điều hòa', 'Bảng trắng', 'Bàn họp', 'WiFi'])
+    }
+  })
+
+  await prisma.culturalCenter.create({
+    data: {
+      id: 'center-7',
+      name: 'Phòng thư viện',
+      description: 'Phòng thư viện trên tầng 2, có không gian đọc sách yên tĩnh',
+      capacity: 25,
+      location: 'Tầng 2, Nhà văn hóa Tổ dân phố 7',
+      building: 'Nhà văn hóa',
+      floor: 2,
+      room: 'Phòng 204',
+      area: 45.0,
+      yearBuilt: 2018,
+      amenities: JSON.stringify(['Điều hòa', 'Tủ sách', 'Bàn đọc', 'Đèn bàn', 'WiFi', 'Máy tính'])
+    }
+  })
+
+  // Tạo khuôn viên nhà văn hóa - Sân bên ngoài
+  await prisma.culturalCenter.create({
+    data: {
+      id: 'center-8',
+      name: 'Sân cầu lông',
+      description: 'Sân cầu lông ngoài trời trong khuôn viên nhà văn hóa, có lưới và vạch kẻ sân đầy đủ',
+      capacity: 8,
+      location: 'Khuôn viên nhà văn hóa Tổ dân phố 7',
+      building: 'Khuôn viên',
+      floor: null,
+      room: 'Sân cầu lông 1',
+      area: 81.0,
+      yearBuilt: 2019,
+      amenities: JSON.stringify(['Lưới cầu lông', 'Vạch kẻ sân', 'Đèn chiếu sáng', 'Ghế ngồi', 'Mái che'])
+    }
+  })
+
+  await prisma.culturalCenter.create({
+    data: {
+      id: 'center-9',
+      name: 'Sân cầu lông 2',
+      description: 'Sân cầu lông thứ hai trong khuôn viên, phục vụ nhu cầu tập luyện và thi đấu',
+      capacity: 8,
+      location: 'Khuôn viên nhà văn hóa Tổ dân phố 7',
+      building: 'Khuôn viên',
+      floor: null,
+      room: 'Sân cầu lông 2',
+      area: 81.0,
+      yearBuilt: 2019,
+      amenities: JSON.stringify(['Lưới cầu lông', 'Vạch kẻ sân', 'Đèn chiếu sáng', 'Ghế ngồi', 'Mái che'])
+    }
+  })
+
+  await prisma.culturalCenter.create({
+    data: {
+      id: 'center-10',
+      name: 'Sân bóng chuyền',
+      description: 'Sân bóng chuyền ngoài trời trong khuôn viên, có lưới và vạch kẻ sân tiêu chuẩn',
+      capacity: 14,
+      location: 'Khuôn viên nhà văn hóa Tổ dân phố 7',
+      building: 'Khuôn viên',
+      floor: null,
+      room: 'Sân bóng chuyền',
+      area: 162.0,
+      yearBuilt: 2019,
+      amenities: JSON.stringify(['Lưới bóng chuyền', 'Vạch kẻ sân', 'Đèn chiếu sáng', 'Ghế ngồi', 'Mái che', 'Bóng chuyền'])
     }
   })
 
@@ -296,6 +409,53 @@ async function main() {
     }
   })
 
+  // Thêm một số đặt lịch khác
+  const nextWeek = new Date()
+  nextWeek.setDate(nextWeek.getDate() + 5)
+  nextWeek.setHours(14, 0, 0, 0)
+  const nextWeekEnd = new Date(nextWeek)
+  nextWeekEnd.setHours(16, 0, 0, 0)
+
+  await prisma.culturalCenterBooking.create({
+    data: {
+      id: 'booking-3',
+      title: 'Lớp học tiếng Anh',
+      description: 'Lớp học tiếng Anh cho trẻ em',
+      startTime: nextWeek,
+      endTime: nextWeekEnd,
+      visibility: 'PUBLIC',
+      status: 'APPROVED',
+      type: 'ACTIVITY',
+      fee: null,
+      feePaid: false,
+      culturalCenterId: 'center-2',
+      userId: user.id
+    }
+  })
+
+  const sportsDate = new Date()
+  sportsDate.setDate(sportsDate.getDate() + 3)
+  sportsDate.setHours(18, 0, 0, 0)
+  const sportsEnd = new Date(sportsDate)
+  sportsEnd.setHours(20, 0, 0, 0)
+
+  await prisma.culturalCenterBooking.create({
+    data: {
+      id: 'booking-4',
+      title: 'Tập luyện cầu lông',
+      description: 'Tập luyện cầu lông hàng tuần',
+      startTime: sportsDate,
+      endTime: sportsEnd,
+      visibility: 'PUBLIC',
+      status: 'APPROVED',
+      type: 'ACTIVITY',
+      fee: 50000,
+      feePaid: true,
+      culturalCenterId: 'center-8',
+      userId: user.id
+    }
+  })
+
   // Tạo yêu cầu mẫu
   await prisma.request.create({
     data: {
@@ -313,6 +473,7 @@ async function main() {
 
   // Tạo tài sản nhà văn hóa mẫu
   try {
+    // Tài sản cho Hội trường tầng 1
     await prisma.culturalCenterAsset.create({
       data: {
         name: 'Bàn ghế',
@@ -321,6 +482,13 @@ async function main() {
         condition: 'GOOD',
         location: 'Hội trường tầng 1',
         culturalCenterId: 'center-1',
+        notes: 'Bàn ghế di động, có thể xếp gọn',
+        goodQuantity: 40,
+        fairQuantity: 7,
+        poorQuantity: 2,
+        damagedQuantity: 1,
+        repairingQuantity: 0,
+        imageUrl: '/images/assets/ban-ghe.jpg',
         lastChecked: new Date()
       }
     })
@@ -333,18 +501,255 @@ async function main() {
         condition: 'GOOD',
         location: 'Hội trường tầng 1',
         culturalCenterId: 'center-1',
+        notes: 'Loa công suất lớn, chất lượng âm thanh tốt',
+        goodQuantity: 3,
+        fairQuantity: 1,
+        poorQuantity: 0,
+        damagedQuantity: 0,
+        repairingQuantity: 0,
+        imageUrl: '/images/assets/loa.jpg',
         lastChecked: new Date()
       }
     })
 
     await prisma.culturalCenterAsset.create({
       data: {
-        name: 'Màn hình',
+        name: 'Màn hình LED',
         category: 'Thiết bị điện tử',
         quantity: 2,
         condition: 'GOOD',
         location: 'Hội trường tầng 1',
         culturalCenterId: 'center-1',
+        notes: 'Màn hình LED kích thước lớn, độ phân giải cao',
+        goodQuantity: 2,
+        fairQuantity: 0,
+        poorQuantity: 0,
+        damagedQuantity: 0,
+        repairingQuantity: 0,
+        imageUrl: '/images/assets/man-hinh-led.jpg',
+        lastChecked: new Date()
+      }
+    })
+
+    await prisma.culturalCenterAsset.create({
+      data: {
+        name: 'Micro không dây',
+        category: 'Thiết bị âm thanh',
+        quantity: 6,
+        condition: 'GOOD',
+        location: 'Hội trường tầng 1',
+        culturalCenterId: 'center-1',
+        notes: 'Micro không dây chất lượng cao, pin sạc',
+        goodQuantity: 5,
+        fairQuantity: 1,
+        poorQuantity: 0,
+        damagedQuantity: 0,
+        repairingQuantity: 0,
+        imageUrl: '/images/assets/micro-khong-day.jpg',
+        lastChecked: new Date()
+      }
+    })
+
+    await prisma.culturalCenterAsset.create({
+      data: {
+        name: 'Máy chiếu',
+        category: 'Thiết bị điện tử',
+        quantity: 1,
+        condition: 'GOOD',
+        location: 'Hội trường tầng 1',
+        culturalCenterId: 'center-1',
+        notes: 'Máy chiếu độ phân giải Full HD',
+        goodQuantity: 1,
+        fairQuantity: 0,
+        poorQuantity: 0,
+        damagedQuantity: 0,
+        repairingQuantity: 0,
+        imageUrl: '/images/assets/may-chieu.jpg',
+        lastChecked: new Date()
+      }
+    })
+
+    // Tài sản cho các phòng chức năng
+    await prisma.culturalCenterAsset.create({
+      data: {
+        name: 'Máy chiếu',
+        category: 'Thiết bị điện tử',
+        quantity: 1,
+        condition: 'GOOD',
+        location: 'Phòng chức năng 1',
+        culturalCenterId: 'center-2',
+        lastChecked: new Date()
+      }
+    })
+
+    await prisma.culturalCenterAsset.create({
+      data: {
+        name: 'Bàn ghế',
+        category: 'Nội thất',
+        quantity: 25,
+        condition: 'GOOD',
+        location: 'Phòng chức năng 1',
+        culturalCenterId: 'center-2',
+        lastChecked: new Date()
+      }
+    })
+
+    await prisma.culturalCenterAsset.create({
+      data: {
+        name: 'Máy chiếu',
+        category: 'Thiết bị điện tử',
+        quantity: 1,
+        condition: 'GOOD',
+        location: 'Phòng chức năng 2',
+        culturalCenterId: 'center-3',
+        lastChecked: new Date()
+      }
+    })
+
+    await prisma.culturalCenterAsset.create({
+      data: {
+        name: 'Bàn ghế',
+        category: 'Nội thất',
+        quantity: 15,
+        condition: 'GOOD',
+        location: 'Phòng chức năng 2',
+        culturalCenterId: 'center-3',
+        lastChecked: new Date()
+      }
+    })
+
+    await prisma.culturalCenterAsset.create({
+      data: {
+        name: 'Máy chiếu',
+        category: 'Thiết bị điện tử',
+        quantity: 1,
+        condition: 'GOOD',
+        location: 'Phòng chức năng 3',
+        culturalCenterId: 'center-4',
+        lastChecked: new Date()
+      }
+    })
+
+    await prisma.culturalCenterAsset.create({
+      data: {
+        name: 'Tủ sách',
+        category: 'Nội thất',
+        quantity: 3,
+        condition: 'GOOD',
+        location: 'Phòng chức năng 3',
+        culturalCenterId: 'center-4',
+        lastChecked: new Date()
+      }
+    })
+
+    // Tài sản cho phòng đa năng
+    await prisma.culturalCenterAsset.create({
+      data: {
+        name: 'Gương tập',
+        category: 'Thiết bị thể thao',
+        quantity: 2,
+        condition: 'GOOD',
+        location: 'Phòng đa năng tầng 3',
+        culturalCenterId: 'center-5',
+        lastChecked: new Date()
+      }
+    })
+
+    await prisma.culturalCenterAsset.create({
+      data: {
+        name: 'Loa Bluetooth',
+        category: 'Thiết bị âm thanh',
+        quantity: 2,
+        condition: 'GOOD',
+        location: 'Phòng đa năng tầng 3',
+        culturalCenterId: 'center-5',
+        lastChecked: new Date()
+      }
+    })
+
+    // Tài sản cho phòng thư viện
+    await prisma.culturalCenterAsset.create({
+      data: {
+        name: 'Tủ sách',
+        category: 'Nội thất',
+        quantity: 8,
+        condition: 'GOOD',
+        location: 'Phòng thư viện',
+        culturalCenterId: 'center-7',
+        lastChecked: new Date()
+      }
+    })
+
+    await prisma.culturalCenterAsset.create({
+      data: {
+        name: 'Máy tính',
+        category: 'Thiết bị điện tử',
+        quantity: 3,
+        condition: 'GOOD',
+        location: 'Phòng thư viện',
+        culturalCenterId: 'center-7',
+        lastChecked: new Date()
+      }
+    })
+
+    // Tài sản cho sân cầu lông
+    await prisma.culturalCenterAsset.create({
+      data: {
+        name: 'Lưới cầu lông',
+        category: 'Thiết bị thể thao',
+        quantity: 2,
+        condition: 'GOOD',
+        location: 'Sân cầu lông',
+        culturalCenterId: 'center-8',
+        lastChecked: new Date()
+      }
+    })
+
+    await prisma.culturalCenterAsset.create({
+      data: {
+        name: 'Vợt cầu lông',
+        category: 'Thiết bị thể thao',
+        quantity: 8,
+        condition: 'GOOD',
+        location: 'Sân cầu lông',
+        culturalCenterId: 'center-8',
+        lastChecked: new Date()
+      }
+    })
+
+    await prisma.culturalCenterAsset.create({
+      data: {
+        name: 'Cầu lông',
+        category: 'Thiết bị thể thao',
+        quantity: 24,
+        condition: 'GOOD',
+        location: 'Sân cầu lông',
+        culturalCenterId: 'center-8',
+        lastChecked: new Date()
+      }
+    })
+
+    // Tài sản cho sân bóng chuyền
+    await prisma.culturalCenterAsset.create({
+      data: {
+        name: 'Lưới bóng chuyền',
+        category: 'Thiết bị thể thao',
+        quantity: 1,
+        condition: 'GOOD',
+        location: 'Sân bóng chuyền',
+        culturalCenterId: 'center-10',
+        lastChecked: new Date()
+      }
+    })
+
+    await prisma.culturalCenterAsset.create({
+      data: {
+        name: 'Bóng chuyền',
+        category: 'Thiết bị thể thao',
+        quantity: 6,
+        condition: 'GOOD',
+        location: 'Sân bóng chuyền',
+        culturalCenterId: 'center-10',
         lastChecked: new Date()
       }
     })
