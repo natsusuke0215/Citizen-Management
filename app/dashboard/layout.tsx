@@ -59,30 +59,42 @@ export default function DashboardLayout({
   const [expandedMenus, setExpandedMenus] = useState<Set<string>>(new Set())
   const router = useRouter()
 
-  useEffect(() => {
-    // Get user info from API
-    const fetchUser = async () => {
-      try {
-        console.log('Fetching user info...')
-        const response = await fetch('/api/auth/me', {
-          credentials: 'include'
-        })
-        
-        if (response.ok) {
-          const userData = await response.json()
-          console.log('User data received:', userData)
-          setUser(userData)
-        } else {
-          console.log('Failed to get user info, redirecting to login')
-          router.push('/login')
-        }
-      } catch (error) {
-        console.log('Error fetching user info:', error)
+  // Get user info from API
+  const fetchUser = async () => {
+    try {
+      console.log('Fetching user info...')
+      const response = await fetch('/api/auth/me', {
+        credentials: 'include'
+      })
+      
+      if (response.ok) {
+        const userData = await response.json()
+        console.log('User data received:', userData)
+        setUser(userData)
+      } else {
+        console.log('Failed to get user info, redirecting to login')
         router.push('/login')
       }
+    } catch (error) {
+      console.log('Error fetching user info:', error)
+      router.push('/login')
+    }
+  }
+
+  useEffect(() => {
+    fetchUser()
+
+    // Listen for user profile update events
+    const handleUserProfileUpdate = async (event: Event) => {
+      // Refresh user data from API to get the latest information
+      await fetchUser()
     }
 
-    fetchUser()
+    window.addEventListener('userProfileUpdated', handleUserProfileUpdate)
+
+    return () => {
+      window.removeEventListener('userProfileUpdated', handleUserProfileUpdate)
+    }
   }, [router])
 
   const handleLogout = async () => {
@@ -194,28 +206,28 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-2 via-white to-yellow-2 lg:flex">
+    <div className="min-h-screen bg-gradient-to-br from-yellow-2 via-white to-yellow-2 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 lg:flex">
       {/* Mobile sidebar */}
       <div className={`fixed inset-0 z-50 lg:hidden transition-opacity duration-300 ${sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
         <div 
-          className="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm" 
+          className="fixed inset-0 bg-gray-900 dark:bg-black bg-opacity-50 dark:bg-opacity-70 backdrop-blur-sm" 
           onClick={() => setSidebarOpen(false)} 
         />
-        <div className={`relative flex-1 flex flex-col w-80 max-w-[85vw] bg-white h-full transform transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className={`relative flex-1 flex flex-col w-80 max-w-[85vw] bg-white dark:bg-gray-900 h-full transform transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
           {/* Mobile Header */}
-          <div className="flex-shrink-0 flex items-center justify-between px-6 py-5 border-b border-gray-200">
+          <div className="flex-shrink-0 flex items-center justify-between px-6 py-5 border-b border-gray-200 dark:border-gray-800">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-gradient-to-br from-navy-1 to-navy-2 rounded-[10px] shadow-drop">
                 <Building className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h1 className="text-lg font-bold text-gray-900 leading-tight">Quản lý nhân khẩu</h1>
-                <p className="text-xs text-gray-500">Hệ thống quản lý</p>
+                <h1 className="text-lg font-bold text-gray-900 dark:text-gray-100 leading-tight">Quản lý nhân khẩu</h1>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Hệ thống quản lý</p>
               </div>
             </div>
             <button
               type="button"
-              className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-[8px] transition-colors"
+              className="p-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-[8px] transition-colors"
               onClick={() => setSidebarOpen(false)}
             >
               <X className="h-6 w-6" />
@@ -243,7 +255,7 @@ export default function DashboardLayout({
                             e.stopPropagation()
                             toggleMenu(item.name)
                           }}
-                          className="p-2 text-gray-400 hover:text-navy-1 hover:bg-gray-50 rounded-[8px] transition-all duration-200"
+                          className="p-2 text-gray-400 dark:text-gray-500 hover:text-navy-1 dark:hover:text-navy-3 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-[8px] transition-all duration-200"
                         >
                           {expandedMenus.has(item.name) ? (
                             <ChevronDown className="h-4 w-4" />
@@ -253,7 +265,7 @@ export default function DashboardLayout({
                         </button>
                       </div>
                       {expandedMenus.has(item.name) && (
-                        <div className="ml-4 pl-4 border-l-2 border-gray-100 space-y-1 mt-2">
+                        <div className="ml-4 pl-4 border-l-2 border-gray-100 dark:border-gray-800 space-y-1 mt-2">
                           {item.subItems.map((subItem) => (
                             <Link
                               key={subItem.name}
@@ -284,7 +296,7 @@ export default function DashboardLayout({
           </div>
           
           {/* Mobile User Profile Footer */}
-          <div className="flex-shrink-0 border-t border-gray-200 bg-gray-50 p-4">
+          <div className="flex-shrink-0 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800 p-4">
             <div className="flex items-center gap-3">
               <div className="flex-shrink-0">
                 <div className="h-12 w-12 rounded-full bg-gradient-to-br from-navy-1 to-navy-2 flex items-center justify-center shadow-drop">
@@ -294,8 +306,8 @@ export default function DashboardLayout({
                 </div>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-gray-900 truncate">{user.name}</p>
-                <p className="text-xs text-gray-500 truncate">
+                <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">{user.name}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
                   {(user.role === 'TEAM_LEADER' || user.role === 'LEADER') ? 'Tổ trưởng' : 
                    user.role === 'ADMIN' ? 'Quản trị viên' :
                    user.role === 'DEPUTY' ? 'Tổ phó' : 
@@ -310,16 +322,16 @@ export default function DashboardLayout({
 
       {/* Desktop sidebar */}
       <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
-        <div className="flex flex-col flex-grow w-72 bg-white border-r border-gray-200 sidebar h-full">
+        <div className="flex flex-col flex-grow w-72 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 sidebar h-full">
           {/* Sidebar Header */}
-          <div className="flex-shrink-0 flex items-center px-6 py-6 border-b border-gray-200">
+          <div className="flex-shrink-0 flex items-center px-6 py-6 border-b border-gray-200 dark:border-gray-800">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-gradient-to-br from-navy-1 to-navy-2 rounded-[10px] shadow-drop">
                 <Building className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h1 className="text-lg font-bold text-gray-900 leading-tight">Quản lý nhân khẩu</h1>
-                <p className="text-xs text-gray-500">Hệ thống quản lý</p>
+                <h1 className="text-lg font-bold text-gray-900 dark:text-gray-100 leading-tight">Quản lý nhân khẩu</h1>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Hệ thống quản lý</p>
               </div>
             </div>
           </div>
@@ -338,13 +350,13 @@ export default function DashboardLayout({
                         <item.icon className="h-5 w-5 flex-shrink-0" />
                         <span className="flex-1">{item.name}</span>
                       </Link>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          toggleMenu(item.name)
-                        }}
-                        className="p-2 text-gray-400 hover:text-navy-1 hover:bg-gray-50 rounded-[8px] transition-all duration-200"
-                      >
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            toggleMenu(item.name)
+                          }}
+                          className="p-2 text-gray-400 dark:text-gray-500 hover:text-navy-1 dark:hover:text-navy-3 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-[8px] transition-all duration-200"
+                        >
                         {expandedMenus.has(item.name) ? (
                           <ChevronDown className="h-4 w-4" />
                         ) : (
@@ -353,7 +365,7 @@ export default function DashboardLayout({
                       </button>
                     </div>
                     {expandedMenus.has(item.name) && (
-                      <div className="ml-4 pl-4 border-l-2 border-gray-100 space-y-1 mt-2">
+                      <div className="ml-4 pl-4 border-l-2 border-gray-100 dark:border-gray-800 space-y-1 mt-2">
                         {item.subItems.map((subItem) => (
                           <Link
                             key={subItem.name}
@@ -381,7 +393,7 @@ export default function DashboardLayout({
           </nav>
           
           {/* User Profile Footer */}
-          <div className="flex-shrink-0 border-t border-gray-200 bg-gray-50 p-4">
+          <div className="flex-shrink-0 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800 p-4">
             <div className="flex items-center gap-3">
               <div className="flex-shrink-0">
                 <div className="h-12 w-12 rounded-full bg-gradient-to-br from-navy-1 to-navy-2 flex items-center justify-center shadow-drop">
@@ -391,8 +403,8 @@ export default function DashboardLayout({
                 </div>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-gray-900 truncate">{user.name}</p>
-                <p className="text-xs text-gray-500 truncate">
+                <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">{user.name}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
                   {(user.role === 'TEAM_LEADER' || user.role === 'LEADER') ? 'Tổ trưởng' : 
                    user.role === 'ADMIN' ? 'Quản trị viên' :
                    user.role === 'DEPUTY' ? 'Tổ phó' : 
@@ -408,24 +420,24 @@ export default function DashboardLayout({
       {/* Main content */}
       <div className="flex flex-col flex-1 min-h-screen lg:pl-72">
         {/* Top bar */}
-        <div className="sticky top-0 z-10 flex-shrink-0 flex h-16 bg-white border-b border-gray-200 shadow-sm">
+        <div className="sticky top-0 z-10 flex-shrink-0 flex h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-sm">
           <button
             type="button"
-            className="px-4 border-r border-gray-200 text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-colors lg:hidden"
+            className="px-4 border-r border-gray-200 dark:border-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors lg:hidden"
             onClick={() => setSidebarOpen(true)}
           >
             <Menu className="h-6 w-6" />
           </button>
           <div className="flex-1 px-6 flex items-center justify-between">
             <div className="flex items-center">
-              <span className="text-sm font-medium text-gray-700">
-                Chào mừng, <span className="text-navy-1 font-semibold">{user.name}</span>!
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Chào mừng, <span className="text-navy-1 dark:text-navy-3 font-semibold">{user.name}</span>!
               </span>
             </div>
             <div className="flex items-center gap-3">
               <button
                 type="button"
-                className="relative p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-[8px] transition-all duration-200"
+                className="relative p-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-[8px] transition-all duration-200"
               >
                 <Bell className="h-5 w-5" />
                 {notifications > 0 && (
@@ -436,7 +448,7 @@ export default function DashboardLayout({
               </button>
               <button
                 onClick={handleLogout}
-                className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-[8px] transition-all duration-200"
+                className="p-2 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-[8px] transition-all duration-200"
                 title="Đăng xuất"
               >
                 <LogOut className="h-5 w-5" />
@@ -446,7 +458,7 @@ export default function DashboardLayout({
         </div>
 
         {/* Page content */}
-        <main className="flex-1 bg-gradient-to-br from-yellow-2 via-white to-yellow-2 min-h-screen">
+        <main className="flex-1 bg-gradient-to-br from-yellow-2 via-white to-yellow-2 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 min-h-screen">
           <div className="px-4 sm:px-6 md:px-8 py-6">
             {children}
           </div>

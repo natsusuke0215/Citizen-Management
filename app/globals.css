@@ -77,13 +77,25 @@ a {
   background: #f1f1f1;
 }
 
+.dark ::-webkit-scrollbar-track {
+  background: #1f2937;
+}
+
 ::-webkit-scrollbar-thumb {
   background: #c1c1c1;
   border-radius: 4px;
 }
 
+.dark ::-webkit-scrollbar-thumb {
+  background: #4b5563;
+}
+
 ::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
 }
 
 /* Custom components */
@@ -104,7 +116,7 @@ a {
 }
 
 .input {
-  @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200 bg-white text-black;
+  @apply w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-primary-500 dark:focus:border-primary-400 transition-colors duration-200 bg-white dark:bg-gray-800 text-black dark:text-gray-100;
 }
 
 /* Ensure native form controls use white background and black text regardless of color-scheme */
@@ -156,11 +168,11 @@ select[class]:focus {
 }
 
 .card {
-  @apply bg-white rounded-[15px] shadow-drop border border-gray-200 p-6;
+  @apply bg-white dark:bg-gray-800 rounded-[15px] shadow-drop border border-gray-200 dark:border-gray-700 p-6;
 }
 
 .sidebar {
-  @apply bg-white shadow-lg border-r border-gray-200;
+  @apply bg-white dark:bg-gray-900 shadow-lg border-r border-gray-200 dark:border-gray-800;
 }
 
 /* New color palette utilities */
@@ -193,16 +205,16 @@ select[class]:focus {
 }
 
 .nav-link {
-  @apply flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-primary-600 transition-colors duration-200;
+  @apply flex items-center px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200;
 }
 
 .nav-link.active {
-  @apply bg-primary-50 text-primary-600 border-r-2 border-primary-600;
+  @apply bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 border-r-2 border-primary-600 dark:border-primary-400;
 }
 
 /* Enhanced navigation links with new color scheme */
 .nav-link-enhanced {
-  @apply flex items-center px-3 py-2.5 text-sm font-medium text-gray-700 rounded-[8px] transition-all duration-200;
+  @apply flex items-center px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-[8px] transition-all duration-200;
   color: #374151;
 }
 
@@ -211,14 +223,25 @@ select[class]:focus {
   color: #516089;
 }
 
+.dark .nav-link-enhanced:hover {
+  background-color: rgba(81, 96, 137, 0.2);
+  color: #7874F9;
+}
+
 .nav-link-enhanced.active {
   background: linear-gradient(135deg, #516089 0%, #586995 100%);
   color: white;
   box-shadow: 0px 2px 4px rgba(81, 96, 137, 0.2);
 }
 
+.dark .nav-link-enhanced.active {
+  background: linear-gradient(135deg, #516089 0%, #7874F9 100%);
+  color: white;
+  box-shadow: 0px 2px 4px rgba(120, 116, 249, 0.3);
+}
+
 .nav-link-sub {
-  @apply flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-[8px] transition-all duration-200;
+  @apply flex items-center px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 rounded-[8px] transition-all duration-200;
 }
 
 .nav-link-sub:hover {
@@ -226,9 +249,20 @@ select[class]:focus {
   color: #516089;
 }
 
+.dark .nav-link-sub:hover {
+  background-color: rgba(81, 96, 137, 0.15);
+  color: #7874F9;
+}
+
 .nav-link-sub.active {
   background-color: #E9B880;
   color: #516089;
+  font-weight: 600;
+}
+
+.dark .nav-link-sub.active {
+  background-color: rgba(120, 116, 249, 0.2);
+  color: #7874F9;
   font-weight: 600;
 }
 

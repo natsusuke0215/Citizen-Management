@@ -15,9 +15,17 @@ model User {
   email     String   @unique
   password  String
   name      String
-  role      String   @default("FACILITY_MANAGER") // TEAM_LEADER, DEPUTY, FACILITY_MANAGER, CALENDAR_MANAGER, ADMIN
+  role      String   @default("FACILITY_MANAGER") // TEAM_LEADER, DEPUTY, FACILITY_MANAGER, CALENDAR_MANAGER, GROUP_LEADER, ADMIN
+  phone     String?
+  address   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // Settings
+  isEmailNotificationEnabled Boolean @default(true)
+  isPushNotificationEnabled   Boolean @default(true)
+  isPublicProfile            Boolean @default(false)
+  theme                      String?  @default("system") // light, dark, system
 
   // Relations
   householdId String?
