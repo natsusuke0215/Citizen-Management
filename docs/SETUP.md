@@ -130,7 +130,7 @@ npm run lint             # Run ESLint
 ## 🔒 Bảo mật
 
 - JWT authentication
-- Password hashing với bcryptjs
+- Plain text passwords (không hash)
 - Role-based access control
 - Input validation
 - SQL injection protection với Prisma
@@ -206,4 +206,21 @@ Nếu gặp vấn đề, hãy kiểm tra:
 1. Pull latest changes
 2. Chạy `npm install`
 3. Chạy `npx prisma db push`
-4. Restart server
+4. **Nếu database đã có dữ liệu cũ với mật khẩu hash**, chạy:
+   ```bash
+   npx tsx scripts/update-passwords-to-plaintext.ts
+   ```
+   **Lưu ý**: Nếu database mới hoàn toàn hoặc đã chạy `npm run db:seed` sau khi pull, KHÔNG cần chạy script này vì seed đã tạo plain text passwords.
+5. Restart server
+
+### Khi nào cần chạy `update-passwords-to-plaintext.ts`?
+
+**KHÔNG cần chạy nếu:**
+- Database mới hoàn toàn (chưa có dữ liệu)
+- Đã chạy `npm run db:seed` sau khi pull code mới
+- Tất cả mật khẩu trong database đã là plain text
+
+**CẦN chạy nếu:**
+- Database cũ đã có dữ liệu với mật khẩu hash (từ phiên bản cũ)
+- Khi hiển thị mật khẩu vẫn thấy hash (ví dụ: `$2a$12$...`)
+- Đã pull code mới nhưng database chưa được cập nhật

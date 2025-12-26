@@ -45,6 +45,7 @@ export async function GET(request: NextRequest) {
         email: true,
         name: true,
         role: true,
+        password: true, // Include password for admin to see (will be masked in UI)
         householdId: true,
         createdAt: true,
         updatedAt: true
