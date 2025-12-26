@@ -1,6 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { useTheme } from 'next-themes'
 import { 
   Settings, 
   User, 
@@ -8,19 +10,14 @@ import {
   Bell, 
   Shield, 
   Palette, 
-  Globe, 
-  Download, 
-  Upload,
+  Download,
   Eye,
   EyeOff,
   Save,
-  Check,
-  X,
   Camera,
   Mail,
   Phone,
   MapPin,
-  Calendar,
   Key,
   History,
   Trash2,
@@ -28,12 +25,10 @@ import {
   Moon,
   Sun,
   Monitor,
-  Volume2,
-  VolumeX,
-  Clock,
   FileText,
   Database,
-  RefreshCw
+  RefreshCw,
+  X
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -41,13 +36,19 @@ interface UserData {
   id: string
   email: string
   name: string
-  role: 'TEAM_LEADER' | 'DEPUTY' | 'FACILITY_MANAGER'
+  role: string
   phone?: string
   address?: string
-  avatar?: string
+  isEmailNotificationEnabled?: boolean
+  isPushNotificationEnabled?: boolean
+  isPublicProfile?: boolean
+  theme?: string
 }
 
 export default function SettingsPage() {
+  const router = useRouter()
+  const { theme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
   const [user, setUser] = useState<UserData | null>(null)
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('profile')
@@ -76,43 +77,32 @@ export default function SettingsPage() {
   // Notification settings
   const [notifications, setNotifications] = useState({
     email: true,
-    push: true,
-    sms: false,
-    requests: true,
-    bookings: true,
-    system: true,
-    marketing: false
+    push: true
   })
   
   // Privacy settings
-  const [privacy, setPrivacy] = useState({
-    profileVisibility: 'public',
-    showEmail: true,
-    showPhone: false,
-    dataSharing: false,
-    analytics: true
-  })
+  const [isPublicProfile, setIsPublicProfile] = useState(false)
   
-  // Theme settings
-  const [theme, setTheme] = useState<'light' | 'dark' | 'auto'>('auto')
-  
-  // Language settings
-  const [language, setLanguage] = useState('vi')
-  
-  // Audio settings
-  const [audio, setAudio] = useState({
-    enabled: true,
-    volume: 50,
-    backgroundMusic: true
-  })
+  // Delete account modal
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [deletePassword, setDeletePassword] = useState('')
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
+    setMounted(true)
     fetchUserData()
   }, [])
 
+  // Sync theme from user data when it loads
+  useEffect(() => {
+    if (user?.theme && mounted) {
+      setTheme(user.theme as 'light' | 'dark' | 'system')
+    }
+  }, [user?.theme, mounted, setTheme])
+
   const fetchUserData = async () => {
     try {
-      const response = await fetch('/api/auth/me', {
+      const response = await fetch('/api/users/me', {
         credentials: 'include'
       })
       if (response.ok) {
@@ -124,8 +114,18 @@ export default function SettingsPage() {
           phone: userData.phone || '',
           address: userData.address || ''
         })
+        setNotifications({
+          email: userData.isEmailNotificationEnabled ?? true,
+          push: userData.isPushNotificationEnabled ?? true
+        })
+        setIsPublicProfile(userData.isPublicProfile ?? false)
+        // Theme will be synced via useEffect when mounted
+      } else {
+        const error = await response.json().catch(() => ({ message: 'Không thể tải thông tin người dùng' }))
+        toast.error(error.message || 'Không thể tải thông tin người dùng')
       }
     } catch (error) {
+      console.error('Fetch user data error:', error)
       toast.error('Không thể tải thông tin người dùng')
     } finally {
       setLoading(false)
@@ -133,12 +133,63 @@ export default function SettingsPage() {
   }
 
   const handleSaveProfile = async () => {
+    // Validate required fields
+    if (!profileData.name || profileData.name.trim() === '') {
+      toast.error('Vui lòng nhập họ và tên')
+      return
+    }
+
+    if (!profileData.email || profileData.email.trim() === '') {
+      toast.error('Vui lòng nhập email')
+      return
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(profileData.email)) {
+      toast.error('Email không hợp lệ')
+      return
+    }
+
     setSaving(true)
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      toast.success('Đã cập nhật thông tin cá nhân!')
+      const response = await fetch('/api/users/me', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          name: profileData.name.trim(),
+          email: profileData.email.trim(),
+          phone: profileData.phone || '',
+          address: profileData.address || ''
+        })
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setUser(data.user)
+        // Update profileData with the response
+        setProfileData({
+          name: data.user.name || '',
+          email: data.user.email || '',
+          phone: data.user.phone || '',
+          address: data.user.address || ''
+        })
+        
+        // Dispatch custom event to notify other components (like Sidebar/Header) to refresh user data
+        window.dispatchEvent(new CustomEvent('userProfileUpdated', { 
+          detail: { user: data.user } 
+        }))
+        
+        toast.success('Đã cập nhật thông tin cá nhân!')
+      } else {
+        const error = await response.json()
+        toast.error(error.message || 'Có lỗi xảy ra khi cập nhật')
+      }
     } catch (error) {
+      console.error('Save profile error:', error)
       toast.error('Có lỗi xảy ra khi cập nhật')
     } finally {
       setSaving(false)
@@ -157,13 +208,29 @@ export default function SettingsPage() {
     
     setSaving(true)
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      toast.success('Đã đổi mật khẩu thành công!')
-      setPasswordData({
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: ''
+      const response = await fetch('/api/users/me/password', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          currentPassword: passwordData.currentPassword,
+          newPassword: passwordData.newPassword
+        })
       })
+
+      if (response.ok) {
+        toast.success('Đã đổi mật khẩu thành công!')
+        setPasswordData({
+          currentPassword: '',
+          newPassword: '',
+          confirmPassword: ''
+        })
+      } else {
+        const error = await response.json()
+        toast.error(error.message || 'Có lỗi xảy ra khi đổi mật khẩu')
+      }
     } catch (error) {
       toast.error('Có lỗi xảy ra khi đổi mật khẩu')
     } finally {
@@ -171,26 +238,162 @@ export default function SettingsPage() {
     }
   }
 
-  const handleSaveNotifications = async () => {
-    setSaving(true)
+  const handleNotificationToggle = async (key: 'email' | 'push', value: boolean) => {
+    const newNotifications = { ...notifications, [key]: value }
+    setNotifications(newNotifications)
+
     try {
-      await new Promise(resolve => setTimeout(resolve, 800))
-      toast.success('Đã lưu cài đặt thông báo!')
+      const response = await fetch('/api/users/me/settings', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          isEmailNotificationEnabled: newNotifications.email,
+          isPushNotificationEnabled: newNotifications.push
+        })
+      })
+
+      if (response.ok) {
+        toast.success('Đã cập nhật cài đặt thông báo')
+      } else {
+        // Revert on error
+        setNotifications(notifications)
+        const error = await response.json()
+        toast.error(error.message || 'Có lỗi xảy ra')
+      }
     } catch (error) {
+      // Revert on error
+      setNotifications(notifications)
       toast.error('Có lỗi xảy ra')
-    } finally {
-      setSaving(false)
     }
   }
 
-  const handleExportData = async () => {
+  const handlePrivacyToggle = async (value: boolean) => {
+    setIsPublicProfile(value)
+
     try {
-      toast.success('Đang xuất dữ liệu...')
-      // Simulate export
-      await new Promise(resolve => setTimeout(resolve, 1500))
-      toast.success('Đã xuất dữ liệu thành công!')
+      const response = await fetch('/api/users/me/settings', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          isPublicProfile: value
+        })
+      })
+
+      if (response.ok) {
+        toast.success('Đã cập nhật cài đặt quyền riêng tư')
+      } else {
+        // Revert on error
+        setIsPublicProfile(!value)
+        const error = await response.json()
+        toast.error(error.message || 'Có lỗi xảy ra')
+      }
     } catch (error) {
+      // Revert on error
+      setIsPublicProfile(!value)
+      toast.error('Có lỗi xảy ra')
+    }
+  }
+
+  const handleThemeChange = async (newTheme: 'light' | 'dark' | 'system') => {
+    const previousTheme = theme
+    setTheme(newTheme)
+
+    try {
+      const response = await fetch('/api/users/me/settings', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          theme: newTheme
+        })
+      })
+
+      if (!response.ok) {
+        // Revert on error
+        setTheme(previousTheme || 'system')
+        const error = await response.json()
+        toast.error(error.message || 'Có lỗi xảy ra')
+      } else {
+        // Update user state to reflect the change
+        if (user) {
+          setUser({ ...user, theme: newTheme })
+        }
+      }
+    } catch (error) {
+      // Revert on error
+      setTheme(previousTheme || 'system')
+      toast.error('Có lỗi xảy ra')
+    }
+  }
+
+  const handleExportData = async (format: 'json' | 'csv') => {
+    try {
+      toast.loading('Đang xuất dữ liệu...')
+      const response = await fetch(`/api/users/me/export?format=${format}`, {
+        credentials: 'include'
+      })
+
+      if (response.ok) {
+        const blob = await response.blob()
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `user-data-${user?.id}.${format}`
+        document.body.appendChild(a)
+        a.click()
+        window.URL.revokeObjectURL(url)
+        document.body.removeChild(a)
+        toast.dismiss()
+        toast.success('Đã xuất dữ liệu thành công!')
+      } else {
+        toast.dismiss()
+        const error = await response.json()
+        toast.error(error.message || 'Có lỗi xảy ra khi xuất dữ liệu')
+      }
+    } catch (error) {
+      toast.dismiss()
       toast.error('Có lỗi xảy ra khi xuất dữ liệu')
+    }
+  }
+
+  const handleDeleteAccount = async () => {
+    if (!deletePassword) {
+      toast.error('Vui lòng nhập mật khẩu để xác nhận')
+      return
+    }
+
+    setDeleting(true)
+    try {
+      const response = await fetch('/api/users/me', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({ password: deletePassword })
+      })
+
+      if (response.ok) {
+        toast.success('Đã xóa tài khoản thành công')
+        setTimeout(() => {
+          router.push('/login')
+        }, 1000)
+      } else {
+        const error = await response.json()
+        toast.error(error.message || 'Có lỗi xảy ra khi xóa tài khoản')
+        setDeleting(false)
+      }
+    } catch (error) {
+      toast.error('Có lỗi xảy ra khi xóa tài khoản')
+      setDeleting(false)
     }
   }
 
@@ -487,25 +690,6 @@ export default function SettingsPage() {
                 </div>
               </div>
 
-              {/* Two-Factor Authentication */}
-              <div className="bg-white rounded-[15px] shadow-drop p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                      <Shield className="h-5 w-5 text-navy-1" />
-                      Xác thực hai yếu tố (2FA)
-                    </h3>
-                    <p className="text-sm text-gray-500 mt-1">
-                      Thêm lớp bảo mật bổ sung cho tài khoản của bạn
-                    </p>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" className="sr-only peer" />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-navy-1/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-navy-1"></div>
-                  </label>
-                </div>
-              </div>
-
               {/* Login History */}
               <div className="bg-white rounded-[15px] shadow-drop p-6">
                 <div className="mb-4">
@@ -518,26 +702,24 @@ export default function SettingsPage() {
                   </p>
                 </div>
                 <div className="space-y-3">
-                  {[1, 2, 3].map((item) => (
-                    <div key={item} className="flex items-center justify-between p-3 bg-gray-50 rounded-[8px]">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-navy-1/10 rounded-[6px]">
-                          <Monitor className="h-4 w-4 text-navy-1" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-gray-900">Windows • Chrome</p>
-                          <p className="text-xs text-gray-500">192.168.1.1 • Hà Nội, Việt Nam</p>
-                        </div>
+                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-[8px]">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-navy-1/10 rounded-[6px]">
+                        <Monitor className="h-4 w-4 text-navy-1" />
                       </div>
-                      <div className="text-right">
-                        <p className="text-xs text-gray-500">Hôm nay, 14:30</p>
-                        <span className="inline-flex items-center gap-1 text-xs text-green-600 mt-1">
-                          <Check className="h-3 w-3" />
-                          Hoạt động
-                        </span>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">Windows • Chrome</p>
+                        <p className="text-xs text-gray-500">192.168.1.1 • Hà Nội, Việt Nam</p>
                       </div>
                     </div>
-                  ))}
+                    <div className="text-right">
+                      <p className="text-xs text-gray-500">Hôm nay, 14:30</p>
+                      <span className="inline-flex items-center gap-1 text-xs text-green-600 mt-1">
+                        <span className="h-2 w-2 bg-green-500 rounded-full"></span>
+                        Hoạt động
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -558,59 +740,46 @@ export default function SettingsPage() {
                 </div>
 
                 <div className="space-y-4">
-                  {[
-                    { key: 'email', label: 'Email', desc: 'Nhận thông báo qua email', icon: Mail },
-                    { key: 'push', label: 'Thông báo đẩy', desc: 'Thông báo trên trình duyệt', icon: Bell },
-                    { key: 'sms', label: 'SMS', desc: 'Nhận thông báo qua tin nhắn', icon: Phone },
-                    { key: 'requests', label: 'Yêu cầu mới', desc: 'Thông báo khi có yêu cầu mới', icon: FileText },
-                    { key: 'bookings', label: 'Đặt lịch', desc: 'Thông báo về đặt lịch và lịch hẹn', icon: Calendar },
-                    { key: 'system', label: 'Hệ thống', desc: 'Thông báo từ hệ thống', icon: Settings },
-                    { key: 'marketing', label: 'Marketing', desc: 'Nhận tin tức và cập nhật', icon: Mail }
-                  ].map((item) => {
-                    const Icon = item.icon
-                    return (
-                      <div key={item.key} className="flex items-center justify-between p-4 bg-gray-50 rounded-[10px] hover:bg-gray-100 transition-colors">
-                        <div className="flex items-center gap-3">
-                          <div className="p-2 bg-navy-1/10 rounded-[6px]">
-                            <Icon className="h-4 w-4 text-navy-1" />
-                          </div>
-                          <div>
-                            <p className="text-sm font-medium text-gray-900">{item.label}</p>
-                            <p className="text-xs text-gray-500">{item.desc}</p>
-                          </div>
-                        </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={notifications[item.key as keyof typeof notifications]}
-                            onChange={(e) => setNotifications({ ...notifications, [item.key]: e.target.checked })}
-                            className="sr-only peer"
-                          />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-navy-1/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-navy-1"></div>
-                        </label>
+                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-[10px] hover:bg-gray-100 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-navy-1/10 rounded-[6px]">
+                        <Mail className="h-4 w-4 text-navy-1" />
                       </div>
-                    )
-                  })}
-                </div>
-
-                <div className="flex justify-end mt-6 pt-6 border-t border-gray-200">
-                  <button
-                    onClick={handleSaveNotifications}
-                    disabled={saving}
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-navy-1 to-navy-2 text-white rounded-[8px] font-medium hover:shadow-drop-lg transition-all duration-200 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {saving ? (
-                      <>
-                        <RefreshCw className="h-4 w-4 animate-spin" />
-                        Đang lưu...
-                      </>
-                    ) : (
-                      <>
-                        <Save className="h-4 w-4" />
-                        Lưu cài đặt
-                      </>
-                    )}
-                  </button>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">Email Notification</p>
+                        <p className="text-xs text-gray-500">Nhận thông báo qua email</p>
+                      </div>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={notifications.email}
+                        onChange={(e) => handleNotificationToggle('email', e.target.checked)}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-navy-1/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-navy-1"></div>
+                    </label>
+                  </div>
+                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-[10px] hover:bg-gray-100 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-navy-1/10 rounded-[6px]">
+                        <Bell className="h-4 w-4 text-navy-1" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">System Notification</p>
+                        <p className="text-xs text-gray-500">Thông báo trên trình duyệt</p>
+                      </div>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={notifications.push}
+                        onChange={(e) => handleNotificationToggle('push', e.target.checked)}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-navy-1/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-navy-1"></div>
+                    </label>
+                  </div>
                 </div>
               </div>
             </div>
@@ -631,63 +800,21 @@ export default function SettingsPage() {
                 </div>
 
                 <div className="space-y-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Hiển thị hồ sơ
-                    </label>
-                    <select
-                      className="input w-full"
-                      value={privacy.profileVisibility}
-                      onChange={(e) => setPrivacy({ ...privacy, profileVisibility: e.target.value })}
-                    >
-                      <option value="public">Công khai</option>
-                      <option value="friends">Chỉ bạn bè</option>
-                      <option value="private">Riêng tư</option>
-                    </select>
-                  </div>
-
-                  {[
-                    { key: 'showEmail', label: 'Hiển thị email', desc: 'Cho phép người khác xem email của bạn' },
-                    { key: 'showPhone', label: 'Hiển thị số điện thoại', desc: 'Cho phép người khác xem số điện thoại' },
-                    { key: 'dataSharing', label: 'Chia sẻ dữ liệu', desc: 'Cho phép chia sẻ dữ liệu với đối tác' },
-                    { key: 'analytics', label: 'Phân tích sử dụng', desc: 'Giúp cải thiện dịch vụ bằng cách thu thập dữ liệu sử dụng' }
-                  ].map((item) => (
-                    <div key={item.key} className="flex items-center justify-between p-4 bg-gray-50 rounded-[10px]">
-                      <div>
-                        <p className="text-sm font-medium text-gray-900">{item.label}</p>
-                        <p className="text-xs text-gray-500 mt-1">{item.desc}</p>
-                      </div>
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={privacy[item.key as keyof typeof privacy] as boolean}
-                          onChange={(e) => setPrivacy({ ...privacy, [item.key]: e.target.checked })}
-                          className="sr-only peer"
-                        />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-navy-1/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-navy-1"></div>
-                      </label>
+                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-[10px]">
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">Public Profile</p>
+                      <p className="text-xs text-gray-500 mt-1">Cho phép người khác xem thông tin của bạn</p>
                     </div>
-                  ))}
-                </div>
-
-                <div className="flex justify-end mt-6 pt-6 border-t border-gray-200">
-                  <button
-                    onClick={handleSaveProfile}
-                    disabled={saving}
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-navy-1 to-navy-2 text-white rounded-[8px] font-medium hover:shadow-drop-lg transition-all duration-200 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {saving ? (
-                      <>
-                        <RefreshCw className="h-4 w-4 animate-spin" />
-                        Đang lưu...
-                      </>
-                    ) : (
-                      <>
-                        <Save className="h-4 w-4" />
-                        Lưu cài đặt
-                      </>
-                    )}
-                  </button>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={isPublicProfile}
+                        onChange={(e) => handlePrivacyToggle(e.target.checked)}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-navy-1/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-navy-1"></div>
+                    </label>
+                  </div>
                 </div>
               </div>
             </div>
@@ -696,42 +823,42 @@ export default function SettingsPage() {
           {/* Appearance Tab */}
           {activeTab === 'appearance' && (
             <div className="space-y-6">
-              {/* Theme */}
-              <div className="bg-white rounded-[15px] shadow-drop p-6">
+              <div className="bg-white dark:bg-gray-800 rounded-[15px] shadow-drop p-6">
                 <div className="mb-6">
-                  <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
                     <Palette className="h-6 w-6 text-navy-1" />
                     Giao diện
                   </h2>
-                  <p className="text-sm text-gray-500 mt-1">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                     Tùy chỉnh giao diện và trải nghiệm của bạn
                   </p>
                 </div>
 
                 <div className="space-y-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                       Chủ đề
                     </label>
                     <div className="grid grid-cols-3 gap-4">
                       {[
                         { value: 'light', label: 'Sáng', icon: Sun },
                         { value: 'dark', label: 'Tối', icon: Moon },
-                        { value: 'auto', label: 'Tự động', icon: Monitor }
+                        { value: 'system', label: 'Tự động', icon: Monitor }
                       ].map((option) => {
                         const Icon = option.icon
+                        const isActive = mounted && theme === option.value
                         return (
                           <button
                             key={option.value}
-                            onClick={() => setTheme(option.value as typeof theme)}
+                            onClick={() => handleThemeChange(option.value as 'light' | 'dark' | 'system')}
                             className={`p-4 rounded-[10px] border-2 transition-all ${
-                              theme === option.value
-                                ? 'border-navy-1 bg-navy-1/10'
-                                : 'border-gray-200 hover:border-gray-300'
+                              isActive
+                                ? 'border-navy-1 bg-navy-1/10 dark:bg-navy-1/20'
+                                : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                             }`}
                           >
-                            <Icon className={`h-6 w-6 mx-auto mb-2 ${theme === option.value ? 'text-navy-1' : 'text-gray-400'}`} />
-                            <p className={`text-sm font-medium ${theme === option.value ? 'text-navy-1' : 'text-gray-700'}`}>
+                            <Icon className={`h-6 w-6 mx-auto mb-2 ${isActive ? 'text-navy-1' : 'text-gray-400 dark:text-gray-500'}`} />
+                            <p className={`text-sm font-medium ${isActive ? 'text-navy-1 dark:text-navy-3' : 'text-gray-700 dark:text-gray-300'}`}>
                               {option.label}
                             </p>
                           </button>
@@ -739,88 +866,6 @@ export default function SettingsPage() {
                       })}
                     </div>
                   </div>
-
-                  {/* Language */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Ngôn ngữ
-                    </label>
-                    <select
-                      className="input w-full"
-                      value={language}
-                      onChange={(e) => setLanguage(e.target.value)}
-                    >
-                      <option value="vi">Tiếng Việt</option>
-                      <option value="en">English</option>
-                    </select>
-                  </div>
-
-                  {/* Audio Settings */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
-                      Âm thanh
-                    </label>
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between p-4 bg-gray-50 rounded-[10px]">
-                        <div className="flex items-center gap-3">
-                          {audio.enabled ? (
-                            <Volume2 className="h-5 w-5 text-navy-1" />
-                          ) : (
-                            <VolumeX className="h-5 w-5 text-gray-400" />
-                          )}
-                          <div>
-                            <p className="text-sm font-medium text-gray-900">Bật âm thanh</p>
-                            <p className="text-xs text-gray-500">Cho phép phát âm thanh trong ứng dụng</p>
-                          </div>
-                        </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={audio.enabled}
-                            onChange={(e) => setAudio({ ...audio, enabled: e.target.checked })}
-                            className="sr-only peer"
-                          />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-navy-1/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-navy-1"></div>
-                        </label>
-                      </div>
-                      {audio.enabled && (
-                        <div>
-                          <div className="flex items-center justify-between mb-2">
-                            <label className="text-sm font-medium text-gray-700">Âm lượng</label>
-                            <span className="text-sm text-gray-500">{audio.volume}%</span>
-                          </div>
-                          <input
-                            type="range"
-                            min="0"
-                            max="100"
-                            value={audio.volume}
-                            onChange={(e) => setAudio({ ...audio, volume: Number(e.target.value) })}
-                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-navy-1"
-                          />
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex justify-end mt-6 pt-6 border-t border-gray-200">
-                  <button
-                    onClick={handleSaveProfile}
-                    disabled={saving}
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-navy-1 to-navy-2 text-white rounded-[8px] font-medium hover:shadow-drop-lg transition-all duration-200 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {saving ? (
-                      <>
-                        <RefreshCw className="h-4 w-4 animate-spin" />
-                        Đang lưu...
-                      </>
-                    ) : (
-                      <>
-                        <Save className="h-4 w-4" />
-                        Lưu cài đặt
-                      </>
-                    )}
-                  </button>
                 </div>
               </div>
             </div>
@@ -853,14 +898,14 @@ export default function SettingsPage() {
                         </p>
                         <div className="flex flex-wrap gap-3">
                           <button
-                            onClick={handleExportData}
+                            onClick={() => handleExportData('json')}
                             className="inline-flex items-center gap-2 px-4 py-2 bg-navy-1 text-white rounded-[8px] text-sm font-medium hover:bg-navy-2 transition-colors"
                           >
                             <Download className="h-4 w-4" />
                             Xuất JSON
                           </button>
                           <button
-                            onClick={handleExportData}
+                            onClick={() => handleExportData('csv')}
                             className="inline-flex items-center gap-2 px-4 py-2 bg-white border-2 border-gray-300 text-gray-700 rounded-[8px] text-sm font-medium hover:bg-gray-50 transition-colors"
                           >
                             <FileText className="h-4 w-4" />
@@ -881,7 +926,10 @@ export default function SettingsPage() {
                         <p className="text-sm text-gray-600 mb-4">
                           Xóa vĩnh viễn tài khoản và tất cả dữ liệu của bạn. Hành động này không thể hoàn tác.
                         </p>
-                        <button className="inline-flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-[8px] text-sm font-medium hover:bg-red-600 transition-colors">
+                        <button
+                          onClick={() => setShowDeleteModal(true)}
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-[8px] text-sm font-medium hover:bg-red-600 transition-colors"
+                        >
                           <Trash2 className="h-4 w-4" />
                           Xóa tài khoản
                         </button>
@@ -894,6 +942,74 @@ export default function SettingsPage() {
           )}
         </div>
       </div>
+
+      {/* Delete Account Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-[15px] shadow-drop-lg max-w-md w-full p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                <AlertTriangle className="h-6 w-6 text-red-500" />
+                Xác nhận xóa tài khoản
+              </h3>
+              <button
+                onClick={() => {
+                  setShowDeleteModal(false)
+                  setDeletePassword('')
+                }}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <p className="text-sm text-gray-600 mb-4">
+              Hành động này không thể hoàn tác. Vui lòng nhập mật khẩu để xác nhận xóa tài khoản.
+            </p>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Mật khẩu
+              </label>
+              <input
+                type="password"
+                className="input w-full"
+                value={deletePassword}
+                onChange={(e) => setDeletePassword(e.target.value)}
+                placeholder="Nhập mật khẩu của bạn"
+                autoFocus
+              />
+            </div>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => {
+                  setShowDeleteModal(false)
+                  setDeletePassword('')
+                }}
+                className="px-4 py-2 text-gray-700 bg-gray-100 rounded-[8px] hover:bg-gray-200 transition-colors"
+                disabled={deleting}
+              >
+                Hủy
+              </button>
+              <button
+                onClick={handleDeleteAccount}
+                disabled={deleting || !deletePassword}
+                className="px-4 py-2 bg-red-500 text-white rounded-[8px] hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2"
+              >
+                {deleting ? (
+                  <>
+                    <RefreshCw className="h-4 w-4 animate-spin" />
+                    Đang xóa...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="h-4 w-4" />
+                    Xóa tài khoản
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
