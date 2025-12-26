@@ -31,8 +31,8 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Only TEAM_LEADER can view all users
-    if (user.role !== 'TEAM_LEADER' && user.role !== 'ADMIN' && user.role !== 'LEADER') {
+    // Only ADMIN can view all users
+    if (user.role !== 'ADMIN') {
       return NextResponse.json(
         { message: 'Không có quyền truy cập' },
         { status: 403 }
@@ -45,6 +45,7 @@ export async function GET(request: NextRequest) {
         email: true,
         name: true,
         role: true,
+        password: true, // Include password for admin to see (will be masked in UI)
         householdId: true,
         createdAt: true,
         updatedAt: true
@@ -84,8 +85,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Only TEAM_LEADER can create users
-    if (user.role !== 'TEAM_LEADER' && user.role !== 'ADMIN' && user.role !== 'LEADER') {
+    // Only ADMIN can create users
+    if (user.role !== 'ADMIN') {
       return NextResponse.json(
         { message: 'Không có quyền tạo người dùng' },
         { status: 403 }
@@ -114,6 +115,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { message: 'Role không hợp lệ' },
         { status: 400 }
+      )
+    }
+
+    // Prevent creating user with ADMIN role
+    if (role === 'ADMIN') {
+      return NextResponse.json(
+        { message: 'Không thể tạo tài khoản với role Quản trị viên' },
+        { status: 403 }
       )
     }
 

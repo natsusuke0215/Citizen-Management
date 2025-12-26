@@ -28,23 +28,40 @@ export function middleware(request: NextRequest) {
   // Role-based Access Control
   const role = user.role
 
-  // Account Management: Only TEAM_LEADER can access
+  // ADMIN: Can ONLY access Dashboard, Account Management, and Settings
+  if (role === 'ADMIN') {
+    const allowedPaths = [
+      '/dashboard',
+      '/dashboard/accounts',
+      '/dashboard/settings',
+    ]
+
+    const isAllowed = allowedPaths.some(path => 
+      pathname === path || pathname.startsWith(path + '/')
+    )
+
+    if (!isAllowed) {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    }
+  }
+
+  // Account Management: Only ADMIN can access
   if (pathname.startsWith('/dashboard/accounts')) {
-    if (role !== 'TEAM_LEADER' && role !== 'ADMIN' && role !== 'LEADER') {
+    if (role !== 'ADMIN') {
       return NextResponse.redirect(new URL('/dashboard', request.url))
     }
   }
 
   // Household Management: TEAM_LEADER and DEPUTY only
   if (pathname.startsWith('/dashboard/households')) {
-    if (role !== 'TEAM_LEADER' && role !== 'ADMIN' && role !== 'LEADER' && role !== 'DEPUTY') {
+    if (role !== 'TEAM_LEADER' && role !== 'LEADER' && role !== 'DEPUTY') {
       return NextResponse.redirect(new URL('/dashboard', request.url))
     }
   }
 
   // Resident Management (Persons): TEAM_LEADER and DEPUTY only
   if (pathname.startsWith('/dashboard/persons')) {
-    if (role !== 'TEAM_LEADER' && role !== 'ADMIN' && role !== 'LEADER' && role !== 'DEPUTY') {
+    if (role !== 'TEAM_LEADER' && role !== 'LEADER' && role !== 'DEPUTY') {
       return NextResponse.redirect(new URL('/dashboard', request.url))
     }
   }
@@ -76,6 +93,9 @@ export function middleware(request: NextRequest) {
       '/dashboard/my-household',
       '/dashboard/bookings',
       '/dashboard/calendar',
+      '/dashboard/households',
+      '/dashboard/persons',
+      '/dashboard/accounts',
     ]
 
     if (restrictedPaths.some(path => pathname.startsWith(path))) {

@@ -1,4 +1,3 @@
-import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { prisma } from './prisma'
 
@@ -11,12 +10,9 @@ export interface UserPayload {
   role: string
 }
 
-export async function hashPassword(password: string): Promise<string> {
-  return bcrypt.hash(password, 12)
-}
-
-export async function verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
-  return bcrypt.compare(password, hashedPassword)
+// Plain text password comparison (no hashing)
+export function verifyPassword(password: string, storedPassword: string): boolean {
+  return password === storedPassword
 }
 
 export function generateToken(payload: UserPayload): string {
@@ -52,7 +48,7 @@ export async function authenticateUser(email: string, password: string) {
     }
   })
 
-  if (!user || !await verifyPassword(password, user.password)) {
+  if (!user || !verifyPassword(password, user.password)) {
     return null
   }
 
@@ -61,12 +57,11 @@ export async function authenticateUser(email: string, password: string) {
 }
 
 export async function createUser(email: string, password: string, name: string, role: string = 'USER') {
-  const hashedPassword = await hashPassword(password)
-  
+  // Store password as plain text (no hashing)
   return prisma.user.create({
     data: {
       email,
-      password: hashedPassword,
+      password: password, // Plain text password
       name,
       role
     }

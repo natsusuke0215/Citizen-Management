@@ -1,5 +1,4 @@
 import { PrismaClient } from '@prisma/client'
-import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
 
@@ -36,56 +35,51 @@ async function main() {
   }
 
   // 2. Tạo dữ liệu mới
-  // Tạo admin user
-  const adminPassword = await bcrypt.hash('admin123', 12)
+  // Tạo admin user (plain text password)
   const admin = await prisma.user.create({
     data: {
       email: 'admin@example.com',
-      password: adminPassword,
+      password: 'admin123', // Plain text password
       name: 'Quản trị viên',
       role: 'ADMIN'
     }
   })
 
   // Tạo user thường
-  const userPassword = await bcrypt.hash('user123', 12)
   const user = await prisma.user.create({
     data: {
       email: 'user@example.com',
-      password: userPassword,
+      password: 'user123', // Plain text password
       name: 'Người dùng',
       role: 'USER'
     }
   })
 
   // Tạo Tổ trưởng
-  const leaderPassword = await bcrypt.hash('123456', 12)
   await prisma.user.create({
     data: {
       email: 'totruong@gmail.com',
-      password: leaderPassword,
+      password: '123456', // Plain text password
       name: 'Nguyễn Văn Tổ Trưởng',
-      role: 'LEADER'
+      role: 'TEAM_LEADER'
     }
   })
 
   // Tạo Tổ phó
-  const deputyPassword = await bcrypt.hash('123456', 12)
   await prisma.user.create({
     data: {
       email: 'topho@gmail.com',
-      password: deputyPassword,
+      password: '123456', // Plain text password
       name: 'Trần Thị Tổ Phó',
       role: 'DEPUTY'
     }
   })
 
   // Cán bộ quản lý CSVC
-  const managerPassword = await bcrypt.hash('123456', 12)
   await prisma.user.create({
     data: {
       email: 'quanlycsvc@gmail.com',
-      password: managerPassword,
+      password: '123456', // Plain text password
       name: 'Lê Văn Quản Lý',
       role: 'FACILITY_MANAGER'
     }

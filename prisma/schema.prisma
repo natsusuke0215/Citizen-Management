@@ -15,7 +15,7 @@ model User {
   email     String   @unique
   password  String
   name      String
-  role      String   @default("FACILITY_MANAGER") // TEAM_LEADER, DEPUTY, FACILITY_MANAGER, CALENDAR_MANAGER
+  role      String   @default("FACILITY_MANAGER") // TEAM_LEADER, DEPUTY, FACILITY_MANAGER, CALENDAR_MANAGER, ADMIN
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

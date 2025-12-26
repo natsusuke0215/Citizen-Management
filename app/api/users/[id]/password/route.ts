@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyToken } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { UserRole } from '@/lib/types'
 
-interface UpdateRoleRequest {
-  role: UserRole
+interface ChangePasswordRequest {
+  newPassword: string
+  adminPassword?: string // Optional admin password verification
 }
 
 export async function PATCH(
@@ -30,57 +30,62 @@ export async function PATCH(
       )
     }
 
-    // Only ADMIN can update user roles
+    // Only ADMIN can change passwords
     if (user.role !== 'ADMIN') {
       return NextResponse.json(
-        { message: 'Không có quyền cập nhật role' },
+        { message: 'Không có quyền thay đổi mật khẩu' },
         { status: 403 }
       )
     }
 
     const userId = params.id
-    const body: UpdateRoleRequest = await request.json()
-    const { role } = body
+    const body: ChangePasswordRequest = await request.json()
+    const { newPassword, adminPassword } = body
 
-    if (!role) {
+    if (!newPassword) {
       return NextResponse.json(
-        { message: 'Role là bắt buộc' },
+        { message: 'Mật khẩu mới là bắt buộc' },
         { status: 400 }
       )
     }
 
-    // Validate role
-    if (!Object.values(UserRole).includes(role)) {
+    if (newPassword.length < 6) {
       return NextResponse.json(
-        { message: 'Role không hợp lệ' },
+        { message: 'Mật khẩu phải có ít nhất 6 ký tự' },
         { status: 400 }
       )
     }
 
-    // Prevent updating role to ADMIN
-    if (role === 'ADMIN') {
-      return NextResponse.json(
-        { message: 'Không thể cập nhật role thành Quản trị viên' },
-        { status: 403 }
-      )
+    // Optional: Verify admin password if provided
+    if (adminPassword) {
+      const adminUser = await prisma.user.findUnique({
+        where: { id: user.id }
+      })
+
+      if (!adminUser || adminPassword !== adminUser.password) {
+        return NextResponse.json(
+          { message: 'Mật khẩu quản trị viên không đúng' },
+          { status: 401 }
+        )
+      }
     }
 
-    // Check if user exists
-    const existingUser = await prisma.user.findUnique({
+    // Check if target user exists
+    const targetUser = await prisma.user.findUnique({
       where: { id: userId }
     })
 
-    if (!existingUser) {
+    if (!targetUser) {
       return NextResponse.json(
         { message: 'Người dùng không tồn tại' },
         { status: 404 }
       )
     }
 
-    // Update user role
+    // Update password (plain text)
     const updatedUser = await prisma.user.update({
       where: { id: userId },
-      data: { role },
+      data: { password: newPassword },
       select: {
         id: true,
         email: true,
@@ -93,13 +98,13 @@ export async function PATCH(
     })
 
     return NextResponse.json({
-      message: 'Cập nhật role thành công',
+      message: 'Cập nhật mật khẩu thành công',
       user: updatedUser
     })
   } catch (error) {
-    console.error('Update user role error:', error)
+    console.error('Change password error:', error)
     return NextResponse.json(
-      { message: 'Có lỗi xảy ra khi cập nhật role' },
+      { message: 'Có lỗi xảy ra khi cập nhật mật khẩu' },
       { status: 500 }
     )
   }
