@@ -2,7 +2,8 @@ export enum UserRole {
   TEAM_LEADER = 'TEAM_LEADER',        // Tổ trưởng (gộp từ ADMIN và LEADER)
   DEPUTY = 'DEPUTY',                  // Tổ phó
   FACILITY_MANAGER = 'FACILITY_MANAGER', // Quản lý CSVC (Nhà văn hóa)
-  CALENDAR_MANAGER = 'CALENDAR_MANAGER'  // Quản lý lịch (Calendar)
+  CALENDAR_MANAGER = 'CALENDAR_MANAGER',  // Quản lý lịch (Calendar)
+  ADMIN = 'ADMIN'                     // Quản trị viên (Admin)
 }
 
 export interface User {

@@ -25,8 +25,8 @@ export async function DELETE(
       )
     }
 
-    // Only TEAM_LEADER can delete users
-    if (user.role !== 'TEAM_LEADER' && user.role !== 'ADMIN' && user.role !== 'LEADER') {
+    // Only ADMIN can delete users
+    if (user.role !== 'ADMIN') {
       return NextResponse.json(
         { message: 'Không có quyền xóa người dùng' },
         { status: 403 }

@@ -30,8 +30,8 @@ export async function PATCH(
       )
     }
 
-    // Only TEAM_LEADER can update user roles
-    if (user.role !== 'TEAM_LEADER' && user.role !== 'ADMIN' && user.role !== 'LEADER') {
+    // Only ADMIN can update user roles
+    if (user.role !== 'ADMIN') {
       return NextResponse.json(
         { message: 'Không có quyền cập nhật role' },
         { status: 403 }
@@ -54,6 +54,14 @@ export async function PATCH(
       return NextResponse.json(
         { message: 'Role không hợp lệ' },
         { status: 400 }
+      )
+    }
+
+    // Prevent updating role to ADMIN
+    if (role === 'ADMIN') {
+      return NextResponse.json(
+        { message: 'Không thể cập nhật role thành Quản trị viên' },
+        { status: 403 }
       )
     }
 

@@ -146,9 +146,15 @@ export default function DashboardLayout({
 
   // Filter function based on role
   const filterMenuByRole = (role: string): NavigationItem[] => {
-    // TEAM_LEADER (Tổ trưởng): Has access to ALL modules (gộp từ ADMIN và LEADER)
-    if (role === 'TEAM_LEADER' || role === 'ADMIN' || role === 'LEADER') {
-      return allMenuItems
+    // ADMIN: Dashboard, Account Management, Settings only
+    if (role === 'ADMIN') {
+      const allowedItems = ['Tổng quan', 'Quản lý tài khoản', 'Cài đặt']
+      return allMenuItems.filter(item => allowedItems.includes(item.name))
+    }
+
+    // TEAM_LEADER (Tổ trưởng): Has access to ALL modules EXCEPT Account Management
+    if (role === 'TEAM_LEADER' || role === 'LEADER') {
+      return allMenuItems.filter(item => item.name !== 'Quản lý tài khoản')
     }
 
     // DEPUTY (Tổ phó): Has access to everything EXCEPT 'Account Mgmt'
@@ -290,7 +296,8 @@ export default function DashboardLayout({
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-gray-900 truncate">{user.name}</p>
                 <p className="text-xs text-gray-500 truncate">
-                  {(user.role === 'TEAM_LEADER' || user.role === 'ADMIN' || user.role === 'LEADER') ? 'Tổ trưởng' : 
+                  {(user.role === 'TEAM_LEADER' || user.role === 'LEADER') ? 'Tổ trưởng' : 
+                   user.role === 'ADMIN' ? 'Quản trị viên' :
                    user.role === 'DEPUTY' ? 'Tổ phó' : 
                    user.role === 'FACILITY_MANAGER' ? 'Quản lý CSVC' :
                    user.role === 'CALENDAR_MANAGER' ? 'Quản lý lịch' : 'Người dùng'}
@@ -386,7 +393,8 @@ export default function DashboardLayout({
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-gray-900 truncate">{user.name}</p>
                 <p className="text-xs text-gray-500 truncate">
-                  {(user.role === 'TEAM_LEADER' || user.role === 'ADMIN' || user.role === 'LEADER') ? 'Tổ trưởng' : 
+                  {(user.role === 'TEAM_LEADER' || user.role === 'LEADER') ? 'Tổ trưởng' : 
+                   user.role === 'ADMIN' ? 'Quản trị viên' :
                    user.role === 'DEPUTY' ? 'Tổ phó' : 
                    user.role === 'FACILITY_MANAGER' ? 'Quản lý CSVC' :
                    user.role === 'CALENDAR_MANAGER' ? 'Quản lý lịch' : 'Người dùng'}

@@ -145,8 +145,15 @@ export default function AccountsPage() {
   }
 
   const openRoleModal = (user: UserType) => {
+    // Prevent updating role for ADMIN users
+    if (user.role === UserRole.ADMIN) {
+      toast.error('Không thể cập nhật role cho tài khoản Quản trị viên')
+      return
+    }
     setSelectedUser(user)
-    setRoleFormData({ role: user.role })
+    // If current role is ADMIN (shouldn't happen), set to default
+    const initialRole = user.role === UserRole.ADMIN ? UserRole.FACILITY_MANAGER : user.role
+    setRoleFormData({ role: initialRole })
     setShowRoleModal(true)
   }
 
@@ -155,7 +162,8 @@ export default function AccountsPage() {
       [UserRole.TEAM_LEADER]: 'Tổ trưởng',
       [UserRole.DEPUTY]: 'Tổ phó',
       [UserRole.FACILITY_MANAGER]: 'Quản lý CSVC',
-      [UserRole.CALENDAR_MANAGER]: 'Quản lý lịch'
+      [UserRole.CALENDAR_MANAGER]: 'Quản lý lịch',
+      [UserRole.ADMIN]: 'Quản trị viên'
     }
     return roleLabels[role] || role
   }
@@ -165,7 +173,8 @@ export default function AccountsPage() {
       [UserRole.TEAM_LEADER]: 'bg-red-100 text-red-800',
       [UserRole.DEPUTY]: 'bg-indigo-100 text-indigo-800',
       [UserRole.FACILITY_MANAGER]: 'bg-green-100 text-green-800',
-      [UserRole.CALENDAR_MANAGER]: 'bg-blue-100 text-blue-800'
+      [UserRole.CALENDAR_MANAGER]: 'bg-blue-100 text-blue-800',
+      [UserRole.ADMIN]: 'bg-yellow-100 text-yellow-800'
     }
     return colors[role] || 'bg-gray-100 text-gray-800'
   }
@@ -275,8 +284,13 @@ export default function AccountsPage() {
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => openRoleModal(user)}
-                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-[8px] transition-colors"
-                          title="Cập nhật role"
+                          disabled={user.role === UserRole.ADMIN}
+                          className={`p-2 rounded-[8px] transition-colors ${
+                            user.role === UserRole.ADMIN
+                              ? 'text-gray-400 cursor-not-allowed'
+                              : 'text-blue-600 hover:bg-blue-50'
+                          }`}
+                          title={user.role === UserRole.ADMIN ? 'Không thể cập nhật role cho Quản trị viên' : 'Cập nhật role'}
                         >
                           <Edit className="h-4 w-4" />
                         </button>
@@ -361,11 +375,13 @@ export default function AccountsPage() {
                   className="input"
                   required
                 >
-                  {Object.values(UserRole).map((role) => (
-                    <option key={role} value={role}>
-                      {getRoleLabel(role)}
-                    </option>
-                  ))}
+                  {Object.values(UserRole)
+                    .filter(role => role !== UserRole.ADMIN)
+                    .map((role) => (
+                      <option key={role} value={role}>
+                        {getRoleLabel(role)}
+                      </option>
+                    ))}
                 </select>
               </div>
               <div className="flex gap-3 pt-4">
@@ -423,11 +439,13 @@ export default function AccountsPage() {
                   className="input"
                   required
                 >
-                  {Object.values(UserRole).map((role) => (
-                    <option key={role} value={role}>
-                      {getRoleLabel(role)}
-                    </option>
-                  ))}
+                  {Object.values(UserRole)
+                    .filter(role => role !== UserRole.ADMIN)
+                    .map((role) => (
+                      <option key={role} value={role}>
+                        {getRoleLabel(role)}
+                      </option>
+                    ))}
                 </select>
               </div>
               <div className="flex gap-3 pt-4">
