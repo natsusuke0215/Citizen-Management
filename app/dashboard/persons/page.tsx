@@ -1,8 +1,14 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Plus, Search, Edit, Trash2, Users, Calendar, CreditCard, X, UserPlus, TrendingUp, Home, Sparkles, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Plus, Search, Users } from 'lucide-react'
 import toast from 'react-hot-toast'
+import PersonStatistics from './shared/components/PersonStatistics'
+import SearchBar from '../households/shared/components/SearchBar'
+import PaginationControls from './shared/components/PaginationControls'
+import PersonGrid from './shared/components/PersonGrid'
+import AddPersonModal from './shared/components/AddPersonModal'
+import ChangePersonModal from './shared/components/ChangePersonModal'
 
 interface Person {
   id: string
@@ -248,541 +254,72 @@ export default function PersonsPage() {
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="group relative overflow-hidden bg-gradient-to-br from-navy-1 to-navy-2 rounded-[15px] shadow-drop hover:shadow-drop-lg transition-all duration-300 transform hover:-translate-y-1 animate-slideUp" style={{ animationDelay: '0.1s' }}>
-          <div className="absolute top-0 right-0 w-24 h-24 bg-white opacity-10 rounded-full -mr-12 -mt-12"></div>
-          <div className="p-5 text-white relative">
-            <div className="flex items-center justify-between mb-3">
-              <div className="p-2.5 bg-white bg-opacity-20 rounded-[8px] backdrop-blur-sm">
-                <Users className="h-6 w-6" />
-              </div>
-            </div>
-            <div className="text-3xl font-bold mb-1">{totalPersons}</div>
-            <div className="text-sm opacity-90">Tổng số nhân khẩu</div>
-          </div>
-        </div>
-
-        <div className="group relative overflow-hidden bg-gradient-to-br from-emerald-400 to-emerald-500 rounded-[15px] shadow-drop hover:shadow-drop-lg transition-all duration-300 transform hover:-translate-y-1 animate-slideUp" style={{ animationDelay: '0.2s' }}>
-          <div className="absolute top-0 right-0 w-24 h-24 bg-white opacity-10 rounded-full -mr-12 -mt-12"></div>
-          <div className="p-5 text-white relative">
-            <div className="flex items-center justify-between mb-3">
-              <div className="p-2.5 bg-white bg-opacity-20 rounded-[8px] backdrop-blur-sm">
-                <UserPlus className="h-6 w-6" />
-              </div>
-            </div>
-            <div className="text-3xl font-bold mb-1">{activePersons}</div>
-            <div className="text-sm opacity-90">Đang thường trú</div>
-          </div>
-        </div>
-
-        <div className="group relative overflow-hidden bg-gradient-to-br from-amber-400 to-amber-500 rounded-[15px] shadow-drop hover:shadow-drop-lg transition-all duration-300 transform hover:-translate-y-1 animate-slideUp" style={{ animationDelay: '0.3s' }}>
-          <div className="absolute top-0 right-0 w-24 h-24 bg-white opacity-10 rounded-full -mr-12 -mt-12"></div>
-          <div className="p-5 text-white relative">
-            <div className="flex items-center justify-between mb-3">
-              <div className="p-2.5 bg-white bg-opacity-20 rounded-[8px] backdrop-blur-sm">
-                <TrendingUp className="h-6 w-6" />
-              </div>
-            </div>
-            <div className="text-3xl font-bold mb-1">{movedOutPersons}</div>
-            <div className="text-sm opacity-90">Đã chuyển đi</div>
-          </div>
-        </div>
-
-        <div className="group relative overflow-hidden bg-gradient-to-br from-gray-400 to-gray-500 rounded-[15px] shadow-drop hover:shadow-drop-lg transition-all duration-300 transform hover:-translate-y-1 animate-slideUp" style={{ animationDelay: '0.4s' }}>
-          <div className="absolute top-0 right-0 w-24 h-24 bg-white opacity-10 rounded-full -mr-12 -mt-12"></div>
-          <div className="p-5 text-white relative">
-            <div className="flex items-center justify-between mb-3">
-              <div className="p-2.5 bg-white bg-opacity-20 rounded-[8px] backdrop-blur-sm">
-                <AlertCircle className="h-6 w-6" />
-              </div>
-            </div>
-            <div className="text-3xl font-bold mb-1">{deceasedPersons}</div>
-            <div className="text-sm opacity-90">Đã qua đời</div>
-          </div>
-        </div>
-      </div>
+      <PersonStatistics
+        totalPersons={totalPersons}
+        activePersons={activePersons}
+        movedOutPersons={movedOutPersons}
+        deceasedPersons={deceasedPersons}
+      />
 
       {/* Search */}
-      <div className="bg-white rounded-[15px] shadow-drop p-4">
-        <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-            <Search className="h-5 w-5 text-gray-400" />
-          </div>
-          <input
-            type="text"
-            placeholder="Tìm kiếm theo tên, số CMND/CCCD, số hộ khẩu hoặc địa chỉ..."
-            className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-[8px] bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-navy-1 focus:border-transparent transition-all duration-200"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-      </div>
+      <SearchBar
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        placeholder="Tìm kiếm theo tên, số CMND/CCCD, số hộ khẩu hoặc địa chỉ..."
+      />
 
       {/* Pagination Controls */}
-      {filteredPersons.length > 0 && (
-        <div className="bg-white rounded-[15px] shadow-drop p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <label className="text-sm font-medium text-gray-700">Hiển thị:</label>
-            <select
-              value={itemsPerPage}
-              onChange={(e) => setItemsPerPage(Number(e.target.value))}
-              className="px-3 py-2 border border-gray-300 rounded-[8px] bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-navy-1 focus:border-transparent"
-            >
-              <option value={20}>20</option>
-              <option value={30}>30</option>
-              <option value={50}>50</option>
-            </select>
-            <span className="text-sm text-gray-600">
-              / trang (Tổng: {filteredPersons.length} nhân khẩu)
-            </span>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-              disabled={currentPage === 1}
-              className="p-2 rounded-[8px] border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </button>
-            
-            <div className="flex items-center gap-1">
-              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                let pageNum: number
-                if (totalPages <= 5) {
-                  pageNum = i + 1
-                } else if (currentPage <= 3) {
-                  pageNum = i + 1
-                } else if (currentPage >= totalPages - 2) {
-                  pageNum = totalPages - 4 + i
-                } else {
-                  pageNum = currentPage - 2 + i
-                }
-                
-                return (
-                  <button
-                    key={pageNum}
-                    onClick={() => setCurrentPage(pageNum)}
-                    className={`px-3 py-1 rounded-[8px] text-sm font-medium transition-colors ${
-                      currentPage === pageNum
-                        ? 'bg-navy-1 text-white'
-                        : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-                    }`}
-                  >
-                    {pageNum}
-                  </button>
-                )
-              })}
-            </div>
-            
-            <button
-              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-              disabled={currentPage === totalPages}
-              className="p-2 rounded-[8px] border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              <ChevronRight className="h-5 w-5" />
-            </button>
-            
-            <span className="text-sm text-gray-600 ml-2">
-              Trang {currentPage} / {totalPages}
-            </span>
-          </div>
-        </div>
-      )}
+      <PaginationControls
+        currentPage={currentPage}
+        totalPages={totalPages}
+        itemsPerPage={itemsPerPage}
+        totalItems={filteredPersons.length}
+        onPageChange={setCurrentPage}
+        onItemsPerPageChange={setItemsPerPage}
+      />
 
-      {/* Person Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {paginatedPersons.map((person, index) => {
-          const getStatusInfo = () => {
-            switch (person.status) {
-              case 'ACTIVE':
-                return { label: 'Đang thường trú', color: 'bg-emerald-50 text-emerald-700 border-emerald-200', icon: '✓' }
-              case 'MOVED_OUT':
-                return { label: 'Đã chuyển đi', color: 'bg-amber-50 text-amber-700 border-amber-200', icon: '→' }
-              case 'DECEASED':
-                return { label: 'Đã qua đời', color: 'bg-gray-50 text-gray-700 border-gray-200', icon: '✕' }
-              default:
-                return { label: person.status, color: 'bg-gray-50 text-gray-700 border-gray-200', icon: '•' }
-            }
-          }
-          const statusInfo = getStatusInfo()
-          
-          return (
-            <div
-              key={person.id}
-              className="group bg-white rounded-[15px] shadow-drop hover:shadow-drop-lg transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 overflow-hidden animate-slideUp"
-              style={{ animationDelay: `${(index % 9) * 0.05}s` }}
-            >
-              {/* Card Header */}
-              <div className="bg-gradient-to-r from-navy-1 to-navy-2 p-4 text-white">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-white bg-opacity-20 rounded-[8px] backdrop-blur-sm">
-                      <Users className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <div className="font-bold text-lg">{person.fullName}</div>
-                      <div className="text-xs opacity-90">{person.gender}</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <button
-                      onClick={() => openChangeModal(person)}
-                      className="p-2 hover:bg-white hover:bg-opacity-20 rounded-[8px] transition-colors"
-                      title="Thay đổi"
-                    >
-                      <Edit className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(person.id)}
-                      className="p-2 hover:bg-white hover:bg-opacity-20 rounded-[8px] transition-colors"
-                      title="Xóa"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Card Body */}
-              <div className="p-5 space-y-4">
-                <div className="flex items-center gap-3 p-3 bg-yellow-2 rounded-[8px]">
-                  <div className="p-2 bg-yellow-1 rounded-[6px]">
-                    <Calendar className="h-4 w-4 text-navy-1" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Ngày sinh</div>
-                    <div className="text-sm font-semibold text-navy-1">
-                      {new Date(person.dateOfBirth).toLocaleDateString('vi-VN')}
-                    </div>
-                  </div>
-                </div>
-
-                {person.idNumber && (
-                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-[8px]">
-                    <div className="p-2 bg-gray-200 rounded-[6px]">
-                      <CreditCard className="h-4 w-4 text-gray-600" />
-                    </div>
-                    <div>
-                      <div className="text-xs font-semibold text-gray-600 uppercase tracking-wide">CMND/CCCD</div>
-                      <div className="text-sm font-semibold text-gray-900">{person.idNumber}</div>
-                    </div>
-                  </div>
-                )}
-
-                <div>
-                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 flex items-center gap-1">
-                    <Home className="h-3 w-3" />
-                    Hộ khẩu
-                  </div>
-                  <div className="text-sm font-semibold text-gray-900">{person.household.householdId}</div>
-                  <div className="text-xs text-gray-600 mt-1">{person.household.address}</div>
-                </div>
-
-                <div className="pt-3 border-t border-gray-200">
-                  <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-semibold ${statusInfo.color}`}>
-                    <span>{statusInfo.icon}</span>
-                    <span>{statusInfo.label}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )
-        })}
-      </div>
-
-      {filteredPersons.length === 0 && (
-        <div className="text-center py-16 bg-white rounded-[15px] shadow-drop">
-          <div className="relative inline-block">
-            <div className="absolute inset-0 bg-gradient-to-br from-navy-1 to-navy-2 opacity-10 rounded-full blur-2xl"></div>
-            <Users className="h-16 w-16 text-gray-400 mx-auto relative" />
-          </div>
-          <h3 className="mt-4 text-lg font-semibold text-gray-900">Không có nhân khẩu nào</h3>
-          <p className="mt-2 text-sm text-gray-500 max-w-md mx-auto">
-            {searchTerm ? 'Không tìm thấy nhân khẩu phù hợp với từ khóa tìm kiếm.' : 'Bắt đầu bằng cách thêm nhân khẩu đầu tiên.'}
-          </p>
-          {!searchTerm && (
-            <button
-              onClick={() => setShowModal(true)}
-              className="mt-6 inline-flex items-center px-6 py-3 bg-gradient-to-r from-navy-1 to-navy-2 text-white rounded-[8px] font-medium hover:shadow-drop-lg transition-all duration-200 transform hover:-translate-y-0.5"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Thêm nhân khẩu đầu tiên
-            </button>
-          )}
-        </div>
-      )}
+      {/* Person Grid */}
+      <PersonGrid
+        persons={paginatedPersons}
+        onEdit={openChangeModal}
+        onDelete={handleDelete}
+        onAdd={() => setShowModal(true)}
+        searchTerm={searchTerm}
+      />
 
       {/* Add Person Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm overflow-y-auto h-full w-full z-50 flex items-start justify-center py-8 px-4">
-          <div className="relative w-full max-w-2xl bg-white rounded-[15px] shadow-drop-lg border border-gray-200 my-8">
-            {/* Modal Header */}
-            <div className="bg-gradient-to-r from-navy-1 to-navy-2 p-6 rounded-t-[15px] text-white">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-white bg-opacity-20 rounded-[8px] backdrop-blur-sm">
-                    <UserPlus className="h-6 w-6" />
-                  </div>
-                  <h3 className="text-xl font-bold">
-                    Thêm nhân khẩu mới
-                  </h3>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="p-2 hover:bg-white hover:bg-opacity-20 rounded-[8px] transition-colors"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-            </div>
-            
-            <div className="p-6 max-h-[calc(90vh-120px)] overflow-y-auto">
-              <form onSubmit={handleSubmit} className="space-y-6">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">
-                        Họ và tên *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        className="mt-1 input"
-                        value={formData.fullName}
-                        onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                        placeholder="Nguyễn Văn A"
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                          Ngày sinh *
-                        </label>
-                        <input
-                          type="date"
-                          required
-                          className="mt-1 input"
-                          value={formData.dateOfBirth}
-                          onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                          Giới tính *
-                        </label>
-                        <select
-                          className="mt-1 input"
-                          value={formData.gender}
-                          onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
-                        >
-                          <option value="Nam">Nam</option>
-                          <option value="Nữ">Nữ</option>
-                          <option value="Khác">Khác</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                          Loại giấy tờ
-                        </label>
-                        <select
-                          className="mt-1 input"
-                          value={formData.idType}
-                          onChange={(e) => setFormData({ ...formData, idType: e.target.value })}
-                        >
-                          <option value="CCCD">CCCD</option>
-                          <option value="CMND">CMND</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                          Số CCCD/CMND
-                        </label>
-                        <input
-                          type="text"
-                          className="mt-1 input"
-                          value={formData.idNumber}
-                          onChange={(e) => setFormData({ ...formData, idNumber: e.target.value })}
-                          placeholder="0123456789"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">
-                        ID hộ khẩu *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        className="mt-1 input"
-                        value={formData.householdId}
-                        onChange={(e) => setFormData({ ...formData, householdId: e.target.value })}
-                        placeholder="Nhập ID hộ khẩu (khóa kỹ thuật)"
-                      />
-                    </div>
-
-                <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
-                  <button
-                    type="button"
-                    onClick={() => setShowModal(false)}
-                    className="px-6 py-2.5 text-sm font-semibold text-gray-700 bg-white border-2 border-gray-300 rounded-[8px] hover:bg-gray-50 transition-all duration-200"
-                  >
-                    Hủy
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-6 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-navy-1 to-navy-2 rounded-[8px] hover:shadow-drop-lg transition-all duration-200 transform hover:-translate-y-0.5"
-                  >
-                    Thêm mới
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
+        <AddPersonModal
+          formData={formData}
+          setFormData={setFormData}
+          onSubmit={handleSubmit}
+          onClose={() => {
+            setShowModal(false)
+            setFormData({
+              fullName: '',
+              dateOfBirth: '',
+              gender: 'Nam',
+              idType: 'CCCD',
+              idNumber: '',
+              householdId: ''
+            })
+          }}
+        />
       )}
 
       {/* Change Person Status Modal */}
       {showChangeModal && selectedPerson && (
-        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm overflow-y-auto h-full w-full z-50 flex items-start justify-center py-8 px-4">
-          <div className="relative w-full max-w-2xl bg-white rounded-[15px] shadow-drop-lg border border-gray-200 my-8">
-            {/* Modal Header */}
-            <div className="bg-gradient-to-r from-navy-1 to-navy-2 p-6 rounded-t-[15px] text-white">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-white bg-opacity-20 rounded-[8px] backdrop-blur-sm">
-                    <Edit className="h-6 w-6" />
-                  </div>
-                  <h3 className="text-xl font-bold">
-                    Thay đổi nhân khẩu: {selectedPerson.fullName}
-                  </h3>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setShowChangeModal(false)}
-                  className="p-2 hover:bg-white hover:bg-opacity-20 rounded-[8px] transition-colors"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-            </div>
-            
-            <div className="p-6 max-h-[calc(90vh-120px)] overflow-y-auto">
-              <form onSubmit={handleChangeSubmit} className="space-y-6">
-
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Loại thay đổi
-                      </label>
-                      <select
-                        className="input"
-                        value={changeForm.changeType}
-                        onChange={(e) =>
-                          setChangeForm({
-                            ...changeForm,
-                            changeType: e.target.value as 'MOVE_OUT' | 'DECEASED'
-                          })
-                        }
-                      >
-                        <option value="MOVE_OUT">Chuyển đi nơi khác</option>
-                        <option value="DECEASED">Nhân khẩu qua đời</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Ngày thay đổi
-                      </label>
-                      <input
-                        type="date"
-                        className="input"
-                        value={changeForm.changeDate}
-                        onChange={(e) => setChangeForm({ ...changeForm, changeDate: e.target.value })}
-                        required
-                      />
-                    </div>
-
-                    {changeForm.changeType === 'MOVE_OUT' && (
-                      <>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Ngày chuyển đi
-                          </label>
-                          <input
-                            type="date"
-                            className="input"
-                            value={changeForm.moveOutDate}
-                            onChange={(e) =>
-                              setChangeForm({ ...changeForm, moveOutDate: e.target.value })
-                            }
-                            placeholder="Nếu bỏ trống sẽ dùng Ngày thay đổi"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Nơi chuyển đến
-                          </label>
-                          <input
-                            type="text"
-                            className="input"
-                            value={changeForm.moveOutPlace}
-                            onChange={(e) =>
-                              setChangeForm({ ...changeForm, moveOutPlace: e.target.value })
-                            }
-                            placeholder="Nhập địa chỉ nơi chuyển đến"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Ghi chú
-                          </label>
-                          <textarea
-                            className="input"
-                            rows={2}
-                            value={changeForm.notes}
-                            onChange={(e) =>
-                              setChangeForm({ ...changeForm, notes: e.target.value })
-                            }
-                            placeholder="Ví dụ: chuyển đi theo hộ khẩu khác..."
-                          />
-                        </div>
-                      </>
-                    )}
-
-                    {changeForm.changeType === 'DECEASED' && (
-                      <p className="text-xs text-gray-500">
-                        Khi lưu, hệ thống sẽ cập nhật tình trạng thành <strong>Đã qua đời</strong> và
-                        tự động ghi chú là <strong>“Đã qua đời”</strong>.
-                      </p>
-                    )}
-                  </div>
-
-                <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
-                  <button
-                    type="button"
-                    onClick={() => setShowChangeModal(false)}
-                    className="px-6 py-2.5 text-sm font-semibold text-gray-700 bg-white border-2 border-gray-300 rounded-[8px] hover:bg-gray-50 transition-all duration-200"
-                  >
-                    Hủy
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-6 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-navy-1 to-navy-2 rounded-[8px] hover:shadow-drop-lg transition-all duration-200 transform hover:-translate-y-0.5"
-                  >
-                    Lưu thay đổi
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
+        <ChangePersonModal
+          person={selectedPerson}
+          changeForm={changeForm}
+          setChangeForm={setChangeForm}
+          onSubmit={handleChangeSubmit}
+          onClose={() => {
+            setShowChangeModal(false)
+            setSelectedPerson(null)
+          }}
+        />
       )}
     </div>
   )
 }
-
