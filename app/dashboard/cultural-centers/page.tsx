@@ -14,6 +14,7 @@ interface CulturalCenter {
   floor: number | null
   room: string | null
   amenities: string | null
+  imageUrl: string | null
   createdAt: string
   _count: {
     bookings: number
@@ -52,6 +53,7 @@ export default function CulturalCentersPage() {
   const [selectedAmenity, setSelectedAmenity] = useState<string | null>(null)
   const [user, setUser] = useState<User | null>(null)
   const [editingAsset, setEditingAsset] = useState<Asset | null>(null)
+  const [imageLoadError, setImageLoadError] = useState(false)
 
   useEffect(() => {
     fetchCenters()
@@ -80,11 +82,30 @@ export default function CulturalCentersPage() {
     }
   }
 
+  // Helper function to normalize image URL
+  const normalizeImageUrl = (url: string | null | undefined): string | null => {
+    if (!url) return null
+    // If it's already a full URL (http/https), return as is
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url
+    }
+    // If it's a relative path, ensure it starts with /
+    if (!url.startsWith('/')) {
+      return '/' + url
+    }
+    return url
+  }
+
   const fetchCenters = async () => {
     try {
       const response = await fetch('/api/cultural-centers')
       if (response.ok) {
         const data = await response.json()
+        console.log('Fetched centers:', data)
+        if (data.length > 0) {
+          console.log('First center:', data[0])
+          console.log('First center imageUrl:', data[0].imageUrl)
+        }
         setCenters(data)
       }
     } catch (error) {
@@ -95,8 +116,11 @@ export default function CulturalCentersPage() {
   }
 
   const handleCenterClick = async (center: CulturalCenter) => {
+    console.log('Selected center:', center)
+    console.log('Image URL:', center.imageUrl)
     setSelectedCenter(center)
     setSelectedAmenity(null)
+    setImageLoadError(false) // Reset image error state when opening modal
     setLoadingAssets(true)
     try {
       const response = await fetch(`/api/cultural-centers/${center.id}/assets`)
@@ -116,6 +140,7 @@ export default function CulturalCentersPage() {
     setAssets([])
     setSelectedAmenity(null)
     setEditingAsset(null)
+    setImageLoadError(false)
   }
 
   const handleAmenityClick = (amenity: string) => {
@@ -178,6 +203,17 @@ export default function CulturalCentersPage() {
 
   const handleUpdateAsset = async (assetId: string, updates: Partial<Asset>) => {
     try {
+      // 验证总数是否匹配
+      const goodQty = updates.goodQuantity || 0
+      const repairingQty = updates.repairingQuantity || 0
+      const brokenQty = (updates.poorQuantity || 0) + (updates.damagedQuantity || 0)
+      const total = goodQty + repairingQty + brokenQty
+      
+      if (total !== updates.quantity) {
+        toast.error(`Tổng số lượng các trạng thái (${total}) phải bằng tổng số lượng thiết bị (${updates.quantity})`)
+        return
+      }
+
       const response = await fetch(`/api/cultural-centers/${selectedCenter?.id}/assets/${assetId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -511,14 +547,14 @@ export default function CulturalCentersPage() {
                         <TreePine className="h-7 w-7 text-white" />
                       </div>
                     ) : (
-                      <div className="p-4 rounded-[12px] bg-gradient-to-br from-navy-1 to-navy-2 shadow-drop group-hover:scale-110 transition-transform duration-300">
-                        <Building className="h-7 w-7 text-white" />
-                      </div>
+                    <div className="p-4 rounded-[12px] bg-gradient-to-br from-navy-1 to-navy-2 shadow-drop group-hover:scale-110 transition-transform duration-300">
+                      <Building className="h-7 w-7 text-white" />
+                    </div>
                     )}
                     <div className="flex-1">
                       <h3 className="text-lg font-bold text-gray-900 group-hover:text-navy-1 transition-colors">
-                        {center.name}
-                      </h3>
+                          {center.name}
+                        </h3>
                       <div className="flex items-center gap-2 mt-1">
                         <Users className="h-4 w-4 text-gray-400" />
                         <span className="text-sm text-gray-600">
@@ -556,15 +592,15 @@ export default function CulturalCentersPage() {
                 {/* Amenities */}
                 {center.amenities && (
                   <div className="mt-4 pt-4 border-t border-gray-100">
-                    <div className="flex flex-wrap gap-2">
+                          <div className="flex flex-wrap gap-2">
                       {JSON.parse(center.amenities).map((amenity: string, index: number) => (
-                        <span
-                          key={index}
+                              <span
+                                key={index}
                           className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-gradient-to-r from-navy-1/10 to-navy-2/10 text-navy-1 border border-navy-1/20 hover:from-navy-1/20 hover:to-navy-2/20 transition-all duration-200"
-                        >
-                          <Sparkles className="h-3 w-3 mr-1" />
-                          {amenity}
-                        </span>
+                            >
+                              <Sparkles className="h-3 w-3 mr-1" />
+                              {amenity}
+                            </span>
                       ))}
                     </div>
                   </div>
@@ -589,9 +625,9 @@ export default function CulturalCentersPage() {
                     <TreePine className="h-6 w-6 text-white" />
                   </div>
                 ) : (
-                  <div className="p-4 rounded-[12px] bg-gradient-to-br from-navy-1 to-navy-2 shadow-drop flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
-                    <Building className="h-6 w-6 text-white" />
-                  </div>
+                <div className="p-4 rounded-[12px] bg-gradient-to-br from-navy-1 to-navy-2 shadow-drop flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+                  <Building className="h-6 w-6 text-white" />
+                </div>
                 )}
 
                 {/* Content */}
@@ -623,17 +659,17 @@ export default function CulturalCentersPage() {
                       <span>{center._count.bookings} lượt đặt</span>
                     </div>
                     {center.amenities && (
-                      <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2">
                         {JSON.parse(center.amenities).slice(0, 3).map((amenity: string, index: number) => (
-                          <span
-                            key={index}
+                      <span
+                        key={index}
                             className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-navy-1/10 to-navy-2/10 text-navy-1 border border-navy-1/20"
-                          >
-                            {amenity}
-                          </span>
-                        ))}
+                      >
+                        {amenity}
+                      </span>
+                    ))}
                         {JSON.parse(center.amenities).length > 3 && (
-                          <span className="text-xs text-gray-500">+{JSON.parse(center.amenities).length - 3}</span>
+                      <span className="text-xs text-gray-500">+{JSON.parse(center.amenities).length - 3}</span>
                         )}
                       </div>
                     )}
@@ -692,29 +728,52 @@ export default function CulturalCentersPage() {
             <div className="overflow-y-auto max-h-[90vh]">
               {/* Hero Image Section */}
               <div className="relative h-64 bg-gradient-to-br from-navy-1 via-navy-2 to-navy-3 overflow-hidden">
-                <div className="absolute inset-0 bg-black/20"></div>
-                {/* Decorative Pattern */}
-                <div className="absolute inset-0 opacity-10">
-                  <div className="absolute top-0 left-0 w-64 h-64 bg-white rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl"></div>
-                  <div className="absolute bottom-0 right-0 w-64 h-64 bg-white rounded-full translate-x-1/2 translate-y-1/2 blur-3xl"></div>
-                </div>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  {selectedCenter.building === 'Khuôn viên' ? (
-                    <div className="relative">
-                      <TreePine className="h-32 w-32 text-white/30 animate-pulse" />
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <ImageIcon className="h-16 w-16 text-white/20" />
-                      </div>
+                {normalizeImageUrl(selectedCenter.imageUrl) && !imageLoadError ? (
+                  <>
+                    <img 
+                      src={normalizeImageUrl(selectedCenter.imageUrl) || ''} 
+                      alt={selectedCenter.name}
+                      className="absolute inset-0 w-full h-full object-cover"
+                      onError={(e) => {
+                        console.error('Image failed to load:', normalizeImageUrl(selectedCenter.imageUrl))
+                        setImageLoadError(true)
+                        const target = e.target as HTMLImageElement
+                        target.style.display = 'none'
+                      }}
+                      onLoad={() => {
+                        console.log('Image loaded successfully:', normalizeImageUrl(selectedCenter.imageUrl))
+                        setImageLoadError(false)
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-black/40"></div>
+                  </>
+                ) : (
+                  <>
+                    <div className="absolute inset-0 bg-black/20"></div>
+                    {/* Decorative Pattern */}
+                    <div className="absolute inset-0 opacity-10">
+                      <div className="absolute top-0 left-0 w-64 h-64 bg-white rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl"></div>
+                      <div className="absolute bottom-0 right-0 w-64 h-64 bg-white rounded-full translate-x-1/2 translate-y-1/2 blur-3xl"></div>
                     </div>
-                  ) : (
-                    <div className="relative">
-                      <Building className="h-32 w-32 text-white/30 animate-pulse" />
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <ImageIcon className="h-16 w-16 text-white/20" />
-                      </div>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      {selectedCenter.building === 'Khuôn viên' ? (
+                        <div className="relative">
+                          <TreePine className="h-32 w-32 text-white/30 animate-pulse" />
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <ImageIcon className="h-16 w-16 text-white/20" />
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="relative">
+                          <Building className="h-32 w-32 text-white/30 animate-pulse" />
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <ImageIcon className="h-16 w-16 text-white/20" />
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
+                  </>
+                )}
                 <div className="relative h-full flex flex-col justify-end p-8 text-white">
                   <div className="flex items-center gap-4 mb-4">
                     {selectedCenter.building === 'Khuôn viên' ? (
@@ -810,272 +869,183 @@ export default function CulturalCentersPage() {
                    </div>
                  )}
 
-                 {/* Selected Amenity Details */}
-                 {selectedAmenity && (
-                   <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-[15px] p-6 border border-blue-200 animate-slideUp">
-                     <div className="flex items-center justify-between mb-4">
-                       <h4 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                         {getAmenityIcon(selectedAmenity)}
-                         <span>Chi tiết: {selectedAmenity}</span>
-                       </h4>
+                 {/* Assets Section - Combined */}
+                 <div>
+                   <div className="flex items-center justify-between mb-4">
+                     <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                       <Package className="h-5 w-5 text-navy-1" />
+                       {selectedAmenity ? `Chi tiết: ${selectedAmenity}` : 'Chi tiết thiết bị'}
+                       {loadingAssets && <span className="text-sm font-normal text-gray-500">(Đang tải...)</span>}
+                     </h3>
+                     {selectedAmenity && (
                        <button
                          onClick={() => setSelectedAmenity(null)}
-                         className="p-1 hover:bg-white/50 rounded-full transition-colors"
+                         className="p-2 text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
                        >
-                         <X className="h-4 w-4 text-gray-600" />
+                         <X className="h-4 w-4" />
                        </button>
-                     </div>
-                     {getAssetsByAmenity(selectedAmenity).length > 0 ? (
-                       <div className="space-y-4">
-                         {getAssetsByAmenity(selectedAmenity).map((asset) => (
-                           <div
-                             key={asset.id}
-                             className="bg-white rounded-[12px] p-5 border border-blue-100 shadow-sm"
-                           >
-                             <div className="flex items-start justify-between mb-4">
-                               <div className="flex-1">
-                                 <h5 className="font-semibold text-gray-900 mb-2">{asset.name}</h5>
-                                 {asset.category && (
-                                   <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                                     {asset.category}
-                                   </span>
-                                 )}
-                               </div>
-                               {isAdmin() && (
-                                 <button
-                                   onClick={() => setEditingAsset(asset)}
-                                   className="p-2 text-navy-1 hover:bg-navy-1/10 rounded-[8px] transition-colors"
-                                 >
-                                   <Edit className="h-4 w-4" />
-                                 </button>
-                               )}
-                             </div>
-
-                             {/* Image */}
-                             {asset.imageUrl ? (
-                               <div className="mb-4 h-48 rounded-[10px] overflow-hidden border-2 border-gray-200">
-                                 <img 
-                                   src={asset.imageUrl} 
-                                   alt={asset.name}
-                                   className="w-full h-full object-cover"
-                                   onError={(e) => {
-                                     // 如果图片加载失败，显示占位符
-                                     const target = e.target as HTMLImageElement
-                                     target.style.display = 'none'
-                                     const placeholder = target.nextElementSibling as HTMLElement
-                                     if (placeholder) placeholder.style.display = 'flex'
-                                   }}
-                                 />
-                                 <div className="hidden w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 items-center justify-center">
-                                   <div className="text-center">
-                                     <ImageIcon className="h-12 w-12 text-gray-400 mx-auto mb-2" />
-                                     <p className="text-sm text-gray-500">Hình ảnh {asset.name}</p>
-                                   </div>
-                                 </div>
-                               </div>
-                             ) : (
-                               <div className="mb-4 h-48 bg-gradient-to-br from-gray-100 to-gray-200 rounded-[10px] flex items-center justify-center border-2 border-dashed border-gray-300">
-                                 <div className="text-center">
-                                   <ImageIcon className="h-12 w-12 text-gray-400 mx-auto mb-2" />
-                                   <p className="text-sm text-gray-500">Hình ảnh {asset.name}</p>
-                                   <p className="text-xs text-gray-400 mt-1">(Chưa có hình ảnh)</p>
-                                 </div>
-                               </div>
-                             )}
-
-                             {/* Quantity Details */}
-                             <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
-                               <div className="bg-blue-50 rounded-[8px] p-3 border border-blue-200">
-                                 <div className="text-xs text-blue-600 font-medium mb-1">Tổng số lượng</div>
-                                 <div className="text-xl font-bold text-blue-700">{asset.quantity}</div>
-                               </div>
-                               {(asset.goodQuantity !== null && asset.goodQuantity !== undefined) && (
-                                 <div className="bg-emerald-50 rounded-[8px] p-3 border border-emerald-200">
-                                   <div className="text-xs text-emerald-600 font-medium mb-1 flex items-center gap-1">
-                                     <CheckCircle className="h-3 w-3" />
-                                     Tốt
-                                   </div>
-                                   <div className="text-xl font-bold text-emerald-700">{asset.goodQuantity}</div>
-                                 </div>
-                               )}
-                               {(asset.fairQuantity !== null && asset.fairQuantity !== undefined) && (
-                                 <div className="bg-yellow-50 rounded-[8px] p-3 border border-yellow-200">
-                                   <div className="text-xs text-yellow-600 font-medium mb-1 flex items-center gap-1">
-                                     <Star className="h-3 w-3" />
-                                     Khá
-                                   </div>
-                                   <div className="text-xl font-bold text-yellow-700">{asset.fairQuantity}</div>
-                                 </div>
-                               )}
-                               {(asset.poorQuantity !== null && asset.poorQuantity !== undefined) && (
-                                 <div className="bg-orange-50 rounded-[8px] p-3 border border-orange-200">
-                                   <div className="text-xs text-orange-600 font-medium mb-1 flex items-center gap-1">
-                                     <AlertCircle className="h-3 w-3" />
-                                     Kém
-                                   </div>
-                                   <div className="text-xl font-bold text-orange-700">{asset.poorQuantity}</div>
-                                 </div>
-                               )}
-                               {(asset.damagedQuantity !== null && asset.damagedQuantity !== undefined) && (
-                                 <div className="bg-red-50 rounded-[8px] p-3 border border-red-200">
-                                   <div className="text-xs text-red-600 font-medium mb-1 flex items-center gap-1">
-                                     <AlertCircle className="h-3 w-3" />
-                                     Hỏng
-                                   </div>
-                                   <div className="text-xl font-bold text-red-700">{asset.damagedQuantity}</div>
-                                 </div>
-                               )}
-                               {(asset.repairingQuantity !== null && asset.repairingQuantity !== undefined) && (
-                                 <div className="bg-purple-50 rounded-[8px] p-3 border border-purple-200">
-                                   <div className="text-xs text-purple-600 font-medium mb-1 flex items-center gap-1">
-                                     <Wrench className="h-3 w-3" />
-                                     Đang sửa
-                                   </div>
-                                   <div className="text-xl font-bold text-purple-700">{asset.repairingQuantity}</div>
-                                 </div>
-                               )}
-                             </div>
-
-                             {/* Location and Notes */}
-                             <div className="space-y-2 text-sm">
-                               {asset.location && (
-                                 <div className="flex items-center gap-2 text-gray-600">
-                                   <MapPin className="h-4 w-4" />
-                                   <span>{asset.location}</span>
-                                 </div>
-                               )}
-                               {asset.notes && (
-                                 <div className="text-gray-500 italic border-t border-gray-100 pt-2">
-                                   {asset.notes}
-                                 </div>
-                               )}
-                             </div>
-                           </div>
-                         ))}
-                       </div>
-                     ) : (
-                       <div className="text-center py-8">
-                         <Package className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                         <p className="text-gray-500">Chưa có thiết bị liên quan đến "{selectedAmenity}"</p>
-                       </div>
                      )}
                    </div>
-                 )}
-
-                 {/* Assets Section */}
-                 <div>
-                   <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                     <Package className="h-5 w-5 text-navy-1" />
-                     Chi tiết thiết bị
-                     {loadingAssets && <span className="text-sm font-normal text-gray-500">(Đang tải...)</span>}
-                   </h3>
                   
                   {loadingAssets ? (
                     <div className="flex items-center justify-center py-12">
                       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-navy-1"></div>
                     </div>
-                   ) : assets.length > 0 ? (
-                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                       {assets.map((asset, index) => {
-                         const hasDetailedQuantity = asset.goodQuantity !== null || asset.damagedQuantity !== null || asset.repairingQuantity !== null
-                         return (
-                           <div
-                             key={asset.id}
-                             className="group bg-white rounded-[12px] p-5 border border-gray-200 hover:border-navy-1/40 hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
-                             style={{ animationDelay: `${index * 0.05}s` }}
-                           >
-                             <div className="flex items-start justify-between mb-3">
-                               <div className="flex-1">
-                                 <h4 className="font-semibold text-gray-900 mb-1">{asset.name}</h4>
-                                 {asset.category && (
-                                   <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                                     {asset.category}
-                                   </span>
-                                 )}
-                               </div>
-                               <div className="flex items-center gap-2">
-                                 {isAdmin() && (
-                                   <button
-                                     onClick={() => setEditingAsset(asset)}
-                                     className="p-1.5 text-navy-1 hover:bg-navy-1/10 rounded-[6px] transition-colors"
-                                   >
-                                     <Edit className="h-4 w-4" />
-                                   </button>
-                                 )}
-                                 <div className={`px-3 py-1 rounded-full text-xs font-medium border flex items-center gap-1.5 ${getConditionColor(asset.condition)}`}>
-                                   {asset.condition === 'GOOD' && <CheckCircle className="h-3.5 w-3.5" />}
-                                   {asset.condition === 'DAMAGED' && <AlertCircle className="h-3.5 w-3.5" />}
-                                   {getConditionText(asset.condition)}
+                   ) : (() => {
+                     const displayAssets = selectedAmenity ? getAssetsByAmenity(selectedAmenity) : assets
+                     return displayAssets.length > 0 ? (
+                       <div className="space-y-4">
+                         {displayAssets.map((asset) => {
+                           // Tính toán số lượng hỏng/kém (合并poor和damaged)
+                           const brokenQuantity = (asset.poorQuantity || 0) + (asset.damagedQuantity || 0)
+                           const goodQty = asset.goodQuantity || 0
+                           const repairingQty = asset.repairingQuantity || 0
+                           // Tính số lượng còn lại (nếu总数不等于各状态之和)
+                           const remainingQty = asset.quantity - goodQty - repairingQty - brokenQuantity
+                           
+                           return (
+                             <div
+                               key={asset.id}
+                               className={`bg-white rounded-[12px] p-5 border shadow-sm transition-all duration-300 hover:shadow-lg ${
+                                 selectedAmenity ? 'border-blue-100' : 'border-gray-200 hover:border-navy-1/40'
+                               }`}
+                             >
+                               {/* Header */}
+                               <div className="flex items-start justify-between mb-4">
+                                 <div className="flex-1">
+                                   <h4 className="font-semibold text-gray-900 mb-2">{asset.name}</h4>
+                                   {asset.category && (
+                                     <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                                       {asset.category}
+                                     </span>
+                                   )}
+                                 </div>
+                                 <div className="flex items-center gap-2">
+                                   {isAdmin() && (
+                                     <button
+                                       onClick={() => setEditingAsset(asset)}
+                                       className="p-2 text-navy-1 hover:bg-navy-1/10 rounded-[8px] transition-colors"
+                                     >
+                                       <Edit className="h-4 w-4" />
+                                     </button>
+                                   )}
+                                   <div className={`px-3 py-1 rounded-full text-xs font-medium border flex items-center gap-1.5 ${getConditionColor(asset.condition)}`}>
+                                     {asset.condition === 'GOOD' && <CheckCircle className="h-3.5 w-3.5" />}
+                                     {asset.condition === 'DAMAGED' && <AlertCircle className="h-3.5 w-3.5" />}
+                                     {getConditionText(asset.condition)}
+                                   </div>
                                  </div>
                                </div>
-                             </div>
-                             
-                             <div className="mb-3">
-                               <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
-                                 <Package className="h-4 w-4" />
-                                 <span>Tổng số lượng: <strong className="text-gray-900">{asset.quantity}</strong></span>
-                               </div>
-                               {hasDetailedQuantity && (
-                                 <div className="grid grid-cols-2 gap-2 mt-3">
-                                   {asset.goodQuantity !== null && asset.goodQuantity !== undefined && (
-                                     <div className="bg-green-50 rounded-[6px] p-2 border border-green-200">
-                                       <div className="text-xs text-green-600 font-medium">Tốt</div>
-                                       <div className="text-lg font-bold text-green-700">{asset.goodQuantity}</div>
-                                     </div>
-                                   )}
-                                   {asset.fairQuantity !== null && asset.fairQuantity !== undefined && (
-                                     <div className="bg-yellow-50 rounded-[6px] p-2 border border-yellow-200">
-                                       <div className="text-xs text-yellow-600 font-medium">Khá</div>
-                                       <div className="text-lg font-bold text-yellow-700">{asset.fairQuantity}</div>
-                                     </div>
-                                   )}
-                                   {asset.poorQuantity !== null && asset.poorQuantity !== undefined && (
-                                     <div className="bg-orange-50 rounded-[6px] p-2 border border-orange-200">
-                                       <div className="text-xs text-orange-600 font-medium">Kém</div>
-                                       <div className="text-lg font-bold text-orange-700">{asset.poorQuantity}</div>
-                                     </div>
-                                   )}
-                                   {asset.damagedQuantity !== null && asset.damagedQuantity !== undefined && (
-                                     <div className="bg-red-50 rounded-[6px] p-2 border border-red-200">
-                                       <div className="text-xs text-red-600 font-medium">Hỏng</div>
-                                       <div className="text-lg font-bold text-red-700">{asset.damagedQuantity}</div>
-                                     </div>
-                                   )}
-                                   {asset.repairingQuantity !== null && asset.repairingQuantity !== undefined && (
-                                     <div className="bg-blue-50 rounded-[6px] p-2 border border-blue-200">
-                                       <div className="text-xs text-blue-600 font-medium flex items-center gap-1">
-                                         <Wrench className="h-3 w-3" />
-                                         Đang sửa
+
+                               {/* Main Content: Image Left, Details Right */}
+                               <div className="flex flex-col md:flex-row gap-4">
+                                 {/* Left: Image */}
+                                 <div className="flex-shrink-0 w-full md:w-64">
+                                   {asset.imageUrl ? (
+                                     <div className="w-full aspect-square rounded-[10px] overflow-hidden border-2 border-gray-200 bg-gray-50">
+                                       <img 
+                                         src={asset.imageUrl} 
+                                         alt={asset.name}
+                                         className="w-full h-full object-cover"
+                                         onError={(e) => {
+                                           const target = e.target as HTMLImageElement
+                                           target.style.display = 'none'
+                                           const placeholder = target.nextElementSibling as HTMLElement
+                                           if (placeholder) placeholder.style.display = 'flex'
+                                         }}
+                                       />
+                                       <div className="hidden w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 items-center justify-center">
+                                         <div className="text-center">
+                                           <ImageIcon className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+                                           <p className="text-sm text-gray-500">Hình ảnh {asset.name}</p>
+                                         </div>
                                        </div>
-                                       <div className="text-lg font-bold text-blue-700">{asset.repairingQuantity}</div>
+                                     </div>
+                                   ) : (
+                                     <div className="w-full aspect-square bg-gradient-to-br from-gray-100 to-gray-200 rounded-[10px] flex items-center justify-center border-2 border-dashed border-gray-300">
+                                       <div className="text-center">
+                                         <ImageIcon className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+                                         <p className="text-sm text-gray-500">Hình ảnh {asset.name}</p>
+                                         <p className="text-xs text-gray-400 mt-1">(Chưa có hình ảnh)</p>
+                                       </div>
                                      </div>
                                    )}
                                  </div>
-                               )}
-                             </div>
-                             
-                             {asset.location && (
-                               <div className="flex items-center gap-1 text-sm text-gray-600 mb-2">
-                                 <MapPin className="h-4 w-4" />
-                                 <span className="truncate">{asset.location}</span>
+
+                                 {/* Right: Status and Description */}
+                                 <div className="flex-1 space-y-4">
+                                   {/* Quantity Details - 3 states only */}
+                                   <div>
+                                     <div className="text-sm font-medium text-gray-700 mb-3">Tình trạng thiết bị</div>
+                                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                       <div className="bg-emerald-50 rounded-[8px] p-4 border border-emerald-200">
+                                         <div className="text-xs text-emerald-600 font-medium mb-2 flex items-center gap-1">
+                                           <CheckCircle className="h-4 w-4" />
+                                           Tốt
+                                         </div>
+                                         <div className="text-2xl font-bold text-emerald-700">{goodQty}</div>
+                                       </div>
+                                       <div className="bg-purple-50 rounded-[8px] p-4 border border-purple-200">
+                                         <div className="text-xs text-purple-600 font-medium mb-2 flex items-center gap-1">
+                                           <Wrench className="h-4 w-4" />
+                                           Đang sửa chữa
+                                         </div>
+                                         <div className="text-2xl font-bold text-purple-700">{repairingQty}</div>
+                                       </div>
+                                       <div className="bg-red-50 rounded-[8px] p-4 border border-red-200">
+                                         <div className="text-xs text-red-600 font-medium mb-2 flex items-center gap-1">
+                                           <AlertCircle className="h-4 w-4" />
+                                           Hỏng/Kém
+                                         </div>
+                                         <div className="text-2xl font-bold text-red-700">{brokenQuantity}</div>
+                                       </div>
+                                     </div>
+                                     {/* Total */}
+                                     <div className="mt-3 pt-3 border-t border-gray-200">
+                                       <div className="flex items-center justify-between">
+                                         <span className="text-sm font-medium text-gray-700">Tổng số lượng:</span>
+                                         <span className="text-lg font-bold text-gray-900">{asset.quantity}</span>
+                                       </div>
+                                       {(remainingQty !== 0) && (
+                                         <div className="mt-1 text-xs text-orange-600">
+                                           ⚠️ Tổng các trạng thái ({goodQty + repairingQty + brokenQuantity}) không khớp với tổng số lượng ({asset.quantity})
+                                         </div>
+                                       )}
+                                     </div>
+                                   </div>
+
+                                   {/* Location and Notes */}
+                                   <div className="space-y-2">
+                                     {asset.location && (
+                                       <div className="flex items-start gap-2 text-sm text-gray-600">
+                                         <MapPin className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                                         <span>{asset.location}</span>
+                                       </div>
+                                     )}
+                                     {asset.notes && (
+                                       <div className="text-sm text-gray-700 bg-gray-50 rounded-[8px] p-3 border border-gray-200">
+                                         <div className="font-medium text-gray-900 mb-1">Mô tả:</div>
+                                         <p className="text-gray-600">{asset.notes}</p>
+                                       </div>
+                                     )}
+                                   </div>
+                                 </div>
                                </div>
-                             )}
-                             
-                             {asset.notes && (
-                               <p className="mt-3 text-xs text-gray-500 italic border-t border-gray-100 pt-3">
-                                 {asset.notes}
-                               </p>
-                             )}
-                           </div>
-                         )
-                       })}
-                     </div>
-                  ) : (
-                    <div className="text-center py-12 bg-gray-50 rounded-[12px] border border-gray-200">
-                      <Package className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                      <p className="text-gray-500">Chưa có thiết bị được đăng ký</p>
-                    </div>
-                  )}
+                             </div>
+                           )
+                         })}
+                       </div>
+                     ) : (
+                       <div className="text-center py-12 bg-gray-50 rounded-[12px] border border-gray-200">
+                         <Package className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+                         <p className="text-gray-500">
+                           {selectedAmenity 
+                             ? `Chưa có thiết bị liên quan đến "${selectedAmenity}"` 
+                             : 'Chưa có thiết bị được đăng ký'}
+                         </p>
+                       </div>
+                     )
+                   })()}
                 </div>
 
                  {/* Additional Info */}
@@ -1156,51 +1126,112 @@ export default function CulturalCentersPage() {
                      <option value="DAMAGED">Hỏng</option>
                    </select>
                  </div>
-                 <div className="grid grid-cols-2 gap-4">
+                 <div className="bg-blue-50 rounded-[8px] p-4 border border-blue-200 mb-4">
+                   <div className="text-sm font-medium text-blue-900 mb-2">⚠️ Lưu ý: Tổng số lượng các trạng thái phải bằng tổng số lượng thiết bị</div>
+                   <div className="text-xs text-blue-700">
+                     Tổng hiện tại: {(editingAsset.goodQuantity || 0) + (editingAsset.repairingQuantity || 0) + ((editingAsset.poorQuantity || 0) + (editingAsset.damagedQuantity || 0))} / {editingAsset.quantity}
+                     {(editingAsset.goodQuantity || 0) + (editingAsset.repairingQuantity || 0) + ((editingAsset.poorQuantity || 0) + (editingAsset.damagedQuantity || 0)) !== editingAsset.quantity && (
+                       <span className="text-red-600 font-semibold"> (Không khớp!)</span>
+                     )}
+                   </div>
+                 </div>
+                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                    <div>
-                     <label className="block text-sm font-medium text-gray-700 mb-2">Số lượng tốt</label>
+                     <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
+                       <CheckCircle className="h-4 w-4 text-emerald-600" />
+                       Số lượng tốt
+                     </label>
                      <input
                        type="number"
+                       min="0"
+                       max={editingAsset.quantity}
                        value={editingAsset.goodQuantity || ''}
                        onChange={(e) => setEditingAsset({ ...editingAsset, goodQuantity: e.target.value ? parseInt(e.target.value) : null })}
-                       className="w-full px-4 py-2 border border-gray-300 rounded-[8px] focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                       className="w-full px-4 py-2 border border-gray-300 rounded-[8px] focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                      />
                    </div>
                    <div>
-                     <label className="block text-sm font-medium text-gray-700 mb-2">Số lượng khá</label>
+                     <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
+                       <Wrench className="h-4 w-4 text-purple-600" />
+                       Số lượng đang sửa chữa
+                     </label>
                      <input
                        type="number"
-                       value={editingAsset.fairQuantity || ''}
-                       onChange={(e) => setEditingAsset({ ...editingAsset, fairQuantity: e.target.value ? parseInt(e.target.value) : null })}
-                       className="w-full px-4 py-2 border border-gray-300 rounded-[8px] focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-                     />
-                   </div>
-                   <div>
-                     <label className="block text-sm font-medium text-gray-700 mb-2">Số lượng kém</label>
-                     <input
-                       type="number"
-                       value={editingAsset.poorQuantity || ''}
-                       onChange={(e) => setEditingAsset({ ...editingAsset, poorQuantity: e.target.value ? parseInt(e.target.value) : null })}
-                       className="w-full px-4 py-2 border border-gray-300 rounded-[8px] focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                     />
-                   </div>
-                   <div>
-                     <label className="block text-sm font-medium text-gray-700 mb-2">Số lượng hỏng</label>
-                     <input
-                       type="number"
-                       value={editingAsset.damagedQuantity || ''}
-                       onChange={(e) => setEditingAsset({ ...editingAsset, damagedQuantity: e.target.value ? parseInt(e.target.value) : null })}
-                       className="w-full px-4 py-2 border border-gray-300 rounded-[8px] focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                     />
-                   </div>
-                   <div>
-                     <label className="block text-sm font-medium text-gray-700 mb-2">Số lượng đang sửa</label>
-                     <input
-                       type="number"
+                       min="0"
+                       max={editingAsset.quantity}
                        value={editingAsset.repairingQuantity || ''}
                        onChange={(e) => setEditingAsset({ ...editingAsset, repairingQuantity: e.target.value ? parseInt(e.target.value) : null })}
-                       className="w-full px-4 py-2 border border-gray-300 rounded-[8px] focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                       className="w-full px-4 py-2 border border-gray-300 rounded-[8px] focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                      />
+                   </div>
+                   <div>
+                     <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
+                       <AlertCircle className="h-4 w-4 text-red-600" />
+                       Số lượng hỏng/kém
+                     </label>
+                     <div className="space-y-2">
+                       <input
+                         type="number"
+                         min="0"
+                         max={editingAsset.quantity}
+                         value={(editingAsset.poorQuantity || 0) + (editingAsset.damagedQuantity || 0)}
+                         onChange={(e) => {
+                           const value = e.target.value ? parseInt(e.target.value) : 0
+                           // 保持现有比例或平均分配
+                           const currentTotal = (editingAsset.poorQuantity || 0) + (editingAsset.damagedQuantity || 0)
+                           const damagedRatio = currentTotal > 0 ? (editingAsset.damagedQuantity || 0) / currentTotal : 0.5
+                           setEditingAsset({ 
+                             ...editingAsset, 
+                             damagedQuantity: value > 0 ? Math.round(value * damagedRatio) : null,
+                             poorQuantity: value > 0 ? value - Math.round(value * damagedRatio) : null
+                           })
+                         }}
+                         className="w-full px-4 py-2 border border-gray-300 rounded-[8px] focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                         placeholder="Tổng hỏng/kém"
+                       />
+                       <div className="flex gap-2 text-xs">
+                         <div className="flex-1">
+                           <label className="block text-xs text-gray-600 mb-1">Hỏng</label>
+                           <input
+                             type="number"
+                             placeholder="0"
+                             min="0"
+                             value={editingAsset.damagedQuantity || ''}
+                             onChange={(e) => {
+                               const damaged = e.target.value ? parseInt(e.target.value) : null
+                               const totalBroken = (editingAsset.poorQuantity || 0) + (editingAsset.damagedQuantity || 0)
+                               const newTotal = damaged || 0
+                               setEditingAsset({ 
+                                 ...editingAsset, 
+                                 damagedQuantity: damaged,
+                                 poorQuantity: totalBroken - newTotal > 0 ? totalBroken - newTotal : null
+                               })
+                             }}
+                             className="w-full px-2 py-1 border border-gray-300 rounded text-xs"
+                           />
+                         </div>
+                         <div className="flex-1">
+                           <label className="block text-xs text-gray-600 mb-1">Kém</label>
+                           <input
+                             type="number"
+                             placeholder="0"
+                             min="0"
+                             value={editingAsset.poorQuantity || ''}
+                             onChange={(e) => {
+                               const poor = e.target.value ? parseInt(e.target.value) : null
+                               const totalBroken = (editingAsset.poorQuantity || 0) + (editingAsset.damagedQuantity || 0)
+                               const newTotal = poor || 0
+                               setEditingAsset({ 
+                                 ...editingAsset, 
+                                 poorQuantity: poor,
+                                 damagedQuantity: totalBroken - newTotal > 0 ? totalBroken - newTotal : null
+                               })
+                             }}
+                             className="w-full px-2 py-1 border border-gray-300 rounded text-xs"
+                           />
+                         </div>
+                       </div>
+                     </div>
                    </div>
                  </div>
                  <div>
@@ -1218,10 +1249,10 @@ export default function CulturalCentersPage() {
                      type="text"
                      value={editingAsset.imageUrl || ''}
                      onChange={(e) => setEditingAsset({ ...editingAsset, imageUrl: e.target.value })}
-                     placeholder="/images/assets/ten-file.jpg"
+                     placeholder="/assets/images/center/ten-file.jpg"
                      className="w-full px-4 py-2 border border-gray-300 rounded-[8px] focus:ring-2 focus:ring-navy-1 focus:border-transparent"
                    />
-                   <p className="text-xs text-gray-500 mt-1">Ví dụ: /images/assets/micro-khong-day.jpg</p>
+                   <p className="text-xs text-gray-500 mt-1">Ví dụ: /assets/images/center/loa-bluetooth.jpg</p>
                  </div>
                  <div>
                    <label className="block text-sm font-medium text-gray-700 mb-2">Ghi chú</label>
@@ -1250,8 +1281,8 @@ export default function CulturalCentersPage() {
                </div>
              </div>
            </div>
-         </div>
-       )}
-     </div>
-   )
- }
+        </div>
+      )}
+    </div>
+  )
+}
