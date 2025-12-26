@@ -98,22 +98,7 @@ a {
   background: #6b7280;
 }
 
-/* Custom components */
-.btn {
-  @apply px-4 py-2 rounded-lg font-medium transition-colors duration-200;
-}
-
-.btn-primary {
-  @apply bg-primary-600 text-white hover:bg-primary-700 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
-}
-
-.btn-secondary {
-  @apply bg-secondary-200 text-secondary-800 hover:bg-secondary-300 focus:ring-2 focus:ring-secondary-500 focus:ring-offset-2;
-}
-
-.btn-danger {
-  @apply bg-red-600 text-white hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2;
-}
+/* Custom components - Removed unused button classes */
 
 .input {
   @apply w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-primary-500 dark:focus:border-primary-400 transition-colors duration-200 bg-white dark:bg-gray-800 text-black dark:text-gray-100;
@@ -139,8 +124,8 @@ input:focus,
 textarea:focus,
 select:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2); /* primary-500 at 20% */
-  border-color: #2563eb; /* primary-500 */
+  box-shadow: 0 0 0 3px rgba(81, 96, 137, 0.2); /* navy-1 at 20% */
+  border-color: #516089; /* navy-1 */
 }
 
 /* Target inputs that have Tailwind utility classes (higher specificity) */
@@ -163,8 +148,8 @@ input[class]:focus,
 textarea[class]:focus,
 select[class]:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
-  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(81, 96, 137, 0.15); /* navy-1 with opacity */
+  border-color: #516089; /* navy-1 */
 }
 
 .card {
@@ -204,13 +189,7 @@ select[class]:focus {
   box-shadow: 0px 10px 15px rgba(0, 0, 0, 0.1), 0px 4px 6px rgba(0, 0, 0, 0.05);
 }
 
-.nav-link {
-  @apply flex items-center px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200;
-}
-
-.nav-link.active {
-  @apply bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 border-r-2 border-primary-600 dark:border-primary-400;
-}
+/* Removed unused nav-link classes - using nav-link-enhanced instead */
 
 /* Enhanced navigation links with new color scheme */
 .nav-link-enhanced {
