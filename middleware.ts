@@ -49,12 +49,33 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // FACILITY_MANAGER: Additional restrictions for other paths
+  // CALENDAR_MANAGER: Can only access Dashboard, Bookings, Settings
+  // Should NOT access Cultural Centers, Households, Persons, Accounts, etc.
+  if (role === 'CALENDAR_MANAGER') {
+    const allowedPaths = [
+      '/dashboard',
+      '/dashboard/bookings',
+      '/dashboard/settings',
+    ]
+
+    const isAllowed = allowedPaths.some(path => 
+      pathname === path || pathname.startsWith(path + '/')
+    )
+
+    if (!isAllowed) {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    }
+  }
+
+  // FACILITY_MANAGER: Can only access Dashboard, Cultural Centers, Settings
+  // Should NOT access Bookings, Households, Persons, Accounts, etc.
   if (role === 'FACILITY_MANAGER') {
     const restrictedPaths = [
       '/dashboard/districts',
       '/dashboard/requests',
       '/dashboard/my-household',
+      '/dashboard/bookings',
+      '/dashboard/calendar',
     ]
 
     if (restrictedPaths.some(path => pathname.startsWith(path))) {

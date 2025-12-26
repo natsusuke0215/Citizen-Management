@@ -156,9 +156,17 @@ export default function DashboardLayout({
       return allMenuItems.filter(item => item.name !== 'Quản lý tài khoản')
     }
 
-    // FACILITY_MANAGER: LIMITED access - ONLY Dashboard, Cultural House, Schedule, Settings
+    // CALENDAR_MANAGER: Dashboard, Calendar Management (Thêm lịch), Settings
+    // Should NOT see "Nhà văn hóa" (Cultural Centers)
+    if (role === 'CALENDAR_MANAGER') {
+      const allowedItems = ['Tổng quan', 'Thêm lịch', 'Cài đặt']
+      return allMenuItems.filter(item => allowedItems.includes(item.name))
+    }
+
+    // FACILITY_MANAGER: Dashboard, Cultural Centers (Nhà văn hóa), Settings
+    // Should NOT see "Thêm lịch" (Bookings/Calendar)
     if (role === 'FACILITY_MANAGER') {
-      const allowedItems = ['Tổng quan', 'Nhà văn hóa', 'Thêm lịch', 'Cài đặt']
+      const allowedItems = ['Tổng quan', 'Nhà văn hóa', 'Cài đặt']
       return allMenuItems.filter(item => allowedItems.includes(item.name))
     }
 
@@ -284,7 +292,8 @@ export default function DashboardLayout({
                 <p className="text-xs text-gray-500 truncate">
                   {(user.role === 'TEAM_LEADER' || user.role === 'ADMIN' || user.role === 'LEADER') ? 'Tổ trưởng' : 
                    user.role === 'DEPUTY' ? 'Tổ phó' : 
-                   user.role === 'FACILITY_MANAGER' ? 'Quản lý CSVC' : 'Người dùng'}
+                   user.role === 'FACILITY_MANAGER' ? 'Quản lý CSVC' :
+                   user.role === 'CALENDAR_MANAGER' ? 'Quản lý lịch' : 'Người dùng'}
                 </p>
               </div>
             </div>
@@ -379,7 +388,8 @@ export default function DashboardLayout({
                 <p className="text-xs text-gray-500 truncate">
                   {(user.role === 'TEAM_LEADER' || user.role === 'ADMIN' || user.role === 'LEADER') ? 'Tổ trưởng' : 
                    user.role === 'DEPUTY' ? 'Tổ phó' : 
-                   user.role === 'FACILITY_MANAGER' ? 'Quản lý CSVC' : 'Người dùng'}
+                   user.role === 'FACILITY_MANAGER' ? 'Quản lý CSVC' :
+                   user.role === 'CALENDAR_MANAGER' ? 'Quản lý lịch' : 'Người dùng'}
                 </p>
               </div>
             </div>
