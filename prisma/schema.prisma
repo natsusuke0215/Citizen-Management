@@ -143,6 +143,7 @@ model CulturalCenter {
   amenities       String? // JSON array of amenities
   area            Float?  // Diện tích (m2)
   yearBuilt       Int?    // Năm xây dựng
+  imageUrl        String? // Đường dẫn hình ảnh phòng/sân
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 

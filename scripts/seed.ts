@@ -210,7 +210,8 @@ async function main() {
       room: 'Hội trường',
       area: 240.0,
       yearBuilt: 2018,
-      amenities: JSON.stringify(['Máy chiếu', 'Âm thanh', 'Điều hòa', 'Sân khấu', 'Màn hình LED', 'Micro không dây', 'Bàn ghế di động'])
+      amenities: JSON.stringify(['Máy chiếu', 'Âm thanh', 'Điều hòa', 'Sân khấu', 'Màn hình LED', 'Micro không dây', 'Bàn ghế di động']),
+      imageUrl: '/assets/images/center/hoi-truong-tang-1.jpg'
     }
   })
 
@@ -226,7 +227,8 @@ async function main() {
       room: 'Phòng 201',
       area: 80.0,
       yearBuilt: 2018,
-      amenities: JSON.stringify(['Máy chiếu', 'Điều hòa', 'Bảng trắng', 'Bàn ghế', 'WiFi'])
+      amenities: JSON.stringify(['Máy chiếu', 'Điều hòa', 'Bảng trắng', 'Bàn ghế', 'WiFi']),
+      imageUrl: '/assets/images/center/phong-chuc-nang-1.jpg'
     }
   })
 
@@ -242,7 +244,8 @@ async function main() {
       room: 'Phòng 202',
       area: 50.0,
       yearBuilt: 2018,
-      amenities: JSON.stringify(['Máy chiếu', 'Điều hòa', 'Bảng trắng', 'WiFi'])
+      amenities: JSON.stringify(['Máy chiếu', 'Điều hòa', 'Bảng trắng', 'WiFi']),
+      imageUrl: '/assets/images/center/phong-chuc-nang-2.jpg'
     }
   })
 
@@ -258,7 +261,8 @@ async function main() {
       room: 'Phòng 203',
       area: 65.0,
       yearBuilt: 2018,
-      amenities: JSON.stringify(['Máy chiếu', 'Điều hòa', 'Bảng trắng', 'Bàn ghế', 'WiFi', 'Tủ sách'])
+      amenities: JSON.stringify(['Máy chiếu', 'Điều hòa', 'Bảng trắng', 'Bàn ghế', 'WiFi', 'Tủ sách']),
+      imageUrl: '/assets/images/center/phong-chuc-nang-3.jpg'
     }
   })
 
@@ -274,7 +278,8 @@ async function main() {
       room: 'Phòng 301',
       area: 100.0,
       yearBuilt: 2018,
-      amenities: JSON.stringify(['Máy chiếu', 'Điều hòa', 'Gương tập', 'Sàn gỗ', 'Hệ thống âm thanh', 'WiFi'])
+      amenities: JSON.stringify(['Máy chiếu', 'Điều hòa', 'Gương tập', 'Sàn gỗ', 'Hệ thống âm thanh', 'WiFi']),
+      imageUrl: '/assets/images/center/phong-da-nang-tang-3.jpg'
     }
   })
 
@@ -290,7 +295,8 @@ async function main() {
       room: 'Phòng 101',
       area: 35.0,
       yearBuilt: 2018,
-      amenities: JSON.stringify(['Máy chiếu', 'Điều hòa', 'Bảng trắng', 'Bàn họp', 'WiFi'])
+      amenities: JSON.stringify(['Máy chiếu', 'Điều hòa', 'Bảng trắng', 'Bàn họp', 'WiFi']),
+      imageUrl: '/assets/images/center/phong-hop-nho-tang-1.jpg'
     }
   })
 
@@ -306,7 +312,8 @@ async function main() {
       room: 'Phòng 204',
       area: 45.0,
       yearBuilt: 2018,
-      amenities: JSON.stringify(['Điều hòa', 'Tủ sách', 'Bàn đọc', 'Đèn bàn', 'WiFi', 'Máy tính'])
+      amenities: JSON.stringify(['Điều hòa', 'Tủ sách', 'Bàn đọc', 'Đèn bàn', 'WiFi', 'Máy tính']),
+      imageUrl: '/assets/images/center/phong-thu-vien.jpg'
     }
   })
 
@@ -323,7 +330,8 @@ async function main() {
       room: 'Sân cầu lông 1',
       area: 81.0,
       yearBuilt: 2019,
-      amenities: JSON.stringify(['Lưới cầu lông', 'Vạch kẻ sân', 'Đèn chiếu sáng', 'Ghế ngồi', 'Mái che'])
+      amenities: JSON.stringify(['Lưới cầu lông', 'Vạch kẻ sân', 'Đèn chiếu sáng', 'Ghế ngồi', 'Mái che']),
+      imageUrl: '/assets/images/center/san-cau-long-1.jpg'
     }
   })
 
@@ -339,7 +347,8 @@ async function main() {
       room: 'Sân cầu lông 2',
       area: 81.0,
       yearBuilt: 2019,
-      amenities: JSON.stringify(['Lưới cầu lông', 'Vạch kẻ sân', 'Đèn chiếu sáng', 'Ghế ngồi', 'Mái che'])
+      amenities: JSON.stringify(['Lưới cầu lông', 'Vạch kẻ sân', 'Đèn chiếu sáng', 'Ghế ngồi', 'Mái che']),
+      imageUrl: '/assets/images/center/san-cau-long-2.jpg'
     }
   })
 
@@ -355,7 +364,8 @@ async function main() {
       room: 'Sân bóng chuyền',
       area: 162.0,
       yearBuilt: 2019,
-      amenities: JSON.stringify(['Lưới bóng chuyền', 'Vạch kẻ sân', 'Đèn chiếu sáng', 'Ghế ngồi', 'Mái che', 'Bóng chuyền'])
+      amenities: JSON.stringify(['Lưới bóng chuyền', 'Vạch kẻ sân', 'Đèn chiếu sáng', 'Ghế ngồi', 'Mái che', 'Bóng chuyền']),
+      imageUrl: '/assets/images/center/san-bong-chuyen.jpg'
     }
   })
 
@@ -488,7 +498,7 @@ async function main() {
         poorQuantity: 2,
         damagedQuantity: 1,
         repairingQuantity: 0,
-        imageUrl: '/images/assets/ban-ghe.jpg',
+        imageUrl: '/assets/images/center/ban-ghe.jpg',
         lastChecked: new Date()
       }
     })
@@ -501,13 +511,13 @@ async function main() {
         condition: 'GOOD',
         location: 'Hội trường tầng 1',
         culturalCenterId: 'center-1',
-        notes: 'Loa công suất lớn, chất lượng âm thanh tốt',
+        notes: 'Loa công suất lớn, phục vụ sự kiện',
         goodQuantity: 3,
         fairQuantity: 1,
         poorQuantity: 0,
         damagedQuantity: 0,
         repairingQuantity: 0,
-        imageUrl: '/images/assets/loa.jpg',
+        imageUrl: '/assets/images/center/loa.jpg',
         lastChecked: new Date()
       }
     })
@@ -520,13 +530,13 @@ async function main() {
         condition: 'GOOD',
         location: 'Hội trường tầng 1',
         culturalCenterId: 'center-1',
-        notes: 'Màn hình LED kích thước lớn, độ phân giải cao',
+        notes: 'Màn hình LED lớn, hiển thị rõ nét',
         goodQuantity: 2,
         fairQuantity: 0,
         poorQuantity: 0,
         damagedQuantity: 0,
         repairingQuantity: 0,
-        imageUrl: '/images/assets/man-hinh-led.jpg',
+        imageUrl: '/assets/images/center/man-hinh-led.jpg',
         lastChecked: new Date()
       }
     })
@@ -539,13 +549,13 @@ async function main() {
         condition: 'GOOD',
         location: 'Hội trường tầng 1',
         culturalCenterId: 'center-1',
-        notes: 'Micro không dây chất lượng cao, pin sạc',
+        notes: 'Micro không dây, pin sạc',
         goodQuantity: 5,
         fairQuantity: 1,
         poorQuantity: 0,
         damagedQuantity: 0,
         repairingQuantity: 0,
-        imageUrl: '/images/assets/micro-khong-day.jpg',
+        imageUrl: '/assets/images/center/micro-khong-day.jpg',
         lastChecked: new Date()
       }
     })
@@ -558,13 +568,13 @@ async function main() {
         condition: 'GOOD',
         location: 'Hội trường tầng 1',
         culturalCenterId: 'center-1',
-        notes: 'Máy chiếu độ phân giải Full HD',
+        notes: 'Máy chiếu độ phân giải cao',
         goodQuantity: 1,
         fairQuantity: 0,
         poorQuantity: 0,
         damagedQuantity: 0,
         repairingQuantity: 0,
-        imageUrl: '/images/assets/may-chieu.jpg',
+        imageUrl: '/assets/images/center/may-chieu.jpg',
         lastChecked: new Date()
       }
     })
@@ -578,6 +588,13 @@ async function main() {
         condition: 'GOOD',
         location: 'Phòng chức năng 1',
         culturalCenterId: 'center-2',
+        notes: 'Máy chiếu cầm tay',
+        goodQuantity: 1,
+        fairQuantity: 0,
+        poorQuantity: 0,
+        damagedQuantity: 0,
+        repairingQuantity: 0,
+        imageUrl: '/assets/images/center/may-chieu.jpg',
         lastChecked: new Date()
       }
     })
@@ -590,6 +607,70 @@ async function main() {
         condition: 'GOOD',
         location: 'Phòng chức năng 1',
         culturalCenterId: 'center-2',
+        notes: 'Bàn ghế học tập',
+        goodQuantity: 20,
+        fairQuantity: 4,
+        poorQuantity: 1,
+        damagedQuantity: 0,
+        repairingQuantity: 0,
+        imageUrl: '/assets/images/center/ban-ghe.jpg',
+        lastChecked: new Date()
+      }
+    })
+
+    await prisma.culturalCenterAsset.create({
+      data: {
+        name: 'Bảng trắng',
+        category: 'Nội thất',
+        quantity: 1,
+        condition: 'GOOD',
+        location: 'Phòng chức năng 1',
+        culturalCenterId: 'center-2',
+        notes: 'Bảng trắng lớn, phục vụ họp và giảng dạy',
+        goodQuantity: 1,
+        fairQuantity: 0,
+        poorQuantity: 0,
+        damagedQuantity: 0,
+        repairingQuantity: 0,
+        imageUrl: '/assets/images/center/bang-trang.jpg',
+        lastChecked: new Date()
+      }
+    })
+
+    await prisma.culturalCenterAsset.create({
+      data: {
+        name: 'Điều hòa',
+        category: 'Thiết bị điện tử',
+        quantity: 1,
+        condition: 'GOOD',
+        location: 'Phòng chức năng 1',
+        culturalCenterId: 'center-2',
+        notes: 'Điều hòa công suất lớn',
+        goodQuantity: 1,
+        fairQuantity: 0,
+        poorQuantity: 0,
+        damagedQuantity: 0,
+        repairingQuantity: 0,
+        imageUrl: '/assets/images/center/dieu-hoa.jpg',
+        lastChecked: new Date()
+      }
+    })
+
+    await prisma.culturalCenterAsset.create({
+      data: {
+        name: 'Wifi',
+        category: 'Thiết bị mạng',
+        quantity: 1,
+        condition: 'GOOD',
+        location: 'Phòng chức năng 1',
+        culturalCenterId: 'center-2',
+        notes: 'Wifi tốc độ cao',
+        goodQuantity: 1,
+        fairQuantity: 0,
+        poorQuantity: 0,
+        damagedQuantity: 0,
+        repairingQuantity: 0,
+        imageUrl: '/assets/images/center/wifi.jpg',
         lastChecked: new Date()
       }
     })
@@ -602,6 +683,13 @@ async function main() {
         condition: 'GOOD',
         location: 'Phòng chức năng 2',
         culturalCenterId: 'center-3',
+        notes: 'Máy chiếu cầm tay',
+        goodQuantity: 1,
+        fairQuantity: 0,
+        poorQuantity: 0,
+        damagedQuantity: 0,
+        repairingQuantity: 0,
+        imageUrl: '/assets/images/center/may-chieu.jpg',
         lastChecked: new Date()
       }
     })
@@ -614,9 +702,74 @@ async function main() {
         condition: 'GOOD',
         location: 'Phòng chức năng 2',
         culturalCenterId: 'center-3',
+        notes: 'Bàn ghế học tập',
+        goodQuantity: 12,
+        fairQuantity: 2,
+        poorQuantity: 1,
+        damagedQuantity: 0,
+        repairingQuantity: 0,
+        imageUrl: '/assets/images/center/ban-ghe.jpg',
         lastChecked: new Date()
       }
     })
+
+    await prisma.culturalCenterAsset.create({
+      data: {
+        name: 'Bảng trắng',
+        category: 'Nội thất',
+        quantity: 1,
+        condition: 'GOOD',
+        location: 'Phòng chức năng 2',
+        culturalCenterId: 'center-3',
+        notes: 'Bảng trắng lớn, phục vụ họp và giảng dạy',
+        goodQuantity: 1,
+        fairQuantity: 0,
+        poorQuantity: 0,
+        damagedQuantity: 0,
+        repairingQuantity: 0,
+        imageUrl: '/assets/images/center/bang-trang.jpg',
+        lastChecked: new Date()
+      }
+    })
+
+    await prisma.culturalCenterAsset.create({
+      data: {
+        name: 'Điều hòa',
+        category: 'Thiết bị điện tử',
+        quantity: 1,
+        condition: 'GOOD',
+        location: 'Phòng chức năng 2',
+        culturalCenterId: 'center-3',
+        notes: 'Điều hòa công suất lớn',
+        goodQuantity: 1,
+        fairQuantity: 0,
+        poorQuantity: 0,
+        damagedQuantity: 0,
+        repairingQuantity: 0,
+        imageUrl: '/assets/images/center/dieu-hoa.jpg',
+        lastChecked: new Date()
+      }
+    })
+
+    await prisma.culturalCenterAsset.create({
+      data: {
+        name: 'Wifi',
+        category: 'Thiết bị mạng',
+        quantity: 1,
+        condition: 'GOOD',
+        location: 'Phòng chức năng 2',
+        culturalCenterId: 'center-3',
+        notes: 'Wifi tốc độ cao',
+        goodQuantity: 1,
+        fairQuantity: 0,
+        poorQuantity: 0,
+        damagedQuantity: 0,
+        repairingQuantity: 0,
+        imageUrl: '/assets/images/center/wifi.jpg',
+        lastChecked: new Date()
+      }
+    })
+
 
     await prisma.culturalCenterAsset.create({
       data: {
@@ -626,6 +779,13 @@ async function main() {
         condition: 'GOOD',
         location: 'Phòng chức năng 3',
         culturalCenterId: 'center-4',
+        notes: 'Máy chiếu cầm tay',
+        goodQuantity: 1,
+        fairQuantity: 0,
+        poorQuantity: 0,
+        damagedQuantity: 0,
+        repairingQuantity: 0,
+        imageUrl: '/assets/images/center/may-chieu.jpg',
         lastChecked: new Date()
       }
     })
@@ -638,6 +798,13 @@ async function main() {
         condition: 'GOOD',
         location: 'Phòng chức năng 3',
         culturalCenterId: 'center-4',
+        notes: 'Tủ sách gỗ, nhiều ngăn',
+        goodQuantity: 2,
+        fairQuantity: 1,
+        poorQuantity: 0,
+        damagedQuantity: 0,
+        repairingQuantity: 0,
+        imageUrl: '/assets/images/center/tu-sach.jpg',
         lastChecked: new Date()
       }
     })
@@ -651,6 +818,13 @@ async function main() {
         condition: 'GOOD',
         location: 'Phòng đa năng tầng 3',
         culturalCenterId: 'center-5',
+        notes: 'Gương lớn, an toàn',
+        goodQuantity: 2,
+        fairQuantity: 0,
+        poorQuantity: 0,
+        damagedQuantity: 0,
+        repairingQuantity: 0,
+        imageUrl: '/assets/images/center/guong-tap.jpg',
         lastChecked: new Date()
       }
     })
@@ -663,6 +837,52 @@ async function main() {
         condition: 'GOOD',
         location: 'Phòng đa năng tầng 3',
         culturalCenterId: 'center-5',
+        notes: 'Loa Bluetooth, pin sạc',
+        goodQuantity: 2,
+        fairQuantity: 0,
+        poorQuantity: 0,
+        damagedQuantity: 0,
+        repairingQuantity: 0,
+        imageUrl: '/assets/images/center/loa-bluetooth.jpg',
+        lastChecked: new Date()
+      }
+    })
+
+    // Tài sản cho phòng họp nhỏ tầng 1
+    await prisma.culturalCenterAsset.create({
+      data: {
+        name: 'Máy chiếu',
+        category: 'Thiết bị điện tử',
+        quantity: 1,
+        condition: 'GOOD',
+        location: 'Phòng họp nhỏ tầng 1',
+        culturalCenterId: 'center-6',
+        notes: 'Máy chiếu mini',
+        goodQuantity: 1,
+        fairQuantity: 0,
+        poorQuantity: 0,
+        damagedQuantity: 0,
+        repairingQuantity: 0,
+        imageUrl: '/assets/images/center/may-chieu.jpg',
+        lastChecked: new Date()
+      }
+    })
+
+    await prisma.culturalCenterAsset.create({
+      data: {
+        name: 'Bàn họp',
+        category: 'Nội thất',
+        quantity: 1,
+        condition: 'GOOD',
+        location: 'Phòng họp nhỏ tầng 1',
+        culturalCenterId: 'center-6',
+        notes: 'Bàn họp hình chữ nhật',
+        goodQuantity: 1,
+        fairQuantity: 0,
+        poorQuantity: 0,
+        damagedQuantity: 0,
+        repairingQuantity: 0,
+        imageUrl: '/assets/images/center/ban-hop.jpg',
         lastChecked: new Date()
       }
     })
@@ -676,6 +896,13 @@ async function main() {
         condition: 'GOOD',
         location: 'Phòng thư viện',
         culturalCenterId: 'center-7',
+        notes: 'Tủ sách nhiều ngăn',
+        goodQuantity: 6,
+        fairQuantity: 2,
+        poorQuantity: 0,
+        damagedQuantity: 0,
+        repairingQuantity: 0,
+        imageUrl: '/assets/images/center/tu-sach.jpg',
         lastChecked: new Date()
       }
     })
@@ -688,19 +915,33 @@ async function main() {
         condition: 'GOOD',
         location: 'Phòng thư viện',
         culturalCenterId: 'center-7',
+        notes: 'Máy tính để bàn',
+        goodQuantity: 2,
+        fairQuantity: 1,
+        poorQuantity: 0,
+        damagedQuantity: 0,
+        repairingQuantity: 0,
+        imageUrl: '/assets/images/center/may-tinh.jpg',
         lastChecked: new Date()
       }
     })
 
-    // Tài sản cho sân cầu lông
+    // Tài sản cho sân cầu lông 1
     await prisma.culturalCenterAsset.create({
       data: {
         name: 'Lưới cầu lông',
         category: 'Thiết bị thể thao',
         quantity: 2,
         condition: 'GOOD',
-        location: 'Sân cầu lông',
+        location: 'Sân cầu lông 1',
         culturalCenterId: 'center-8',
+        notes: 'Lưới tiêu chuẩn',
+        goodQuantity: 2,
+        fairQuantity: 0,
+        poorQuantity: 0,
+        damagedQuantity: 0,
+        repairingQuantity: 0,
+        imageUrl: '/assets/images/center/luoi-cau-long.jpg',
         lastChecked: new Date()
       }
     })
@@ -711,8 +952,15 @@ async function main() {
         category: 'Thiết bị thể thao',
         quantity: 8,
         condition: 'GOOD',
-        location: 'Sân cầu lông',
+        location: 'Sân cầu lông 1',
         culturalCenterId: 'center-8',
+        notes: 'Vợt cầu lông chuyên nghiệp',
+        goodQuantity: 6,
+        fairQuantity: 2,
+        poorQuantity: 0,
+        damagedQuantity: 0,
+        repairingQuantity: 0,
+        imageUrl: '/assets/images/center/vot-cau-long.jpg',
         lastChecked: new Date()
       }
     })
@@ -723,8 +971,54 @@ async function main() {
         category: 'Thiết bị thể thao',
         quantity: 24,
         condition: 'GOOD',
-        location: 'Sân cầu lông',
+        location: 'Sân cầu lông 1',
         culturalCenterId: 'center-8',
+        notes: 'Cầu lông tiêu chuẩn',
+        goodQuantity: 20,
+        fairQuantity: 3,
+        poorQuantity: 1,
+        damagedQuantity: 0,
+        repairingQuantity: 0,
+        imageUrl: '/assets/images/center/cau-long.jpg',
+        lastChecked: new Date()
+      }
+    })
+
+    // Tài sản cho sân cầu lông 2
+    await prisma.culturalCenterAsset.create({
+      data: {
+        name: 'Lưới cầu lông',
+        category: 'Thiết bị thể thao',
+        quantity: 2,
+        condition: 'GOOD',
+        location: 'Sân cầu lông 2',
+        culturalCenterId: 'center-9',
+        notes: 'Lưới tiêu chuẩn',
+        goodQuantity: 2,
+        fairQuantity: 0,
+        poorQuantity: 0,
+        damagedQuantity: 0,
+        repairingQuantity: 0,
+        imageUrl: '/assets/images/center/luoi-cau-long.jpg',
+        lastChecked: new Date()
+      }
+    })
+
+    await prisma.culturalCenterAsset.create({
+      data: {
+        name: 'Vợt cầu lông',
+        category: 'Thiết bị thể thao',
+        quantity: 8,
+        condition: 'GOOD',
+        location: 'Sân cầu lông 2',
+        culturalCenterId: 'center-9',
+        notes: 'Vợt cầu lông chuyên nghiệp',
+        goodQuantity: 7,
+        fairQuantity: 1,
+        poorQuantity: 0,
+        damagedQuantity: 0,
+        repairingQuantity: 0,
+        imageUrl: '/assets/images/center/vot-cau-long.jpg',
         lastChecked: new Date()
       }
     })
@@ -738,6 +1032,51 @@ async function main() {
         condition: 'GOOD',
         location: 'Sân bóng chuyền',
         culturalCenterId: 'center-10',
+        notes: 'Lưới bóng chuyền tiêu chuẩn',
+        goodQuantity: 1,
+        fairQuantity: 0,
+        poorQuantity: 0,
+        damagedQuantity: 0,
+        repairingQuantity: 0,
+        imageUrl: '/assets/images/center/luoi-bong-chuyen.jpg',
+        lastChecked: new Date()
+      }
+    })
+
+    await prisma.culturalCenterAsset.create({
+      data: {
+        name: 'Đèn chiếu sáng',
+        category: 'Thiết bị ánh sáng',
+        quantity: 2,
+        condition: 'GOOD',
+        location: 'Sân bóng chuyền',
+        culturalCenterId: 'center-10',
+        notes: 'Đèn chiếu sáng',
+        goodQuantity: 2,
+        fairQuantity: 0,
+        poorQuantity: 0,
+        damagedQuantity: 0,
+        repairingQuantity: 0,
+        imageUrl: '/assets/images/center/den-chieu-sang.jpg',
+        lastChecked: new Date()
+      }
+    })
+
+    await prisma.culturalCenterAsset.create({
+      data: {
+        name: 'Ghế ngồi',
+        category: 'Nội thất',
+        quantity: 10,
+        condition: 'GOOD',
+        location: 'Sân bóng chuyền',
+        culturalCenterId: 'center-10',
+        notes: 'Đèn chiếu sáng',
+        goodQuantity: 10,
+        fairQuantity: 0,
+        poorQuantity: 0,
+        damagedQuantity: 0,
+        repairingQuantity: 0,
+        imageUrl: '/assets/images/center/ghe-ngoi.jpg',
         lastChecked: new Date()
       }
     })
@@ -750,6 +1089,13 @@ async function main() {
         condition: 'GOOD',
         location: 'Sân bóng chuyền',
         culturalCenterId: 'center-10',
+        notes: 'Bóng chuyền da',
+        goodQuantity: 5,
+        fairQuantity: 1,
+        poorQuantity: 0,
+        damagedQuantity: 0,
+        repairingQuantity: 0,
+        imageUrl: '/assets/images/center/bong-chuyen.jpg',
         lastChecked: new Date()
       }
     })

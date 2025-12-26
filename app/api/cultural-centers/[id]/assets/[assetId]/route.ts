@@ -23,15 +23,15 @@ export async function PUT(
     } = await request.json()
 
     const updateData: any = {
-      name,
-      category: category || null,
-      quantity: quantity ? parseInt(quantity) : undefined,
-      condition: condition || undefined,
-      location: location || null,
-      notes: notes || null,
+        name,
+        category: category || null,
+        quantity: quantity ? parseInt(quantity) : undefined,
+        condition: condition || undefined,
+        location: location || null,
+        notes: notes || null,
       imageUrl: imageUrl || null,
-      lastChecked: new Date()
-    }
+        lastChecked: new Date()
+      }
 
     // Add detailed quantity fields if provided
     if (goodQuantity !== undefined && goodQuantity !== null) {

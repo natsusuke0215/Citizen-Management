@@ -30,7 +30,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { name, description, capacity, location, building, floor, room, amenities, area, yearBuilt } = await request.json()
+    const { name, description, capacity, location, building, floor, room, amenities, area, yearBuilt, imageUrl } = await request.json()
 
     if (!name || !capacity || !building) {
       return NextResponse.json(
@@ -47,7 +47,8 @@ export async function POST(request: NextRequest) {
       building,
       floor: floor ? parseInt(floor) : null,
       room: room || null,
-      amenities: amenities ? JSON.stringify(amenities) : null
+      amenities: amenities ? JSON.stringify(amenities) : null,
+      imageUrl: imageUrl || null
     }
 
     if (area !== undefined) {
