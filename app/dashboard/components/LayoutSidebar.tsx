@@ -130,7 +130,21 @@ function Sidebar({ user, expandedMenus, onToggleMenu, onClose, isMobile = false 
     if (href === '/dashboard') {
       return pathname === '/dashboard'
     }
-    return pathname.startsWith(href)
+    // Exact match only - don't highlight parent when on child route
+    return pathname === href
+  }
+  
+  const isParentActive = (href: string) => {
+    // Check if any sub-item is active (for parent menu highlighting)
+    const navigation = filterMenuByRole(user.role)
+    const item = navigation.find(nav => nav.href === href)
+    if (item?.subItems) {
+      return item.subItems.some(subItem => {
+        // Exact match or pathname is a child of subItem
+        return pathname === subItem.href || pathname.startsWith(subItem.href + '/')
+      })
+    }
+    return false
   }
 
   return (
@@ -152,6 +166,7 @@ function Sidebar({ user, expandedMenus, onToggleMenu, onClose, isMobile = false 
       <nav className="flex-1 overflow-y-auto px-4 py-6 space-y-2">
         {navigation.map((item) => {
           const active = isActive(item.href)
+          const parentActive = isParentActive(item.href)
           const hasSubItems = !!item.subItems
           const isExpanded = expandedMenus.has(item.name)
 
@@ -163,7 +178,7 @@ function Sidebar({ user, expandedMenus, onToggleMenu, onClose, isMobile = false 
                     <Link
                       href={item.href}
                       className={`nav-link-enhanced group flex-1 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-[10px] transition-all duration-200 ${
-                        active ? 'active' : ''
+                        (active || parentActive) ? 'active' : ''
                       }`}
                       onClick={onClose}
                     >
