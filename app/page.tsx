@@ -74,12 +74,7 @@ export default function HomePage() {
               >
                 Đăng nhập
               </Link>
-              <Link 
-                href="/register" 
-                className="px-5 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-navy-1 to-navy-2 rounded-[8px] hover:shadow-drop-lg transition-all duration-200 transform hover:-translate-y-0.5"
-              >
-                Đăng ký
-              </Link>
+
             </div>
           </div>
         </div>
@@ -110,12 +105,7 @@ export default function HomePage() {
               Bắt đầu ngay
               <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </Link>
-            <Link 
-              href="/register" 
-              className="px-8 py-4 text-base font-semibold text-navy-1 bg-white border-2 border-navy-1 rounded-[12px] hover:bg-navy-1 hover:text-white transition-all duration-200 shadow-drop hover:shadow-drop-lg"
-            >
-              Tạo tài khoản
-            </Link>
+
           </div>
         </div>
 

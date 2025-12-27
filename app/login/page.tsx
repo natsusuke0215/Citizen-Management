@@ -66,12 +66,7 @@ export default function LoginPage() {
               <h2 className="text-center text-3xl font-bold text-gray-900">
                 Đăng nhập tài khoản
               </h2>
-              <p className="mt-3 text-center text-sm text-gray-600">
-                Hoặc{' '}
-                <Link href="/register" className="font-semibold text-navy-1 hover:text-navy-2 transition-colors">
-                  tạo tài khoản mới
-                </Link>
-              </p>
+
             </div>
             <LoginForm />
           </div>
