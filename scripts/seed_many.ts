@@ -56,6 +56,14 @@ async function main() {
 
   const totalHouseholds = 500
 
+  const usedIdNumbers = new Set<string>()
+  const places = ['Hà Nội', 'Hưng Yên', 'Hải Phòng', 'Đà Nẵng', 'TP. Hồ Chí Minh', 'Nghệ An', 'Thái Bình', 'Bắc Ninh']
+  const ethnicities = ['Kinh', 'Tày', 'Thái', 'Mường', 'Khmer']
+  const religions = ['Không', 'Phật giáo', 'Công giáo', 'Hòa Hảo']
+  const educations = ['Tiểu học', 'THCS', 'THPT', 'Cao đẳng', 'Đại học', 'Sau đại học']
+  const occupations = ['Công nhân', 'Giáo viên', 'Làm nông', 'Nhân viên văn phòng', 'Kinh doanh', 'Nhà nước', 'Sinh viên']
+  const idTypes = ['CCCD', 'CMND']
+
   for (let i = 1; i <= totalHouseholds; i++) {
     const householdId = `HK${String(i).padStart(4, '0')}`
     const ownerName = randomName()
@@ -76,16 +84,67 @@ async function main() {
       }
     })
 
-    // create 1-5 persons
+    // create 1-5 persons with full details
     const personCount = randInt(1, 5)
     for (let p = 0; p < personCount; p++) {
       const fullName = randomName()
       const dob = randomDateBetween(1950, 2015)
+
+      // generate unique idNumber 12 digits (most will have one)
+      let idNumber: string | null = null
+      if (Math.random() < 0.95) {
+        for (let attempt = 0; attempt < 10; attempt++) {
+          const num = String(randInt(1e11, 9e11)).padStart(12, '0')
+          if (!usedIdNumbers.has(num)) {
+            idNumber = num
+            usedIdNumbers.add(num)
+            break
+          }
+        }
+        if (!idNumber) {
+          idNumber = `9${String(i).padStart(11, '0')}`.slice(0,12)
+          usedIdNumbers.add(idNumber)
+        }
+      }
+
+      const gender = Math.random() < 0.5 ? 'Nam' : 'Nữ'
+      const placeOfBirth = places[randInt(0, places.length - 1)]
+      const origin = places[randInt(0, places.length - 1)]
+      const ethnicity = ethnicities[randInt(0, ethnicities.length - 1)]
+      const religion = religions[randInt(0, religions.length - 1)]
+      const nationality = 'Việt Nam'
+      const education = educations[randInt(0, educations.length - 1)]
+      const occupation = occupations[randInt(0, occupations.length - 1)]
+      const workplace = `${occupation} ${String(randInt(1, 200))}`
+      const idType = idTypes[randInt(0, idTypes.length - 1)]
+      const idIssueDate = new Date(dob.getFullYear() + randInt(16, 30), randInt(0,11), randInt(1,28))
+      const idIssuePlace = placeOfBirth
+      const registrationDate = new Date(dob.getFullYear() + randInt(16, 30), randInt(0,11), randInt(1,28))
+      const previousAddress = Math.random() < 0.2 ? `${randInt(1,999)} Đường Cũ` : null
+      const relationship = p === 0 ? 'Chủ hộ' : (Math.random() < 0.6 ? 'Con' : 'Vợ/Chồng')
+      const status = 'ACTIVE'
+
       await prisma.person.create({
         data: {
           fullName,
           dateOfBirth: dob,
-          gender: Math.random() < 0.5 ? 'Nam' : 'Nữ',
+          placeOfBirth,
+          origin,
+          ethnicity,
+          religion,
+          nationality,
+          education,
+          gender,
+          occupation,
+          workplace,
+          idType,
+          idNumber,
+          idIssueDate,
+          idIssuePlace,
+          registrationDate,
+          previousAddress,
+          relationship,
+          status,
           householdId: household.id
         }
       })
@@ -107,5 +166,6 @@ main()
   .finally(async () => {
     await prisma.$disconnect()
   })
+
 
 
