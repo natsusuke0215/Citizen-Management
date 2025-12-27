@@ -52,7 +52,6 @@ export async function GET(request: NextRequest) {
       isPushNotificationEnabled: (userData as any).isPushNotificationEnabled ?? true,
       isPublicProfile: (userData as any).isPublicProfile ?? false,
       theme: (userData as any).theme || 'system',
-      householdId: userData.householdId,
       createdAt: userData.createdAt,
       updatedAt: userData.updatedAt
     }
@@ -158,7 +157,6 @@ export async function PUT(request: NextRequest) {
       isPushNotificationEnabled: (updatedUser as any).isPushNotificationEnabled ?? true,
       isPublicProfile: (updatedUser as any).isPublicProfile ?? false,
       theme: (updatedUser as any).theme || 'system',
-      householdId: updatedUser.householdId,
       createdAt: updatedUser.createdAt,
       updatedAt: updatedUser.updatedAt
     }

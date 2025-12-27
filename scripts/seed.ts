@@ -30,11 +30,11 @@ async function main() {
     districts.district2.id
   )
 
-  // Gán user vào hộ khẩu
-  await prisma.user.update({
-    where: { id: users.user.id },
-    data: { householdId: households.household1.id }
-  })
+  // Gán user vào hộ khẩu - REMOVED
+  // await prisma.user.update({
+  //   where: { id: users.user.id },
+  //   data: { householdId: households.household1.id }
+  // })
 
   await seedPersons(prisma, households.household1.id)
   
