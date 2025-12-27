@@ -69,31 +69,14 @@ export async function PUT(
     }
 
     // Check for overlapping bookings (excluding current booking)
+    // Two bookings overlap if: start1 < end2 AND end1 > start2
     const overlappingBooking = await prisma.culturalCenterBooking.findFirst({
       where: {
         culturalCenterId,
         status: 'APPROVED',
         id: { not: params.id },
-        OR: [
-          {
-            AND: [
-              { startTime: { lte: start } },
-              { endTime: { gt: start } }
-            ]
-          },
-          {
-            AND: [
-              { startTime: { lt: end } },
-              { endTime: { gte: end } }
-            ]
-          },
-          {
-            AND: [
-              { startTime: { gte: start } },
-              { endTime: { lte: end } }
-            ]
-          }
-        ]
+        startTime: { lt: end },
+        endTime: { gt: start }
       }
     })
 
@@ -114,7 +97,7 @@ export async function PUT(
         culturalCenterId,
         visibility: visibility || 'PUBLIC',
         type: type || undefined,
-        fee: fee !== undefined ? parseFloat(fee) : undefined
+        fee: fee !== undefined && fee !== null ? (typeof fee === 'number' ? fee : parseFloat(String(fee))) : undefined
       },
       include: {
         culturalCenter: {

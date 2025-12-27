@@ -2,10 +2,39 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { verifyToken } from '@/lib/auth'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const token = request.cookies.get('auth-token')?.value
+    if (!token) {
+      return NextResponse.json(
+        { message: 'Không có quyền truy cập' },
+        { status: 401 }
+      )
+    }
+
+    const user = verifyToken(token)
+    if (!user) {
+      return NextResponse.json(
+        { message: 'Token không hợp lệ' },
+        { status: 401 }
+      )
+    }
+
+    // Optimize query with select instead of include for better performance
     const bookings = await prisma.culturalCenterBooking.findMany({
-      include: {
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        startTime: true,
+        endTime: true,
+        status: true,
+        visibility: true,
+        type: true,
+        fee: true,
+        feePaid: true,
+        createdAt: true,
+        updatedAt: true,
         culturalCenter: {
           select: {
             id: true,
@@ -84,30 +113,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Check for overlapping bookings
+    // Two bookings overlap if: start1 < end2 AND end1 > start2
     const overlappingBooking = await prisma.culturalCenterBooking.findFirst({
       where: {
         culturalCenterId,
         status: 'APPROVED',
-        OR: [
-          {
-            AND: [
-              { startTime: { lte: start } },
-              { endTime: { gt: start } }
-            ]
-          },
-          {
-            AND: [
-              { startTime: { lt: end } },
-              { endTime: { gte: end } }
-            ]
-          },
-          {
-            AND: [
-              { startTime: { gte: start } },
-              { endTime: { lte: end } }
-            ]
-          }
-        ]
+        startTime: { lt: end },
+        endTime: { gt: start }
       }
     })
 
@@ -130,7 +142,7 @@ export async function POST(request: NextRequest) {
         // Mặc định duyệt luôn lịch đặt mới
         status: 'APPROVED',
         type: type || 'EVENT',
-        fee: fee ? parseFloat(fee) : null,
+        fee: fee !== undefined && fee !== null ? (typeof fee === 'number' ? fee : parseFloat(String(fee))) : null,
         feePaid: false
       },
       include: {

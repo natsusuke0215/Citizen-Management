@@ -1,11 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { verifyToken } from '@/lib/auth'
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
+    const token = request.cookies.get('auth-token')?.value
+    if (!token) {
+      return NextResponse.json(
+        { message: 'Không có quyền truy cập' },
+        { status: 401 }
+      )
+    }
+
+    const user = verifyToken(token)
+    if (!user) {
+      return NextResponse.json(
+        { message: 'Token không hợp lệ' },
+        { status: 401 }
+      )
+    }
+
     const person = await prisma.person.findUnique({
       where: { id: params.id },
       include: {
@@ -35,6 +52,30 @@ export async function GET(
       )
     }
 
+    // Check authorization: admin/leader can view all, or user is a member of the household
+    const household = await prisma.household.findUnique({
+      where: { id: person.householdId },
+      select: {
+        members: {
+          select: { id: true }
+        }
+      }
+    })
+
+    const isAuthorized = 
+      user.role === 'ADMIN' || 
+      user.role === 'TEAM_LEADER' || 
+      user.role === 'LEADER' || 
+      user.role === 'DEPUTY' ||
+      household?.members.some(member => member.id === user.id)
+
+    if (!isAuthorized) {
+      return NextResponse.json(
+        { message: 'Không có quyền truy cập nhân khẩu này' },
+        { status: 403 }
+      )
+    }
+
     return NextResponse.json(person)
   } catch (error) {
     console.error('Error fetching person:', error)
@@ -50,6 +91,30 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    const token = request.cookies.get('auth-token')?.value
+    if (!token) {
+      return NextResponse.json(
+        { message: 'Không có quyền truy cập' },
+        { status: 401 }
+      )
+    }
+
+    const user = verifyToken(token)
+    if (!user) {
+      return NextResponse.json(
+        { message: 'Token không hợp lệ' },
+        { status: 401 }
+      )
+    }
+
+    // Only ADMIN, TEAM_LEADER, LEADER, DEPUTY can update persons
+    if (user.role !== 'ADMIN' && user.role !== 'TEAM_LEADER' && user.role !== 'LEADER' && user.role !== 'DEPUTY') {
+      return NextResponse.json(
+        { message: 'Không có quyền cập nhật nhân khẩu' },
+        { status: 403 }
+      )
+    }
+
     const { 
       fullName, 
       dateOfBirth, 
@@ -168,6 +233,30 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    const token = request.cookies.get('auth-token')?.value
+    if (!token) {
+      return NextResponse.json(
+        { message: 'Không có quyền truy cập' },
+        { status: 401 }
+      )
+    }
+
+    const user = verifyToken(token)
+    if (!user) {
+      return NextResponse.json(
+        { message: 'Token không hợp lệ' },
+        { status: 401 }
+      )
+    }
+
+    // Only ADMIN can delete persons
+    if (user.role !== 'ADMIN') {
+      return NextResponse.json(
+        { message: 'Chỉ quản trị viên mới có quyền xóa nhân khẩu' },
+        { status: 403 }
+      )
+    }
+
     const person = await prisma.person.findUnique({
       where: { id: params.id }
     })

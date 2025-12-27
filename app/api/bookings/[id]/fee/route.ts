@@ -8,6 +8,22 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    const token = request.cookies.get('auth-token')?.value
+    if (!token) {
+      return NextResponse.json(
+        { message: 'Không có quyền truy cập' },
+        { status: 401 }
+      )
+    }
+
+    const user = verifyToken(token)
+    if (!user) {
+      return NextResponse.json(
+        { message: 'Token không hợp lệ' },
+        { status: 401 }
+      )
+    }
+
     const booking = await prisma.culturalCenterBooking.findUnique({
       where: { id: params.id },
       include: {
