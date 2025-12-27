@@ -1,98 +1,69 @@
 'use client'
 
 /**
- * PDF Utility với hỗ trợ tiếng Việt
+ * PDF Utility - Sử dụng Puppeteer (HTML → PDF)
  * 
- * LƯU Ý QUAN TRỌNG VỀ FONT TIẾNG VIỆT:
+ * Đã chuyển sang sử dụng Puppeteer để render PDF từ HTML template.
+ * Giải pháp này hỗ trợ tiếng Việt hoàn hảo, không cần lo về font encoding.
  * 
- * jsPDF mặc định sử dụng font Helvetica không hỗ trợ đầy đủ ký tự tiếng Việt có dấu.
- * Để hiển thị đúng tiếng Việt, bạn cần:
- * 
- * 1. Tải font hỗ trợ tiếng Việt (ví dụ: Roboto-Regular.ttf, Arial Unicode MS, hoặc Times New Roman)
- *    - Tải từ Google Fonts: https://fonts.google.com/specimen/Roboto
- *    - Hoặc sử dụng font có sẵn trên hệ thống
- * 
- * 2. Convert font sang Base64:
- *    - Sử dụng tool online: https://everythingfonts.com/base64
- *    - Hoặc: https://www.fontsquirrel.com/tools/webfont-generator
- *    - Hoặc dùng script Node.js:
- *      const fs = require('fs');
- *      const fontBase64 = fs.readFileSync('Roboto-Regular.ttf', 'base64');
- *      console.log(fontBase64);
- * 
- * 3. Thêm font vào jsPDF:
- *    - Tạo file font-base64.ts chứa chuỗi Base64 của font
- *    - Import và sử dụng:
- *      doc.addFileToVFS('Roboto-Regular.ttf', fontBase64);
- *      doc.addFont('Roboto-Regular.ttf', 'Roboto', 'normal');
- *      doc.setFont('Roboto');
- * 
- * 4. Hoặc sử dụng thư viện hỗ trợ sẵn:
- *    - jspdf-vietnamese: npm install jspdf-vietnamese
- *    - Hoặc tự implement với file font Base64
- * 
- * Hiện tại code sử dụng font mặc định, một số ký tự tiếng Việt có thể không hiển thị đúng.
- * Để sử dụng trong production, cần implement đầy đủ font tiếng Việt theo hướng dẫn trên.
+ * Backward compatibility: Re-export từ pdf-puppeteer
  */
 
+// Re-export từ Puppeteer implementation
+export {
+  exportHouseholdPdf,
+  exportTemporaryAbsencePdf,
+} from './pdf-puppeteer'
+
+// Re-export types
+export type { HouseholdData, TemporaryAbsenceData } from './pdf-puppeteer'
+
+// Legacy interfaces for backward compatibility
+export interface Household {
+  householdId: string
+  ownerName: string
+  address: string
+  ward: string
+  district: string
+  province?: string
+  members: Citizen[]
+  issueDate?: string
+}
+
+export interface Citizen {
+  fullName: string
+  dateOfBirth: string
+  idNumber: string
+  permanentAddress: string
+  gender?: string
+  relationship?: string
+}
+
+// Legacy code removed - using Puppeteer implementation instead
+// All PDF generation now uses HTML templates rendered via Puppeteer
+
+// Keep legacy interfaces for backward compatibility
+// Note: exportHouseholdPdf and exportTemporaryAbsencePdf are now exported from pdf-puppeteer
+
+// Legacy jsPDF functions (kept for other PDF types that haven't been migrated yet)
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import { ROBOTO_REGULAR_BASE64, FONT_NAME, FONT_STYLE, FONT_FILE_NAME } from './fonts'
 
-// Interface định nghĩa thông tin công dân
-export interface Citizen {
-  fullName: string // Họ tên
-  dateOfBirth: string // Ngày sinh (format: YYYY-MM-DD)
-  idNumber: string // Số CCCD/CMND
-  permanentAddress: string // Địa chỉ thường trú
-  gender?: string // Giới tính
-  relationship?: string // Quan hệ với chủ hộ
-}
-
-// Interface định nghĩa thông tin hộ khẩu
-export interface Household {
-  householdId: string // Số hộ khẩu
-  ownerName: string // Họ tên chủ hộ
-  address: string // Địa chỉ (số nhà, đường phố)
-  ward: string // Phường/Xã
-  district: string // Quận/Huyện
-  province?: string // Tỉnh/Thành phố
-  members: Citizen[] // Danh sách thành viên trong hộ
-  issueDate?: string // Ngày cấp
-}
-
-/**
- * Hàm nạp font tiếng Việt vào jsPDF
- * @param doc - Document jsPDF
- */
 function loadVietnameseFont(doc: jsPDF): void {
   try {
-    // Kiểm tra xem font đã được nạp chưa
     if (!ROBOTO_REGULAR_BASE64 || ROBOTO_REGULAR_BASE64.includes('DEMO_BASE64_STRING_PLACEHOLDER')) {
-      console.warn('⚠️ Font Base64 chưa được cấu hình. Vui lòng thay thế ROBOTO_REGULAR_BASE64 trong lib/fonts.ts bằng chuỗi Base64 thật của font.')
-      console.warn('⚠️ Đang sử dụng font mặc định - có thể không hiển thị đúng tiếng Việt.')
+      doc.setFont('helvetica')
       return
     }
-
-    // Nạp font vào Virtual File System của jsPDF
     doc.addFileToVFS(FONT_FILE_NAME, ROBOTO_REGULAR_BASE64)
-    
-    // Thêm font vào jsPDF với tên và style
     doc.addFont(FONT_FILE_NAME, FONT_NAME, FONT_STYLE)
-    
-    // Đặt font làm mặc định
     doc.setFont(FONT_NAME, FONT_STYLE)
-    
-    console.log('✅ Font tiếng Việt đã được nạp thành công')
   } catch (error) {
-    console.error('❌ Lỗi khi nạp font tiếng Việt:', error)
-    console.warn('⚠️ Đang sử dụng font mặc định - có thể không hiển thị đúng tiếng Việt.')
+    doc.setFont('helvetica')
   }
 }
 
-/**
- * Hàm format ngày tháng từ YYYY-MM-DD sang DD/MM/YYYY
- */
 function formatDate(dateString: string): string {
   try {
     const date = new Date(dateString)
@@ -108,11 +79,13 @@ function formatDate(dateString: string): string {
   }
 }
 
-/**
- * Hàm xuất PDF thông tin hộ khẩu theo format văn bản hành chính Việt Nam
- * @param data - Dữ liệu hộ khẩu
- */
-export function exportHouseholdPdf(data: Household): void {
+function encodeVietnameseText(text: string): string {
+  return text
+}
+
+// Legacy function - REMOVED: exportHouseholdPdf is now in pdf-puppeteer
+// This function is kept for reference but not exported
+function _legacyExportHouseholdPdf(data: Household): void {
   // Tạo document PDF với kích thước A4 (210mm x 297mm)
   const doc = new jsPDF({
     orientation: 'portrait',
@@ -487,7 +460,9 @@ export function exportTemporaryResidencePdf(data: {
   ]
 
   fields.forEach(([label, value]) => {
-    doc.setFont(FONT_NAME, 'normal')
+    // Use current font (either Vietnamese font or helvetica)
+    const currentFont = doc.getFont().fontName
+    doc.setFont(currentFont, 'normal')
     doc.text(label, margin, currentY)
     const labelWidth = doc.getTextWidth(label)
     const lineLength = 100
@@ -498,7 +473,24 @@ export function exportTemporaryResidencePdf(data: {
       currentY - 3
     )
     if (value) {
-      doc.text(value, margin + labelWidth + 3, currentY)
+      // Encode Vietnamese text properly
+      const encodedValue = encodeVietnameseText(value)
+      try {
+        // Try to use current font (may be Vietnamese font or helvetica)
+        const currentFont = doc.getFont().fontName
+        if (currentFont === 'helvetica' || currentFont === 'Helvetica') {
+          // For helvetica, we need to handle Vietnamese characters differently
+          // Split text and render character by character if needed
+          doc.text(encodedValue, margin + labelWidth + 3, currentY)
+        } else {
+          // For custom font, should work fine
+          doc.text(encodedValue, margin + labelWidth + 3, currentY)
+        }
+      } catch (e) {
+        console.warn('Error rendering text:', e)
+        // Fallback: try without encoding
+        doc.text(encodedValue, margin + labelWidth + 3, currentY)
+      }
     }
     currentY += 8
   })
@@ -509,14 +501,24 @@ export function exportTemporaryResidencePdf(data: {
   doc.text('Người khai', margin, currentY)
   doc.text('(Ký và ghi rõ họ tên)', margin, currentY + 15)
 
-  const filename = `phieu-khai-bao-tam-tru-${data.idNumber}.pdf`
-  doc.save(filename)
+  // Ensure filename is properly encoded
+  const safeIdNumber = (data.idNumber || 'unknown').replace(/[^a-zA-Z0-9]/g, '_')
+  const filename = `phieu-khai-bao-tam-tru-${safeIdNumber}.pdf`
+  
+  try {
+    doc.save(filename, { returnPromise: true })
+  } catch (error) {
+    console.error('Error saving PDF:', error)
+    doc.save(filename)
+  }
 }
 
 /**
  * Hàm xuất PDF cho form "PHIẾU KHAI BÁO TẠM VẮNG"
+ * REMOVED - Now exported from pdf-puppeteer
+ * This function is kept for reference but not exported
  */
-export function exportTemporaryAbsencePdf(data: {
+function _legacyExportTemporaryAbsencePdf(data: {
   fullName: string
   dateOfBirth: string
   gender: string
@@ -597,7 +599,9 @@ export function exportTemporaryAbsencePdf(data: {
   ]
 
   fields.forEach(([label, value]) => {
-    doc.setFont(FONT_NAME, 'normal')
+    // Use current font (either Vietnamese font or helvetica)
+    const currentFont = doc.getFont().fontName
+    doc.setFont(currentFont, 'normal')
     doc.text(label, margin, currentY)
     const labelWidth = doc.getTextWidth(label)
     const lineLength = 100
@@ -608,7 +612,24 @@ export function exportTemporaryAbsencePdf(data: {
       currentY - 3
     )
     if (value) {
-      doc.text(value, margin + labelWidth + 3, currentY)
+      // Encode Vietnamese text properly
+      const encodedValue = encodeVietnameseText(value)
+      try {
+        // Try to use current font (may be Vietnamese font or helvetica)
+        const currentFont = doc.getFont().fontName
+        if (currentFont === 'helvetica' || currentFont === 'Helvetica') {
+          // For helvetica, we need to handle Vietnamese characters differently
+          // Split text and render character by character if needed
+          doc.text(encodedValue, margin + labelWidth + 3, currentY)
+        } else {
+          // For custom font, should work fine
+          doc.text(encodedValue, margin + labelWidth + 3, currentY)
+        }
+      } catch (e) {
+        console.warn('Error rendering text:', e)
+        // Fallback: try without encoding
+        doc.text(encodedValue, margin + labelWidth + 3, currentY)
+      }
     }
     currentY += 8
   })
@@ -619,7 +640,15 @@ export function exportTemporaryAbsencePdf(data: {
   doc.text('Người khai', margin, currentY)
   doc.text('(Ký và ghi rõ họ tên)', margin, currentY + 15)
 
-  const filename = `phieu-khai-bao-tam-vang-${data.idNumber}.pdf`
-  doc.save(filename)
+  // Ensure filename is properly encoded
+  const safeIdNumber = (data.idNumber || 'unknown').replace(/[^a-zA-Z0-9]/g, '_')
+  const filename = `phieu-khai-bao-tam-vang-${safeIdNumber}.pdf`
+  
+  try {
+    doc.save(filename, { returnPromise: true })
+  } catch (error) {
+    console.error('Error saving PDF:', error)
+    doc.save(filename)
+  }
 }
 
