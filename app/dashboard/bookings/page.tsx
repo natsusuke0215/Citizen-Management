@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Plus, Search, Calendar, Building, Clock, Eye, EyeOff, Edit, Trash2, Filter, CheckCircle, XCircle, Hourglass, User, MapPin, Sparkles, AlertCircle } from 'lucide-react'
+import { Plus, Search, Calendar, Building, Clock, Eye, EyeOff, Edit, Trash2, User, MapPin, Sparkles } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 interface CulturalCenter {
@@ -36,7 +36,6 @@ export default function BookingsPage() {
   const [centers, setCenters] = useState<CulturalCenter[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
-  const [statusFilter, setStatusFilter] = useState<'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED'>('ALL')
   const [showModal, setShowModal] = useState(false)
   const [editingBooking, setEditingBooking] = useState<Booking | null>(null)
   const [formData, setFormData] = useState({
@@ -169,9 +168,6 @@ export default function BookingsPage() {
 
   // Calculate statistics
   const totalBookings = bookings.length
-  const pendingBookings = bookings.filter(b => b.status === 'PENDING').length
-  const approvedBookings = bookings.filter(b => b.status === 'APPROVED').length
-  const rejectedBookings = bookings.filter(b => b.status === 'REJECTED').length
 
   // Format date helper
   const formatDateTime = (dateString: string) => {
@@ -183,36 +179,6 @@ export default function BookingsPage() {
     }
   }
 
-  // Get status color and icon
-  const getStatusInfo = (status: string) => {
-    switch (status) {
-      case 'APPROVED':
-        return {
-          color: 'text-emerald-700',
-          bgColor: 'bg-emerald-50',
-          borderColor: 'border-emerald-200',
-          icon: CheckCircle,
-          label: 'Đã duyệt'
-        }
-      case 'REJECTED':
-        return {
-          color: 'text-rose-700',
-          bgColor: 'bg-rose-50',
-          borderColor: 'border-rose-200',
-          icon: XCircle,
-          label: 'Đã từ chối'
-        }
-      case 'PENDING':
-      default:
-        return {
-          color: 'text-amber-700',
-          bgColor: 'bg-amber-50',
-          borderColor: 'border-amber-200',
-          icon: Hourglass,
-          label: 'Chờ duyệt'
-        }
-    }
-  }
 
   // Get day of week in Vietnamese
   const getDayOfWeek = (dateString: string) => {
@@ -223,7 +189,7 @@ export default function BookingsPage() {
 
   const filteredBookings = bookings
     .filter(booking => {
-      if (!searchTerm && statusFilter === 'ALL') return true
+      if (!searchTerm) return true
 
       // Search filter - enhanced with date/time search
       let matchesSearch = true
@@ -263,10 +229,7 @@ export default function BookingsPage() {
         matchesSearch = basicMatch || dateTimeMatch
       }
 
-      // Status filter
-      const matchesStatus = statusFilter === 'ALL' || booking.status === statusFilter
-
-      return matchesSearch && matchesStatus
+      return matchesSearch
     })
     .sort((a, b) => {
       // Sort by start time, newest first
@@ -314,8 +277,8 @@ export default function BookingsPage() {
         </button>
       </div>
 
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {/* Statistics Card */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <div className="group relative overflow-hidden bg-gradient-to-br from-navy-1 to-navy-2 rounded-[15px] shadow-drop hover:shadow-drop-lg transition-all duration-300 transform hover:-translate-y-1 animate-slideUp" style={{ animationDelay: '0.1s' }}>
           <div className="absolute top-0 right-0 w-24 h-24 bg-white opacity-10 rounded-full -mr-12 -mt-12"></div>
           <div className="p-5 text-white relative">
@@ -326,45 +289,6 @@ export default function BookingsPage() {
             </div>
             <div className="text-3xl font-bold mb-1">{totalBookings}</div>
             <div className="text-sm opacity-90">Tổng số lịch đặt</div>
-          </div>
-        </div>
-
-        <div className="group relative overflow-hidden bg-gradient-to-br from-yellow-1 to-yellow-2 rounded-[15px] shadow-drop hover:shadow-drop-lg transition-all duration-300 transform hover:-translate-y-1 animate-slideUp" style={{ animationDelay: '0.2s' }}>
-          <div className="absolute top-0 right-0 w-24 h-24 bg-navy-1 opacity-10 rounded-full -mr-12 -mt-12"></div>
-          <div className="p-5 text-navy-1 relative">
-            <div className="flex items-center justify-between mb-3">
-              <div className="p-2.5 bg-navy-1 bg-opacity-20 rounded-[8px] backdrop-blur-sm">
-                <AlertCircle className="h-6 w-6 text-navy-1" />
-              </div>
-            </div>
-            <div className="text-3xl font-bold mb-1">{pendingBookings}</div>
-            <div className="text-sm opacity-90 text-navy-2">Chờ duyệt</div>
-          </div>
-        </div>
-
-        <div className="group relative overflow-hidden bg-gradient-to-br from-emerald-400 to-emerald-500 rounded-[15px] shadow-drop hover:shadow-drop-lg transition-all duration-300 transform hover:-translate-y-1 animate-slideUp" style={{ animationDelay: '0.3s' }}>
-          <div className="absolute top-0 right-0 w-24 h-24 bg-white opacity-10 rounded-full -mr-12 -mt-12"></div>
-          <div className="p-5 text-white relative">
-            <div className="flex items-center justify-between mb-3">
-              <div className="p-2.5 bg-white bg-opacity-20 rounded-[8px] backdrop-blur-sm">
-                <CheckCircle className="h-6 w-6" />
-              </div>
-            </div>
-            <div className="text-3xl font-bold mb-1">{approvedBookings}</div>
-            <div className="text-sm opacity-90">Đã duyệt</div>
-          </div>
-        </div>
-
-        <div className="group relative overflow-hidden bg-gradient-to-br from-rose-400 to-rose-500 rounded-[15px] shadow-drop hover:shadow-drop-lg transition-all duration-300 transform hover:-translate-y-1 animate-slideUp" style={{ animationDelay: '0.4s' }}>
-          <div className="absolute top-0 right-0 w-24 h-24 bg-white opacity-10 rounded-full -mr-12 -mt-12"></div>
-          <div className="p-5 text-white relative">
-            <div className="flex items-center justify-between mb-3">
-              <div className="p-2.5 bg-white bg-opacity-20 rounded-[8px] backdrop-blur-sm">
-                <XCircle className="h-6 w-6" />
-              </div>
-            </div>
-            <div className="text-3xl font-bold mb-1">{rejectedBookings}</div>
-            <div className="text-sm opacity-90">Đã từ chối</div>
           </div>
         </div>
       </div>
@@ -386,28 +310,12 @@ export default function BookingsPage() {
             />
           </div>
 
-          {/* Status Filter */}
-          <div className="flex items-center gap-2">
-            <Filter className="h-5 w-5 text-gray-400" />
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as 'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED')}
-              className="px-4 py-3 border border-gray-200 rounded-[8px] bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-navy-1 focus:border-transparent transition-all duration-200 cursor-pointer min-w-[160px]"
-            >
-              <option value="ALL">Tất cả trạng thái</option>
-              <option value="PENDING">Chờ duyệt</option>
-              <option value="APPROVED">Đã duyệt</option>
-              <option value="REJECTED">Đã từ chối</option>
-            </select>
-          </div>
         </div>
       </div>
 
       {/* Bookings List */}
       <div className="space-y-4">
         {filteredBookings.map((booking) => {
-          const statusInfo = getStatusInfo(booking.status)
-          const StatusIcon = statusInfo.icon
           const startDateTime = formatDateTime(booking.startTime)
           const endDateTime = formatDateTime(booking.endTime)
           const createdDateTime = formatDateTime(booking.createdAt)
@@ -417,20 +325,13 @@ export default function BookingsPage() {
               key={booking.id}
               className="group relative bg-white rounded-[15px] shadow-drop hover:shadow-drop-lg transition-all duration-300 transform hover:-translate-y-1 overflow-hidden border border-gray-100"
             >
-              {/* Status Badge */}
-              <div className={`absolute top-4 right-4 ${statusInfo.bgColor} ${statusInfo.borderColor} border rounded-[8px] px-3 py-1.5 flex items-center gap-2`}>
-                <StatusIcon className={`h-4 w-4 ${statusInfo.color}`} />
-                <span className={`text-xs font-semibold ${statusInfo.color}`}>
-                  {statusInfo.label}
-                </span>
-              </div>
 
               {/* Decorative gradient overlay on hover */}
               <div className="absolute inset-0 bg-gradient-to-br from-navy-1/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
               <div className="relative p-6">
                 {/* Header */}
-                <div className="flex items-start gap-4 mb-4 pr-24">
+                <div className="flex items-start gap-4 mb-4">
                   <div className="p-4 rounded-[12px] bg-gradient-to-br from-navy-1 to-navy-2 shadow-drop group-hover:scale-110 transition-transform duration-300 flex-shrink-0">
                     <Calendar className="h-7 w-7 text-white" />
                   </div>
@@ -535,18 +436,17 @@ export default function BookingsPage() {
             <Calendar className="relative h-20 w-20 text-gray-300 mx-auto" />
           </div>
           <h3 className="text-xl font-bold text-gray-900 mb-2">
-            {searchTerm || statusFilter !== 'ALL' ? 'Không tìm thấy kết quả' : 'Chưa có lịch đặt'}
+            {searchTerm ? 'Không tìm thấy kết quả' : 'Chưa có lịch đặt'}
           </h3>
           <p className="text-sm text-gray-500 max-w-md mx-auto mb-6">
-            {searchTerm || statusFilter !== 'ALL'
-              ? `Không tìm thấy lịch đặt nào phù hợp với bộ lọc hiện tại. Hãy thử điều chỉnh từ khóa tìm kiếm hoặc bộ lọc trạng thái.`
+            {searchTerm
+              ? `Không tìm thấy lịch đặt nào phù hợp với từ khóa tìm kiếm.`
               : 'Bắt đầu bằng cách đặt lịch đầu tiên cho nhà văn hóa.'}
           </p>
-          {(searchTerm || statusFilter !== 'ALL') && (
+          {searchTerm && (
             <button
               onClick={() => {
                 setSearchTerm('')
-                setStatusFilter('ALL')
               }}
               className="px-6 py-3 bg-gradient-to-r from-navy-1 to-navy-2 text-white rounded-[8px] font-medium hover:shadow-drop-lg transition-all duration-200 transform hover:-translate-y-0.5"
             >

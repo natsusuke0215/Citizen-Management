@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Plus, Search, Check, X, Eye, FileText, Clock, AlertCircle } from 'lucide-react'
+import { Plus, Search, Eye, FileText, Clock, AlertCircle } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 interface Request {
@@ -35,7 +35,6 @@ export default function RequestsPage() {
   const [requests, setRequests] = useState<Request[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
-  const [selectedStatus, setSelectedStatus] = useState<string>('all')
   const [selectedType, setSelectedType] = useState<string>('all')
   const [showModal, setShowModal] = useState(false)
   const [selectedRequest, setSelectedRequest] = useState<Request | null>(null)
@@ -58,27 +57,6 @@ export default function RequestsPage() {
     }
   }
 
-  const handleStatusChange = async (id: string, status: 'APPROVED' | 'REJECTED') => {
-    try {
-      const response = await fetch(`/api/requests/${id}/status`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ status }),
-      })
-
-      if (response.ok) {
-        toast.success(`Yêu cầu đã được ${status === 'APPROVED' ? 'duyệt' : 'từ chối'}!`)
-        fetchRequests()
-      } else {
-        const data = await response.json()
-        toast.error(data.message || 'Có lỗi xảy ra')
-      }
-    } catch (error) {
-      toast.error('Có lỗi xảy ra')
-    }
-  }
 
   const filteredRequests = requests.filter(request => {
     const searchLower = (searchTerm || '').toLowerCase()
@@ -93,29 +71,11 @@ export default function RequestsPage() {
       (value || '').toLowerCase().includes(searchLower)
     )
     
-    const matchesStatus = selectedStatus === 'all' || request.status === selectedStatus
     const matchesType = selectedType === 'all' || request.type === selectedType
     
-    return matchesSearch && matchesStatus && matchesType
+    return matchesSearch && matchesType
   })
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'APPROVED': return 'bg-green-100 text-green-800'
-      case 'REJECTED': return 'bg-red-100 text-red-800'
-      case 'PENDING': return 'bg-yellow-100 text-yellow-800'
-      default: return 'bg-gray-100 text-gray-800'
-    }
-  }
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'APPROVED': return 'Đã duyệt'
-      case 'REJECTED': return 'Từ chối'
-      case 'PENDING': return 'Chờ duyệt'
-      default: return status
-    }
-  }
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -165,18 +125,6 @@ export default function RequestsPage() {
         <div className="sm:w-48">
           <select
             className="input"
-            value={selectedStatus}
-            onChange={(e) => setSelectedStatus(e.target.value)}
-          >
-            <option value="all">Tất cả trạng thái</option>
-            <option value="PENDING">Chờ duyệt</option>
-            <option value="APPROVED">Đã duyệt</option>
-            <option value="REJECTED">Từ chối</option>
-          </select>
-        </div>
-        <div className="sm:w-48">
-          <select
-            className="input"
             value={selectedType}
             onChange={(e) => setSelectedType(e.target.value)}
           >
@@ -218,9 +166,6 @@ export default function RequestsPage() {
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(request.status)}`}>
-                    {getStatusText(request.status)}
-                  </span>
                   <button
                     onClick={() => setSelectedRequest(request)}
                     className="text-indigo-600 hover:text-indigo-900"
@@ -243,24 +188,6 @@ export default function RequestsPage() {
                     </span>
                   )}
                 </div>
-                {request.status === 'PENDING' && (
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={() => handleStatusChange(request.id, 'APPROVED')}
-                      className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                    >
-                      <Check className="h-4 w-4 mr-1" />
-                      Duyệt
-                    </button>
-                    <button
-                      onClick={() => handleStatusChange(request.id, 'REJECTED')}
-                      className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                    >
-                      <X className="h-4 w-4 mr-1" />
-                      Từ chối
-                    </button>
-                  </div>
-                )}
               </div>
             </div>
           )
@@ -272,7 +199,7 @@ export default function RequestsPage() {
           <AlertCircle className="mx-auto h-12 w-12 text-gray-400" />
           <h3 className="mt-2 text-sm font-medium text-gray-900">Không có yêu cầu nào</h3>
           <p className="mt-1 text-sm text-gray-500">
-            {searchTerm || selectedStatus !== 'all' || selectedType !== 'all'
+            {searchTerm || selectedType !== 'all'
               ? 'Không tìm thấy yêu cầu phù hợp với bộ lọc.' 
               : 'Chưa có yêu cầu nào được gửi.'}
           </p>
@@ -341,40 +268,10 @@ export default function RequestsPage() {
                     </div>
                   )}
                   
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Trạng thái
-                    </label>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(selectedRequest.status)}`}>
-                      {getStatusText(selectedRequest.status)}
-                    </span>
-                  </div>
                 </div>
               </div>
               
               <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                {selectedRequest.status === 'PENDING' && (
-                  <>
-                    <button
-                      onClick={() => {
-                        handleStatusChange(selectedRequest.id, 'APPROVED')
-                        setSelectedRequest(null)
-                      }}
-                      className="btn btn-primary sm:ml-3"
-                    >
-                      Duyệt
-                    </button>
-                    <button
-                      onClick={() => {
-                        handleStatusChange(selectedRequest.id, 'REJECTED')
-                        setSelectedRequest(null)
-                      }}
-                      className="btn btn-danger sm:ml-3"
-                    >
-                      Từ chối
-                    </button>
-                  </>
-                )}
                 <button
                   onClick={() => setSelectedRequest(null)}
                   className="btn btn-secondary mt-3 sm:mt-0"

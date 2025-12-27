@@ -69,7 +69,9 @@ export async function POST(request: NextRequest) {
         description,
         data: data ? JSON.stringify(data) : null,
         userId: user.id,
-        householdId: householdId || null
+        householdId: householdId || null,
+        // Tự động duyệt khi tạo
+        status: 'APPROVED'
       },
       include: {
         user: {

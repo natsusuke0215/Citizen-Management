@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Plus, Search, FileText, Clock, Check, X, AlertCircle } from 'lucide-react'
+import { Plus, Search, FileText } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 interface Request {
@@ -30,7 +30,6 @@ export default function MyRequestsPage() {
   const [requests, setRequests] = useState<Request[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
-  const [selectedStatus, setSelectedStatus] = useState<string>('all')
   const [selectedType, setSelectedType] = useState<string>('all')
   const [showModal, setShowModal] = useState(false)
   const [formData, setFormData] = useState({
@@ -107,38 +106,11 @@ export default function MyRequestsPage() {
       (value || '').toLowerCase().includes(searchLower)
     )
 
-    const matchesStatus = selectedStatus === 'all' || request.status === selectedStatus
     const matchesType = selectedType === 'all' || request.type === selectedType
     
-    return matchesSearch && matchesStatus && matchesType
+    return matchesSearch && matchesType
   })
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'APPROVED': return 'bg-green-100 text-green-800'
-      case 'REJECTED': return 'bg-red-100 text-red-800'
-      case 'PENDING': return 'bg-yellow-100 text-yellow-800'
-      default: return 'bg-gray-100 text-gray-800'
-    }
-  }
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'APPROVED': return 'Đã duyệt'
-      case 'REJECTED': return 'Từ chối'
-      case 'PENDING': return 'Chờ duyệt'
-      default: return status
-    }
-  }
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'APPROVED': return Check
-      case 'REJECTED': return X
-      case 'PENDING': return Clock
-      default: return AlertCircle
-    }
-  }
 
   if (loading) {
     return (
@@ -190,18 +162,6 @@ export default function MyRequestsPage() {
         <div className="sm:w-48">
           <select
             className="input"
-            value={selectedStatus}
-            onChange={(e) => setSelectedStatus(e.target.value)}
-          >
-            <option value="all">Tất cả trạng thái</option>
-            <option value="PENDING">Chờ duyệt</option>
-            <option value="APPROVED">Đã duyệt</option>
-            <option value="REJECTED">Từ chối</option>
-          </select>
-        </div>
-        <div className="sm:w-48">
-          <select
-            className="input"
             value={selectedType}
             onChange={(e) => setSelectedType(e.target.value)}
           >
@@ -218,7 +178,6 @@ export default function MyRequestsPage() {
       {/* Requests List */}
       <div className="mt-8 space-y-4">
         {filteredRequests.map((request) => {
-          const StatusIcon = getStatusIcon(request.status)
           return (
             <div key={request.id} className="card">
               <div className="flex items-center justify-between">
@@ -242,16 +201,6 @@ export default function MyRequestsPage() {
                     )}
                   </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <StatusIcon className={`h-5 w-5 ${
-                    request.status === 'APPROVED' ? 'text-green-600' :
-                    request.status === 'REJECTED' ? 'text-red-600' :
-                    'text-yellow-600'
-                  }`} />
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(request.status)}`}>
-                    {getStatusText(request.status)}
-                  </span>
-                </div>
               </div>
               
               <div className="mt-4 flex items-center justify-between">
@@ -274,7 +223,7 @@ export default function MyRequestsPage() {
           <FileText className="mx-auto h-12 w-12 text-gray-400" />
           <h3 className="mt-2 text-sm font-medium text-gray-900">Không có yêu cầu nào</h3>
           <p className="mt-1 text-sm text-gray-500">
-            {searchTerm || selectedStatus !== 'all' || selectedType !== 'all'
+            {searchTerm || selectedType !== 'all'
               ? 'Không tìm thấy yêu cầu phù hợp với bộ lọc.' 
               : 'Bạn chưa tạo yêu cầu nào. Hãy tạo yêu cầu đầu tiên!'}
           </p>
