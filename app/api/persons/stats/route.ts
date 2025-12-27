@@ -1,9 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { verifyToken } from '@/lib/auth'
 
 // Thống kê nhân khẩu theo các tiêu chí
 export async function GET(request: NextRequest) {
   try {
+    const token = request.cookies.get('auth-token')?.value
+    if (!token) {
+      return NextResponse.json(
+        { message: 'Không có quyền truy cập' },
+        { status: 401 }
+      )
+    }
+
+    const user = verifyToken(token)
+    if (!user) {
+      return NextResponse.json(
+        { message: 'Token không hợp lệ' },
+        { status: 401 }
+      )
+    }
+
+    // Only ADMIN, TEAM_LEADER, LEADER, DEPUTY can view stats
+    if (user.role !== 'ADMIN' && user.role !== 'TEAM_LEADER' && user.role !== 'LEADER' && user.role !== 'DEPUTY') {
+      return NextResponse.json(
+        { message: 'Không có quyền truy cập' },
+        { status: 403 }
+      )
+    }
     const { 
       byGender, 
       byAge, 
@@ -97,18 +121,18 @@ export async function GET(request: NextRequest) {
 
     // Thống kê tạm vắng / tạm trú
     if (byTemporaryStatus === 'true') {
-      const [absences, residences] = await Promise.all([
-        prisma.temporaryAbsence.findMany({
+      const [absencesCount, residencesCount] = await Promise.all([
+        prisma.temporaryAbsence.count({
           where: { status: 'ACTIVE' }
         }),
-        prisma.temporaryResidence.findMany({
+        prisma.temporaryResidence.count({
           where: { status: 'ACTIVE' }
         })
-      })
+      ])
 
       stats.temporaryStatus = {
-        absences: absences.length,
-        residences: residences.length
+        absences: absencesCount,
+        residences: residencesCount
       }
     }
 
@@ -136,8 +160,3 @@ export async function GET(request: NextRequest) {
     )
   }
 }
-
-
-
-
-
