@@ -151,10 +151,7 @@ export default function LoginPage() {
                 Đăng nhập tài khoản
               </h2>
               <p className="mt-3 text-center text-sm text-gray-600">
-                Hoặc{' '}
-                <Link href="/register" className="font-semibold text-navy-1 hover:text-navy-2 transition-colors">
-                  tạo tài khoản mới
-                </Link>
+                Vui lòng đăng nhập để tiếp tục
               </p>
             </div>
             <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
