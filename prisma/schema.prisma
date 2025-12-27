@@ -28,8 +28,6 @@ model User {
   theme                      String?  @default("system") // light, dark, system
 
   // Relations
-  householdId String?
-  household   Household? @relation(fields: [householdId], references: [id])
   requests    Request[]
   bookings    CulturalCenterBooking[]
 
@@ -66,7 +64,6 @@ model Household {
   // Relations
   districtRelation District @relation(fields: [districtId], references: [id])
   persons          Person[]
-  members          User[]
   requests         Request[]
   changeHistory    HouseholdChangeHistory[]
   splitFromId      String?  // ID của hộ khẩu gốc khi tách hộ

@@ -31,14 +31,6 @@ export async function GET(
         persons: true,
         changeHistory: {
           orderBy: { changeDate: 'desc' }
-        },
-        members: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            role: true
-          }
         }
       }
     })
@@ -55,8 +47,7 @@ export async function GET(
       user.role === 'ADMIN' || 
       user.role === 'TEAM_LEADER' || 
       user.role === 'LEADER' || 
-      user.role === 'DEPUTY' ||
-      household.members.some(member => member.id === user.id)
+      user.role === 'DEPUTY'
 
     if (!isAuthorized) {
       return NextResponse.json(
@@ -178,8 +169,7 @@ export async function PUT(
       where: { id: params.id },
       data: updateData,
       include: {
-        districtRelation: true,
-        members: true
+        districtRelation: true
       }
     })
 
@@ -240,10 +230,10 @@ export async function DELETE(
       )
     }
 
-    // Only ADMIN can delete households
-    if (user.role !== 'ADMIN') {
+    // Only ADMIN and TEAM_LEADER can delete households
+    if (user.role !== 'ADMIN' && user.role !== 'TEAM_LEADER' && user.role !== 'LEADER') {
       return NextResponse.json(
-        { message: 'Chỉ quản trị viên mới có quyền xóa hộ khẩu' },
+        { message: 'Bạn không có quyền xóa hộ khẩu' },
         { status: 403 }
       )
     }
@@ -252,7 +242,6 @@ export async function DELETE(
     const household = await prisma.household.findUnique({
       where: { id: params.id },
       include: { 
-        members: true,
         persons: true,
         requests: true,
         changeHistory: true,
@@ -283,10 +272,6 @@ export async function DELETE(
       blockingReasons.push(`Có ${household.persons.length} nhân khẩu (${personDetails.join(', ')})`)
     }
 
-    if (household.members.length > 0) {
-      blockingReasons.push(`${household.members.length} người dùng liên kết`)
-    }
-
     if (household.requests.length > 0) {
       blockingReasons.push(`${household.requests.length} yêu cầu liên quan`)
     }
@@ -304,7 +289,6 @@ export async function DELETE(
             activePersons: household.persons.filter(p => p.status === 'ACTIVE').length,
             movedOutPersons: household.persons.filter(p => p.status === 'MOVED_OUT').length,
             deceasedPersons: household.persons.filter(p => p.status === 'DECEASED').length,
-            members: household.members.length,
             requests: household.requests.length,
             splitTo: household.splitTo.length
           }

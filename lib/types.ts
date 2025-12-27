@@ -11,7 +11,6 @@ export interface User {
   email: string
   name: string
   role: UserRole
-  householdId: string | null
   createdAt: string
   updatedAt: string
 }

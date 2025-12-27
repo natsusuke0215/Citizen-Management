@@ -18,13 +18,13 @@ export async function seedUsers(prisma: PrismaClient): Promise<SeedUsersResult> 
     }
   })
 
-  // Tạo user thường
+  // Tạo user thường -> Chuyển thành Cán bộ
   const user = await prisma.user.create({
     data: {
       email: 'user@example.com',
       password: 'user123', // Plain text password
-      name: 'Người dùng',
-      role: 'USER'
+      name: 'Cán bộ',
+      role: 'DEPUTY'
     }
   })
 

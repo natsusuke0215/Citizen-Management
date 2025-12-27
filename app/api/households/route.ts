@@ -38,13 +38,6 @@ export async function GET(request: NextRequest) {
           orderBy: {
             fullName: 'asc'
           }
-        },
-        members: {
-          select: {
-            id: true,
-            name: true,
-            email: true
-          }
         }
       },
       orderBy: {
@@ -189,8 +182,7 @@ export async function POST(request: NextRequest) {
     const household = await prisma.household.create({
       data: householdData,
       include: {
-        districtRelation: true,
-        members: true
+        districtRelation: true
       }
     })
 
@@ -262,8 +254,7 @@ export async function POST(request: NextRequest) {
       where: { id: household.id },
       include: {
         districtRelation: true,
-        persons: true,
-        members: true
+        persons: true
       }
     })
 

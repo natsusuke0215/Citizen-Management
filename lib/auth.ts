@@ -38,14 +38,7 @@ export function decodeTokenOnly(token: string): UserPayload | null {
 
 export async function authenticateUser(email: string, password: string) {
   const user = await prisma.user.findUnique({
-    where: { email },
-    include: {
-      household: {
-        include: {
-          districtRelation: true
-        }
-      }
-    }
+    where: { email }
   })
 
   if (!user || !verifyPassword(password, user.password)) {
