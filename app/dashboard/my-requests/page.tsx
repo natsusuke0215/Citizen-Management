@@ -1,61 +1,31 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Plus, Search, FileText } from 'lucide-react'
+import { useState } from 'react'
+import { Plus } from 'lucide-react'
 import toast from 'react-hot-toast'
-
-interface Request {
-  id: string
-  type: 'HOUSEHOLD_UPDATE' | 'ADD_PERSON' | 'REMOVE_PERSON' | 'CULTURAL_CENTER_BOOKING'
-  status: 'PENDING' | 'APPROVED' | 'REJECTED'
-  description: string
-  data: string | null
-  household: {
-    id: string
-    householdId: string
-    address: string
-  } | null
-  createdAt: string
-  updatedAt: string
-}
-
-const REQUEST_TYPES = {
-  HOUSEHOLD_UPDATE: 'Cập nhật hộ khẩu',
-  ADD_PERSON: 'Thêm nhân khẩu',
-  REMOVE_PERSON: 'Xóa nhân khẩu',
-  CULTURAL_CENTER_BOOKING: 'Đặt lịch nhà văn hóa'
-}
+import { useRequests } from './hooks/useRequests'
+import { filterRequests } from './utils/filterUtils'
+import { RequestFormData } from './types'
+import RequestFilters from './components/RequestFilters'
+import RequestsList from './components/RequestsList'
+import CreateRequestModal from './components/CreateRequestModal'
 
 export default function MyRequestsPage() {
-  const [requests, setRequests] = useState<Request[]>([])
-  const [loading, setLoading] = useState(true)
+  const { requests, loading, fetchRequests } = useRequests()
+  
+  // State quản lý bộ lọc và modal
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedType, setSelectedType] = useState<string>('all')
+  const [selectedStatus, setSelectedStatus] = useState<string>('all') // Thêm state này để hỗ trợ nhánh refactor
   const [showModal, setShowModal] = useState(false)
-  const [formData, setFormData] = useState({
+  
+  const [formData, setFormData] = useState<RequestFormData>({
     type: 'HOUSEHOLD_UPDATE',
     description: '',
     additionalData: ''
   })
 
-  useEffect(() => {
-    fetchRequests()
-  }, [])
-
-  const fetchRequests = async () => {
-    try {
-      const response = await fetch('/api/my-requests')
-      if (response.ok) {
-        const data = await response.json()
-        setRequests(data)
-      }
-    } catch (error) {
-      toast.error('Có lỗi xảy ra khi tải danh sách yêu cầu')
-    } finally {
-      setLoading(false)
-    }
-  }
-
+  // Giữ lại logic submit từ nhánh của bạn (HEAD)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
@@ -95,22 +65,8 @@ export default function MyRequestsPage() {
     }
   }
 
-  const filteredRequests = requests.filter(request => {
-    const searchLower = (searchTerm || '').toLowerCase()
-
-    const valuesToSearch = [
-      request.description
-    ]
-
-    const matchesSearch = valuesToSearch.some(value =>
-      (value || '').toLowerCase().includes(searchLower)
-    )
-
-    const matchesType = selectedType === 'all' || request.type === selectedType
-    
-    return matchesSearch && matchesType
-  })
-
+  // Sử dụng logic lọc từ nhánh refactor (ngắn gọn hơn)
+  const filteredRequests = filterRequests(requests, searchTerm, selectedStatus, selectedType)
 
   if (loading) {
     return (
@@ -122,7 +78,7 @@ export default function MyRequestsPage() {
 
   return (
     <div>
-      <div className="sm:flex sm:items-center">
+      <div className="sm:flex sm:items-center mb-8">
         <div className="sm:flex-auto">
           <h1 className="text-2xl font-bold text-gray-900">Yêu cầu của tôi</h1>
           <p className="mt-2 text-sm text-gray-700">
@@ -140,177 +96,30 @@ export default function MyRequestsPage() {
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="mt-8 flex flex-col sm:flex-row gap-4">
-        <div className="flex-1">
-          <div className="relative w-full">
-            {/* Icon Container */}
-            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-              <Search className="w-5 h-5 text-gray-400" />
-            </div>
-            
-            {/* Input Field */}
-            <input
-              type="text"
-              className="block w-full pl-10 pr-3 py-2 border border-transparent rounded-md leading-5 bg-gray-700 text-gray-300 placeholder-gray-400 focus:outline-none focus:bg-white focus:text-gray-900 sm:text-sm transition duration-150 ease-in-out"
-              placeholder="Tìm kiếm theo tên, mô tả hoặc địa điểm..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-        </div>
-        <div className="sm:w-48">
-          <select
-            className="input"
-            value={selectedType}
-            onChange={(e) => setSelectedType(e.target.value)}
-          >
-            <option value="all">Tất cả loại</option>
-            {Object.entries(REQUEST_TYPES).map(([key, value]) => (
-              <option key={key} value={key}>
-                {value}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
+      {/* Sử dụng các components đã được refactor */}
+      <RequestFilters
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        selectedStatus={selectedStatus}
+        onStatusChange={setSelectedStatus}
+        selectedType={selectedType}
+        onTypeChange={setSelectedType}
+      />
 
-      {/* Requests List */}
-      <div className="mt-8 space-y-4">
-        {filteredRequests.map((request) => {
-          return (
-            <div key={request.id} className="card">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="p-3 rounded-lg bg-primary-100">
-                      <FileText className="h-6 w-6 text-primary-600" />
-                    </div>
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="text-lg font-medium text-gray-900">
-                      {REQUEST_TYPES[request.type as keyof typeof REQUEST_TYPES]}
-                    </h3>
-                    <p className="text-sm text-gray-500">
-                      {request.description}
-                    </p>
-                    {request.household && (
-                      <p className="text-sm text-gray-500">
-                        Hộ khẩu: {request.household.householdId} - {request.household.address}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
-              
-              <div className="mt-4 flex items-center justify-between">
-                <div className="text-xs text-gray-500">
-                  Tạo lúc: {new Date(request.createdAt).toLocaleString('vi-VN')}
-                  {request.updatedAt !== request.createdAt && (
-                    <span className="ml-2">
-                      - Cập nhật: {new Date(request.updatedAt).toLocaleString('vi-VN')}
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-          )
-        })}
-      </div>
+      <RequestsList
+        requests={filteredRequests}
+        searchTerm={searchTerm}
+        selectedStatus={selectedStatus}
+        selectedType={selectedType}
+      />
 
-      {filteredRequests.length === 0 && (
-        <div className="text-center py-12">
-          <FileText className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-2 text-sm font-medium text-gray-900">Không có yêu cầu nào</h3>
-          <p className="mt-1 text-sm text-gray-500">
-            {searchTerm || selectedType !== 'all'
-              ? 'Không tìm thấy yêu cầu phù hợp với bộ lọc.' 
-              : 'Bạn chưa tạo yêu cầu nào. Hãy tạo yêu cầu đầu tiên!'}
-          </p>
-        </div>
-      )}
-
-      {/* Create Request Modal */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 overflow-y-auto">
-          <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={() => setShowModal(false)} />
-            
-            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-              <form onSubmit={handleSubmit}>
-                <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                  <h3 className="text-lg font-medium text-gray-900 mb-4">
-                    Tạo yêu cầu mới
-                  </h3>
-                  
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">
-                        Loại yêu cầu *
-                      </label>
-                      <select
-                        required
-                        className="mt-1 input"
-                        value={formData.type}
-                        onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
-                      >
-                        {Object.entries(REQUEST_TYPES).map(([key, value]) => (
-                          <option key={key} value={key}>
-                            {value}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">
-                        Mô tả yêu cầu *
-                      </label>
-                      <textarea
-                        required
-                        className="mt-1 input"
-                        rows={4}
-                        value={formData.description}
-                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                        placeholder="Mô tả chi tiết yêu cầu của bạn..."
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">
-                        Thông tin bổ sung
-                      </label>
-                      <textarea
-                        className="mt-1 input"
-                        rows={3}
-                        value={formData.additionalData}
-                        onChange={(e) => setFormData({ ...formData, additionalData: e.target.value })}
-                        placeholder="Thông tin bổ sung (tùy chọn)..."
-                      />
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                  <button
-                    type="submit"
-                    className="btn btn-primary sm:ml-3"
-                  >
-                    Gửi yêu cầu
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setShowModal(false)}
-                    className="btn btn-secondary mt-3 sm:mt-0"
-                  >
-                    Hủy
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
+      <CreateRequestModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        onSubmit={handleSubmit}
+        formData={formData}
+        setFormData={setFormData}
+      />
     </div>
   )
 }

@@ -20,11 +20,19 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    // Optimize query with select instead of include
     const requests = await prisma.request.findMany({
       where: {
         userId: user.id
       },
-      include: {
+      select: {
+        id: true,
+        type: true,
+        description: true,
+        status: true,
+        data: true,
+        createdAt: true,
+        updatedAt: true,
         household: {
           select: {
             id: true,

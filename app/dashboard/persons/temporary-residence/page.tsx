@@ -1,9 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import { FileDown, User, Calendar, CreditCard, MapPin, Home, Sparkles, FileText } from 'lucide-react'
+import { FileText, User, FileDown, Sparkles } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { exportTemporaryResidencePdf } from '@/lib/pdf-client'
+import PersonalInfoForm from './components/PersonalInfoForm'
+import AddressInfoForm from './components/AddressInfoForm'
+import TemporaryResidenceInfoForm from './components/TemporaryResidenceInfoForm'
 
 export default function TemporaryResidencePage() {
   const [loading, setLoading] = useState(false)
@@ -125,173 +128,13 @@ export default function TemporaryResidencePage() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Thông tin cá nhân */}
-          <div className="bg-gray-50 rounded-[12px] p-5 border border-gray-200 mb-6">
-            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <User className="h-5 w-5 text-navy-1" />
-              Thông tin cá nhân
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Họ và tên <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  className="input"
-                  value={form.fullName}
-                  onChange={(e) => setForm({ ...form, fullName: e.target.value })}
-                  placeholder="Nhập họ và tên"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Ngày sinh <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="date"
-                  required
-                  className="input"
-                  value={form.dateOfBirth}
-                  onChange={(e) => setForm({ ...form, dateOfBirth: e.target.value })}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Giới tính <span className="text-red-500">*</span>
-                </label>
-                <select
-                  required
-                  className="input"
-                  value={form.gender}
-                  onChange={(e) => setForm({ ...form, gender: e.target.value })}
-                >
-                  <option value="">Chọn giới tính</option>
-                  <option value="Nam">Nam</option>
-                  <option value="Nữ">Nữ</option>
-                  <option value="Khác">Khác</option>
-                </select>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Loại giấy tờ
-                  </label>
-                  <select
-                    className="input"
-                    value={form.idType}
-                    onChange={(e) => setForm({ ...form, idType: e.target.value })}
-                  >
-                    <option value="CCCD">CCCD</option>
-                    <option value="CMND">CMND</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Số CMND/CCCD
-                  </label>
-                  <input
-                    type="text"
-                    className="input"
-                    value={form.idNumber}
-                    onChange={(e) => setForm({ ...form, idNumber: e.target.value })}
-                    placeholder="Nhập số CMND/CCCD (nếu có)"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
+          <PersonalInfoForm form={form} setForm={setForm} />
 
           {/* Thông tin địa chỉ */}
-          <div className="bg-gray-50 rounded-[12px] p-5 border border-gray-200 mb-6">
-            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <MapPin className="h-5 w-5 text-navy-1" />
-              Thông tin địa chỉ
-            </h3>
-            <div className="grid grid-cols-1 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Địa chỉ thường trú gốc <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  className="input"
-                  value={form.originalAddress}
-                  onChange={(e) => setForm({ ...form, originalAddress: e.target.value })}
-                  placeholder="Nhập địa chỉ thường trú hiện tại (nơi đang đăng ký thường trú)"
-                />
-                <p className="mt-1 text-xs text-gray-500">
-                  Địa chỉ nơi người này đang đăng ký thường trú (từ nơi khác đến)
-                </p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Địa chỉ tạm trú tại địa phương này
-                </label>
-                <input
-                  type="text"
-                  className="input"
-                  value={form.temporaryAddress}
-                  onChange={(e) => setForm({ ...form, temporaryAddress: e.target.value })}
-                  placeholder="Nhập địa chỉ nơi sẽ tạm trú tại địa phương này"
-                />
-                <p className="mt-1 text-xs text-gray-500">
-                  Địa chỉ nơi người này sẽ tạm trú tại địa phương này
-                </p>
-              </div>
-            </div>
-          </div>
+          <AddressInfoForm form={form} setForm={setForm} />
 
           {/* Thông tin tạm trú */}
-          <div className="bg-gray-50 rounded-[12px] p-5 border border-gray-200 mb-6">
-            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <Calendar className="h-5 w-5 text-navy-1" />
-              Thông tin tạm trú
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Ngày bắt đầu tạm trú <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="date"
-                  required
-                  className="input"
-                  value={form.startDate}
-                  onChange={(e) => setForm({ ...form, startDate: e.target.value })}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Ngày kết thúc (nếu có)
-                </label>
-                <input
-                  type="date"
-                  className="input"
-                  value={form.endDate}
-                  onChange={(e) => setForm({ ...form, endDate: e.target.value })}
-                />
-              </div>
-            </div>
-
-            <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Lý do tạm trú
-              </label>
-              <textarea
-                className="input"
-                rows={3}
-                value={form.reason}
-                onChange={(e) => setForm({ ...form, reason: e.target.value })}
-                placeholder="Ví dụ: đi làm ăn xa, học tập, công tác, thăm thân..."
-              />
-            </div>
-          </div>
+          <TemporaryResidenceInfoForm form={form} setForm={setForm} />
 
           <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-[10px] p-5">
             <div className="flex items-start gap-3">
@@ -329,5 +172,3 @@ export default function TemporaryResidencePage() {
     </div>
   )
 }
-
-

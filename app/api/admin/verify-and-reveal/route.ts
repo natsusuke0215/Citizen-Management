@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { verifyToken } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { verifyPassword } from '@/lib/auth'
+import { verifyPassword, verifyToken } from '@/lib/auth'
 
 export async function POST(request: NextRequest) {
   try {
     const token = request.cookies.get('auth-token')?.value
-
     if (!token) {
       return NextResponse.json(
         { message: 'Không có quyền truy cập' },
@@ -15,7 +13,6 @@ export async function POST(request: NextRequest) {
     }
 
     const user = verifyToken(token)
-
     if (!user) {
       return NextResponse.json(
         { message: 'Token không hợp lệ' },
@@ -23,10 +20,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Only ADMIN can reveal passwords
-    if (user.role !== 'ADMIN') {
+    // Check if user is admin, team leader or leader
+    if (user.role !== 'ADMIN' && user.role !== 'TEAM_LEADER' && user.role !== 'LEADER') {
       return NextResponse.json(
-        { message: 'Chỉ quản trị viên mới có quyền xem mật khẩu' },
+        { message: 'Chỉ quản trị viên mới có quyền thực hiện thao tác này' },
         { status: 403 }
       )
     }
@@ -35,15 +32,15 @@ export async function POST(request: NextRequest) {
 
     if (!adminId || !adminPassword || !targetUserId) {
       return NextResponse.json(
-        { message: 'Thiếu thông tin xác thực' },
+        { message: 'Thiếu thông tin bắt buộc' },
         { status: 400 }
       )
     }
 
-    // Verify admin user exists and matches token
-    if (user.id !== adminId) {
+    // Verify admin ID matches token
+    if (adminId !== user.id) {
       return NextResponse.json(
-        { message: 'Không khớp với người dùng hiện tại' },
+        { message: 'ID quản trị viên không khớp' },
         { status: 403 }
       )
     }
@@ -60,7 +57,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Verify admin password (plain text comparison)
+    // Verify admin password
     if (!verifyPassword(adminPassword, adminUser.password)) {
       return NextResponse.json(
         { message: 'Mật khẩu quản trị viên không đúng' },
@@ -86,25 +83,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check if password is still hashed (starts with $2b$ or $2a$ for bcrypt)
-    if (targetUser.password.startsWith('$2b$') || targetUser.password.startsWith('$2a$')) {
-      return NextResponse.json(
-        { 
-          message: 'Mật khẩu trong database vẫn đang được hash',
-          error: 'PASSWORD_STILL_HASHED'
-        },
-        { status: 400 }
-      )
-    }
-
-    // Return the password (plain text)
+    // Return the password (plain text as stored in database)
     return NextResponse.json({
       password: targetUser.password
     })
   } catch (error) {
     console.error('Error in verify-and-reveal:', error)
     return NextResponse.json(
-      { message: 'Có lỗi xảy ra khi xác thực' },
+      { message: 'Có lỗi xảy ra khi xác thực và hiển thị mật khẩu' },
       { status: 500 }
     )
   }
