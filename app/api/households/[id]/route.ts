@@ -230,10 +230,10 @@ export async function DELETE(
       )
     }
 
-    // Only ADMIN can delete households
-    if (user.role !== 'ADMIN') {
+    // Only ADMIN and TEAM_LEADER can delete households
+    if (user.role !== 'ADMIN' && user.role !== 'TEAM_LEADER' && user.role !== 'LEADER') {
       return NextResponse.json(
-        { message: 'Chỉ quản trị viên mới có quyền xóa hộ khẩu' },
+        { message: 'Bạn không có quyền xóa hộ khẩu' },
         { status: 403 }
       )
     }
