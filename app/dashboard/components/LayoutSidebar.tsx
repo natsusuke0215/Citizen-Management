@@ -19,7 +19,8 @@ import {
   ArrowRightLeft,
   History,
   UserPlus,
-  FileDown
+  FileDown,
+  BarChart3
 } from 'lucide-react'
 
 interface NavigationSubItem {
@@ -75,6 +76,7 @@ const allMenuItems: NavigationItem[] = [
     icon: Users,
     subItems: personSubMenu
   },
+  { name: 'Thống kê nhân khẩu', href: '/dashboard/statistics', icon: BarChart3 },
   { name: 'Quản lý tài khoản', href: '/dashboard/accounts', icon: Shield },
   { name: 'Nhà văn hóa', href: '/dashboard/cultural-centers', icon: Building },
   { name: 'Thêm lịch', href: '/dashboard/bookings', icon: Calendar },
