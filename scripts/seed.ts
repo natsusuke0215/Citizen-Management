@@ -34,10 +34,11 @@ async function main() {
     console.log('⚠️  Lỗi khi xóa dữ liệu cũ (có thể bỏ qua nếu lần đầu chạy):', error)
   }
 
-  // 2. Tạo dữ liệu mới
+  // Tạo dữ liệu mới
   // Tạo admin user (plain text password)
   const admin = await prisma.user.create({
     data: {
+      id: 'admin-user',
       email: 'admin@example.com',
       password: 'admin123', // Plain text password
       name: 'Quản trị viên',
@@ -45,19 +46,10 @@ async function main() {
     }
   })
 
-  // Tạo user thường
-  const user = await prisma.user.create({
-    data: {
-      email: 'user@example.com',
-      password: 'user123', // Plain text password
-      name: 'Người dùng',
-      role: 'USER'
-    }
-  })
-
   // Tạo Tổ trưởng
-  await prisma.user.create({
+  const teamLeader = await prisma.user.create({
     data: {
+      id: 'team-leader',
       email: 'totruong@gmail.com',
       password: '123456', // Plain text password
       name: 'Nguyễn Văn Tổ Trưởng',
@@ -68,6 +60,7 @@ async function main() {
   // Tạo Tổ phó
   await prisma.user.create({
     data: {
+      id: 'deputy-leader',
       email: 'topho@gmail.com',
       password: '123456', // Plain text password
       name: 'Trần Thị Tổ Phó',
@@ -78,6 +71,7 @@ async function main() {
   // Cán bộ quản lý CSVC
   await prisma.user.create({
     data: {
+      id: 'facility-manager',
       email: 'quanlycsvc@gmail.com',
       password: '123456', // Plain text password
       name: 'Lê Văn Quản Lý',
@@ -127,12 +121,6 @@ async function main() {
       district: 'Quận Hà Đông',
       districtId: district2.id
     }
-  })
-
-  // Gán user vào hộ khẩu
-  await prisma.user.update({
-    where: { id: user.id },
-    data: { householdId: household1.id }
   })
 
   // Tạo nhân khẩu
@@ -390,7 +378,7 @@ async function main() {
       fee: null,
       feePaid: false,
       culturalCenterId: 'center-1',
-      userId: user.id
+      userId: teamLeader.id
     }
   })
 
@@ -415,7 +403,7 @@ async function main() {
       fee: 500000,
       feePaid: false,
       culturalCenterId: 'center-1',
-      userId: user.id
+      userId: teamLeader.id
     }
   })
 
@@ -439,7 +427,7 @@ async function main() {
       fee: null,
       feePaid: false,
       culturalCenterId: 'center-2',
-      userId: user.id
+      userId: teamLeader.id
     }
   })
 
@@ -462,7 +450,7 @@ async function main() {
       fee: 50000,
       feePaid: true,
       culturalCenterId: 'center-8',
-      userId: user.id
+      userId: teamLeader.id
     }
   })
 
@@ -476,7 +464,7 @@ async function main() {
         oldAddress: '123 Đường ABC cũ',
         newAddress: '123 Đường ABC mới'
       }),
-      userId: user.id,
+      userId: teamLeader.id,
       householdId: household1.id
     }
   })
@@ -1134,7 +1122,6 @@ async function main() {
   console.log('👤 Tổ trưởng: totruong@gmail.com / 123456')
   console.log('👤 Tổ phó: topho@gmail.com / 123456')
   console.log('👤 QL CSVC: quanlycsvc@gmail.com / 123456')
-  console.log('👤 User: user@example.com / user123')
 }
 
 main()

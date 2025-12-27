@@ -312,7 +312,7 @@ export default function DashboardLayout({
                    user.role === 'ADMIN' ? 'Quản trị viên' :
                    user.role === 'DEPUTY' ? 'Tổ phó' : 
                    user.role === 'FACILITY_MANAGER' ? 'Quản lý CSVC' :
-                   user.role === 'CALENDAR_MANAGER' ? 'Quản lý lịch' : 'Người dùng'}
+                   user.role === 'CALENDAR_MANAGER' ? 'Quản lý lịch' : ''}
                 </p>
               </div>
             </div>
@@ -409,7 +409,7 @@ export default function DashboardLayout({
                    user.role === 'ADMIN' ? 'Quản trị viên' :
                    user.role === 'DEPUTY' ? 'Tổ phó' : 
                    user.role === 'FACILITY_MANAGER' ? 'Quản lý CSVC' :
-                   user.role === 'CALENDAR_MANAGER' ? 'Quản lý lịch' : 'Người dùng'}
+                   user.role === 'CALENDAR_MANAGER' ? 'Quản lý lịch' : ''}
                 </p>
               </div>
             </div>
