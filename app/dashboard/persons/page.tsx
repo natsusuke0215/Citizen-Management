@@ -60,7 +60,31 @@ export default function PersonsPage() {
   const [itemsPerPage, setItemsPerPage] = useState(30)
 
   useEffect(() => {
-    fetchPersons()
+    let isMounted = true
+    
+    const loadData = async () => {
+      try {
+        const response = await fetch('/api/persons')
+        if (response.ok && isMounted) {
+          const data = await response.json()
+          setPersons(data)
+        }
+      } catch (error) {
+        if (isMounted) {
+          toast.error('Có lỗi xảy ra khi tải danh sách nhân khẩu')
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false)
+        }
+      }
+    }
+    
+    loadData()
+    
+    return () => {
+      isMounted = false
+    }
   }, [])
 
   const fetchPersons = async () => {

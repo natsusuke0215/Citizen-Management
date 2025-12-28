@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect, useRef } from 'react'
 import { FileDown, CheckCircle, Users } from 'lucide-react'
 
 interface Person {
@@ -40,6 +41,48 @@ export default function TemporaryAbsenceForm({
   setForm,
   onSubmit
 }: TemporaryAbsenceFormProps) {
+  // Local state for text inputs to prevent lag
+  const [localReason, setLocalReason] = useState(form.reason)
+  const [localDestination, setLocalDestination] = useState(form.destination)
+  const debounceTimer = useRef<NodeJS.Timeout | null>(null)
+
+  // Sync local state with form prop
+  useEffect(() => {
+    setLocalReason(form.reason)
+    setLocalDestination(form.destination)
+  }, [form.reason, form.destination])
+
+  // Debounced update for reason field
+  const handleReasonChange = (value: string) => {
+    setLocalReason(value)
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current)
+    }
+    debounceTimer.current = setTimeout(() => {
+      setForm({ ...form, reason: value })
+    }, 300)
+  }
+
+  // Debounced update for destination field
+  const handleDestinationChange = (value: string) => {
+    setLocalDestination(value)
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current)
+    }
+    debounceTimer.current = setTimeout(() => {
+      setForm({ ...form, destination: value })
+    }, 300)
+  }
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current)
+      }
+    }
+  }, [])
+
   if (!selectedPerson) {
     return (
       <div className="h-full flex flex-col items-center justify-center py-12 text-center">
@@ -117,8 +160,15 @@ export default function TemporaryAbsenceForm({
           <textarea
             className="input"
             rows={3}
-            value={form.reason}
-            onChange={(e) => setForm({ ...form, reason: e.target.value })}
+            value={localReason}
+            onChange={(e) => handleReasonChange(e.target.value)}
+            onBlur={(e) => {
+              // Update immediately on blur
+              if (debounceTimer.current) {
+                clearTimeout(debounceTimer.current)
+              }
+              setForm({ ...form, reason: e.target.value })
+            }}
             placeholder="Ví dụ: đi công tác, học tập, chữa bệnh..."
           />
         </div>
@@ -128,8 +178,15 @@ export default function TemporaryAbsenceForm({
           <input
             type="text"
             className="input"
-            value={form.destination}
-            onChange={(e) => setForm({ ...form, destination: e.target.value })}
+            value={localDestination}
+            onChange={(e) => handleDestinationChange(e.target.value)}
+            onBlur={(e) => {
+              // Update immediately on blur
+              if (debounceTimer.current) {
+                clearTimeout(debounceTimer.current)
+              }
+              setForm({ ...form, destination: e.target.value })
+            }}
             placeholder="Nhập địa chỉ nơi tạm vắng"
           />
         </div>
