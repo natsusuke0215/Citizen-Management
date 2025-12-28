@@ -130,6 +130,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Check if this is a payment-required booking
+    const isPaymentRequired = true // All bookings now require payment
+
     const booking = await prisma.culturalCenterBooking.create({
       data: {
         title,
@@ -139,8 +142,7 @@ export async function POST(request: NextRequest) {
         culturalCenterId,
         userId: user.id,
         visibility: visibility || 'PUBLIC',
-        // Mặc định duyệt luôn lịch đặt mới
-        status: 'APPROVED',
+        status: isPaymentRequired ? 'PENDING_PAYMENT' : 'APPROVED',
         type: type || 'EVENT',
         fee: fee !== undefined && fee !== null ? (typeof fee === 'number' ? fee : parseFloat(String(fee))) : null,
         feePaid: false

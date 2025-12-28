@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
-import { Plus, Calendar } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Plus, Calendar, History as HistoryIcon } from 'lucide-react'
+import { useSearchParams } from 'next/navigation'
 import toast from 'react-hot-toast'
 import { Booking, BookingFormData, BookingStatus } from './types'
 import { useBookings } from './hooks/useBookings'
@@ -12,6 +13,8 @@ import SearchAndFilterBar from './components/SearchAndFilterBar'
 import BookingsList from './components/BookingsList'
 import EmptyState from './components/EmptyState'
 import BookingModal from './components/BookingModal'
+import PaymentCheckout from './components/PaymentCheckout'
+import BookingHistory from './components/BookingHistory'
 
 export default function BookingsPage() {
   const { bookings, loading, fetchBookings } = useBookings()
@@ -20,6 +23,9 @@ export default function BookingsPage() {
   const [statusFilter, setStatusFilter] = useState<BookingStatus>('ALL')
   const [showModal, setShowModal] = useState(false)
   const [editingBooking, setEditingBooking] = useState<Booking | null>(null)
+  const [showPaymentModal, setShowPaymentModal] = useState(false)
+  const [pendingBooking, setPendingBooking] = useState<Booking | null>(null)
+  const [calculatedAmount, setCalculatedAmount] = useState(0)
   const [formData, setFormData] = useState<BookingFormData>({
     title: '',
     description: '',
@@ -28,10 +34,31 @@ export default function BookingsPage() {
     culturalCenterId: '',
     visibility: 'PUBLIC'
   })
+  const [showHistory, setShowHistory] = useState(false)
+
+  // Open create modal if query param ?new=1 is present
+  const searchParams = useSearchParams()
+  useEffect(() => {
+    if (searchParams?.get('new') === '1') {
+      setShowModal(true)
+    }
+  }, [searchParams])
+
+  const calculateAmount = (culturalCenterId: string, startTime: string, endTime: string): number => {
+    const center = centers.find(c => c.id === culturalCenterId)
+    if (!center) return 0
+
+    const start = new Date(startTime)
+    const end = new Date(endTime)
+    const hours = (end.getTime() - start.getTime()) / (1000 * 60 * 60)
+
+    // Calculate amount based on hourly rate
+    return Math.ceil(hours * center.baseHourlyRate)
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!formData.title.trim() || !formData.startTime || !formData.endTime || !formData.culturalCenterId) {
       toast.error('Vui lòng điền đầy đủ thông tin bắt buộc')
       return
@@ -51,30 +78,32 @@ export default function BookingsPage() {
     }
 
     try {
-      const url = editingBooking ? `/api/bookings/${editingBooking.id}` : '/api/bookings'
-      const method = editingBooking ? 'PUT' : 'POST'
-      
-      const response = await fetch(url, {
-        method,
+      // Calculate the total amount
+      const totalAmount = calculateAmount(formData.culturalCenterId, formData.startTime, formData.endTime)
+
+      // Create booking with PENDING_PAYMENT status
+      const bookingData = {
+        ...formData,
+        status: 'PENDING_PAYMENT',
+        fee: totalAmount
+      }
+
+      const response = await fetch('/api/bookings', {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(bookingData),
       })
 
       if (response.ok) {
-        toast.success(editingBooking ? 'Cập nhật lịch đặt thành công!' : 'Đặt lịch thành công!')
+        const booking = await response.json()
+
+        // Set up payment flow
+        setPendingBooking(booking)
+        setCalculatedAmount(totalAmount)
         setShowModal(false)
-        setEditingBooking(null)
-        setFormData({
-          title: '',
-          description: '',
-          startTime: '',
-          endTime: '',
-          culturalCenterId: '',
-          visibility: 'PUBLIC'
-        })
-        fetchBookings()
+        setShowPaymentModal(true)
       } else {
         const data = await response.json()
         toast.error(data.message || 'Có lỗi xảy ra')
@@ -135,6 +164,28 @@ export default function BookingsPage() {
     setEditingBooking(null)
   }
 
+  const handlePaymentSuccess = () => {
+    setShowPaymentModal(false)
+    setPendingBooking(null)
+    setCalculatedAmount(0)
+    toast.success('Thanh toán thành công! Lịch đặt đã được xác nhận.')
+    fetchBookings()
+  }
+
+  const handleClosePaymentModal = () => {
+    setShowPaymentModal(false)
+    setPendingBooking(null)
+    setCalculatedAmount(0)
+    // Optionally cancel the pending booking
+    if (pendingBooking) {
+      fetch(`/api/bookings/${pendingBooking.id}`, {
+        method: 'DELETE'
+      }).catch(() => {
+        // Silently handle deletion failure
+      })
+    }
+  }
+
   const handleClearFilters = () => {
     setSearchTerm('')
     setStatusFilter('ALL')
@@ -143,6 +194,7 @@ export default function BookingsPage() {
   // Calculate statistics
   const totalBookings = bookings.length
   const pendingBookings = bookings.filter(b => b.status === 'PENDING').length
+  const pendingPaymentBookings = bookings.filter(b => b.status === 'PENDING_PAYMENT').length
   const approvedBookings = bookings.filter(b => b.status === 'APPROVED').length
   const rejectedBookings = bookings.filter(b => b.status === 'REJECTED').length
 
@@ -170,19 +222,31 @@ export default function BookingsPage() {
             Quản lý và theo dõi các lịch đặt nhà văn hóa
           </p>
         </div>
-        <button
-          onClick={handleOpenCreateModal}
-          className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-navy-1 to-navy-2 text-white rounded-[8px] font-medium hover:shadow-drop-lg transition-all duration-200 transform hover:-translate-y-0.5"
-        >
-          <Plus className="h-5 w-5 mr-2" />
-          Đặt lịch mới
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleOpenCreateModal}
+            className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-navy-1 to-navy-2 text-white rounded-[8px] font-medium hover:shadow-drop-lg transition-all duration-200 transform hover:-translate-y-0.5"
+          >
+            <Plus className="h-5 w-5 mr-2" />
+            Đặt lịch mới
+          </button>
+
+          <button
+            onClick={() => setShowHistory(true)}
+            className="inline-flex items-center px-3 py-2 bg-white text-gray-700 border border-gray-300 rounded-[8px] font-medium hover:bg-gray-50 transition-all duration-200"
+            title="Lịch sử"
+          >
+            <HistoryIcon className="h-4 w-4 mr-2" />
+            Lịch sử
+          </button>
+        </div>
       </div>
 
       {/* Statistics Cards */}
       <StatisticsCards
         totalBookings={totalBookings}
         pendingBookings={pendingBookings}
+        pendingPaymentBookings={pendingPaymentBookings}
         approvedBookings={approvedBookings}
         rejectedBookings={rejectedBookings}
       />
@@ -219,6 +283,29 @@ export default function BookingsPage() {
         setFormData={setFormData}
         centers={centers}
         editingBooking={editingBooking}
+      />
+
+      {/* Payment Checkout Modal */}
+      {pendingBooking && (
+        <PaymentCheckout
+          isOpen={showPaymentModal}
+          onClose={handleClosePaymentModal}
+          onPaymentSuccess={handlePaymentSuccess}
+          booking={{
+            id: pendingBooking.id,
+            title: pendingBooking.title,
+            startTime: pendingBooking.startTime,
+            endTime: pendingBooking.endTime,
+            culturalCenter: pendingBooking.culturalCenter
+          }}
+          totalAmount={calculatedAmount}
+        />
+      )}
+      {/* Booking History Drawer */}
+      <BookingHistory
+        isOpen={showHistory}
+        onClose={() => setShowHistory(false)}
+        bookings={bookings}
       />
     </div>
   )
