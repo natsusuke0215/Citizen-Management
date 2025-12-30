@@ -32,6 +32,8 @@ export async function GET(request: NextRequest) {
         visibility: true,
         type: true,
         fee: true,
+        bookerName: true,
+        bookerPhone: true,
         feePaid: true,
         createdAt: true,
         updatedAt: true,
@@ -54,7 +56,7 @@ export async function GET(request: NextRequest) {
         usageFee: true
       },
       orderBy: {
-        startTime: 'desc'
+        createdAt: 'desc'
       }
     })
 
@@ -86,7 +88,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { title, description, startTime, endTime, culturalCenterId, visibility, type, fee } = await request.json()
+    const { title, description, startTime, endTime, culturalCenterId, visibility, type, fee, bookerName, bookerPhone } = await request.json()
 
     if (!title || !startTime || !endTime || !culturalCenterId) {
       return NextResponse.json(
@@ -145,6 +147,8 @@ export async function POST(request: NextRequest) {
         status: isPaymentRequired ? 'PENDING_PAYMENT' : 'APPROVED',
         type: type || 'EVENT',
         fee: fee !== undefined && fee !== null ? (typeof fee === 'number' ? fee : parseFloat(String(fee))) : null,
+        bookerName: bookerName ? String(bookerName) : null,
+        bookerPhone: bookerPhone ? String(bookerPhone) : null,
         feePaid: false
       },
       include: {

@@ -21,6 +21,8 @@ export interface Booking {
     id: string
     name: string
   }
+  bookerName?: string | null
+  bookerPhone?: string | null
   fee?: number | null
   feePaid?: boolean
   createdAt: string

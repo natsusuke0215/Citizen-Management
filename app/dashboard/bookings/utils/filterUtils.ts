@@ -1,52 +1,32 @@
 import { Booking } from '../types'
 import { getDayOfWeek } from './dateUtils'
 
+export type SortMode = 'event' | 'created'
+
 export const filterBookings = (
   bookings: Booking[],
-  searchTerm: string
+  searchTerm: string,
+  sortMode: SortMode = 'created'
 ): Booking[] => {
-  return bookings
-    .filter(booking => {
-      if (!searchTerm) return true
+  const filtered = bookings.filter(booking => {
+    if (!searchTerm) return true
+    const searchLower = searchTerm.toLowerCase().trim()
+    // Only search by booker name or phone (and title optionally)
+    const nameMatch = (booking.bookerName || '').toLowerCase().includes(searchLower)
+    const phoneMatch = (booking.bookerPhone || '').toLowerCase().includes(searchLower)
+    const titleMatch = (booking.title || '').toLowerCase().includes(searchLower)
+    return nameMatch || phoneMatch || titleMatch
+  })
 
-      // Search filter - enhanced with date/time search
-      const searchLower = searchTerm.toLowerCase().trim()
-      
-      // Basic text search
-      const basicMatch = [
-        booking.title,
-        booking.description,
-        booking.culturalCenter?.name,
-        booking.user?.name
-      ].some(value => (value || '').toLowerCase().includes(searchLower))
+  const sorted = filtered.sort((a, b) => {
+    if (sortMode === 'event') {
+      // Sort by event startTime ascending
+      return new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
+    }
+    // Default: sort by createdAt descending (most recent first)
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  })
 
-      // Date/time search
-      const startDate = new Date(booking.startTime)
-      const endDate = new Date(booking.endTime)
-      
-      // Search in formatted dates
-      const dateStr = startDate.toLocaleDateString('vi-VN')
-      const timeStr = startDate.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
-      const dayOfWeek = getDayOfWeek(booking.startTime)
-      const month = startDate.toLocaleDateString('vi-VN', { month: 'long' })
-      const year = startDate.getFullYear().toString()
-      
-      // Check if search term matches date/time patterns
-      const dateTimeMatch = 
-        dateStr.includes(searchLower) ||
-        timeStr.includes(searchLower) ||
-        dayOfWeek.toLowerCase().includes(searchLower) ||
-        month.toLowerCase().includes(searchLower) ||
-        year.includes(searchLower) ||
-        // Also check end time
-        endDate.toLocaleDateString('vi-VN').includes(searchLower) ||
-        endDate.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }).includes(searchLower)
-
-      return basicMatch || dateTimeMatch
-    })
-    .sort((a, b) => {
-      // Sort by start time, newest first
-      return new Date(b.startTime).getTime() - new Date(a.startTime).getTime()
-    })
+  return sorted
 }
 

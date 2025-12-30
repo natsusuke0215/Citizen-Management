@@ -20,6 +20,7 @@ export default function BookingsPage() {
   const { bookings, loading, fetchBookings } = useBookings()
   const { centers } = useCenters()
   const [searchTerm, setSearchTerm] = useState('')
+  const [sortMode, setSortMode] = useState<'event' | 'created'>('created')
   const [showModal, setShowModal] = useState(false)
   const [editingBooking, setEditingBooking] = useState<Booking | null>(null)
   
@@ -213,8 +214,8 @@ export default function BookingsPage() {
   // Calculate statistics
   const totalBookings = bookings.length
 
-  // Filter bookings using utility
-  const filteredBookings = filterBookings(bookings, searchTerm)
+  // Filter bookings using utility (search by booker name/phone/title)
+  const filteredBookings = filterBookings(bookings, searchTerm, sortMode)
 
   if (loading) {
     return (
@@ -266,6 +267,8 @@ export default function BookingsPage() {
       <SearchAndFilterBar
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
+        sortMode={sortMode}
+        onSortChange={(m) => setSortMode(m)}
       />
 
       {/* Bookings List */}

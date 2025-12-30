@@ -73,7 +73,12 @@ export default function BookingHistory({ isOpen, onClose, bookings }: BookingHis
                 <div key={b.id} className="flex items-start justify-between gap-3 p-3 border border-gray-100 rounded-[10px]">
                   <div className="flex-1">
                     <div className="text-sm font-medium text-gray-900">{b.title}</div>
-                    <div className="text-xs text-gray-500">{b.culturalCenter?.name} • {formatDate(b.startTime)}</div>
+                    <div className="text-xs text-gray-500">
+                      {b.culturalCenter?.name} • {formatDate(b.startTime)} — {formatDate(b.endTime)}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      Người đặt: {b.bookerName || b.user?.name} {b.bookerPhone ? `• ${b.bookerPhone}` : ''}
+                    </div>
                   </div>
                   <div className="flex flex-col items-end gap-2">
                     <div className="text-sm font-semibold text-gray-900">{formatCurrency(amount)}</div>

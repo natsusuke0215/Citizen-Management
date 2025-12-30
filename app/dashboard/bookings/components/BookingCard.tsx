@@ -47,14 +47,16 @@ export default function BookingCard({ booking, onEdit, onDelete }: BookingCardPr
 
         {/* Info Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          {/* Booking time (created at) */}
+          {/* Event time (start / end) */}
           <div className="p-3 bg-yellow-2 rounded-[8px] border border-yellow-1">
             <div className="flex items-start gap-2">
               <Clock className="h-4 w-4 text-navy-1 mt-0.5 flex-shrink-0" />
               <div className="flex-1">
-                <div className="text-xs text-gray-500 mb-1">Thời điểm đặt</div>
-                <div className="text-sm font-semibold text-gray-900">
-                  {createdDateTime.date} {createdDateTime.time}
+                <div className="text-sm text-gray-900 mb-1">
+                  Thời gian bắt đầu: <span className="font-semibold">{startDateTime.date} {startDateTime.time}</span>
+                </div>
+                <div className="text-sm text-gray-900">
+                  Thời gian kết thúc: <span className="font-semibold">{endDateTime.date} {endDateTime.time}</span>
                 </div>
               </div>
             </div>
@@ -67,8 +69,11 @@ export default function BookingCard({ booking, onEdit, onDelete }: BookingCardPr
               <div className="flex-1">
                 <div className="text-xs text-gray-500 mb-1">Người đặt</div>
                 <div className="text-sm font-semibold text-gray-900">
-                  {booking.user.name}
+                  {booking.bookerName ? booking.bookerName : booking.user.name}
                 </div>
+                {booking.bookerPhone && (
+                  <div className="text-xs text-gray-500 mt-1">{booking.bookerPhone}</div>
+                )}
               </div>
             </div>
           </div>
@@ -79,7 +84,7 @@ export default function BookingCard({ booking, onEdit, onDelete }: BookingCardPr
           <div className="flex items-center gap-4 text-xs text-gray-500">
             <div className="flex items-center gap-1">
               <Clock className="h-3 w-3" />
-              <span>Tạo lúc: {createdDateTime.full}</span>
+              <span>Thời điểm đặt: {createdDateTime.full}</span>
             </div>
           </div>
           <div className="flex items-center gap-2">
