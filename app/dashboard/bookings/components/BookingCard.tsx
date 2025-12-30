@@ -87,22 +87,7 @@ export default function BookingCard({ booking, onEdit, onDelete }: BookingCardPr
               <span>Thời điểm đặt: {createdDateTime.full}</span>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => onEdit(booking)}
-              className="p-2 text-navy-1 hover:bg-navy-1/10 rounded-[6px] transition-all duration-200 hover:scale-110"
-              title="Chỉnh sửa"
-            >
-              <Edit className="h-5 w-5" />
-            </button>
-            <button
-              onClick={() => onDelete(booking.id)}
-              className="p-2 text-red-600 hover:bg-red-50 rounded-[6px] transition-all duration-200 hover:scale-110"
-              title="Xóa"
-            >
-              <Trash2 className="h-5 w-5" />
-            </button>
-          </div>
+          <div />
         </div>
       </div>
     </div>
