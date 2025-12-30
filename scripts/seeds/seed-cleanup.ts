@@ -18,7 +18,7 @@ export async function cleanupData(prisma: PrismaClient) {
     await prisma.notification.deleteMany()
     
     // Ngắt kết nối User - Household trước khi xóa Household
-    await prisma.user.updateMany({ data: { householdId: null } })
+    // await prisma.user.updateMany({ data: { householdId: null } })
     
     await prisma.person.deleteMany()
     await prisma.user.deleteMany() 

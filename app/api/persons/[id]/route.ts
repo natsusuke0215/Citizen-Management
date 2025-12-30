@@ -52,22 +52,12 @@ export async function GET(
       )
     }
 
-    // Check authorization: admin/leader can view all, or user is a member of the household
-    const household = await prisma.household.findUnique({
-      where: { id: person.householdId },
-      select: {
-        members: {
-          select: { id: true }
-        }
-      }
-    })
-
+    // Check authorization: admin/leader can view all
     const isAuthorized = 
       user.role === 'ADMIN' || 
       user.role === 'TEAM_LEADER' || 
       user.role === 'LEADER' || 
-      user.role === 'DEPUTY' ||
-      household?.members.some(member => member.id === user.id)
+      user.role === 'DEPUTY'
 
     if (!isAuthorized) {
       return NextResponse.json(

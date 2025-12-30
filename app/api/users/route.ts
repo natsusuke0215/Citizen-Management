@@ -46,7 +46,6 @@ export async function GET(request: NextRequest) {
         name: true,
         role: true,
         // Password removed for security - should never be returned in API responses
-        householdId: true,
         createdAt: true,
         updatedAt: true
       },
@@ -118,14 +117,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Prevent creating user with ADMIN role
-    if (role === 'ADMIN') {
-      return NextResponse.json(
-        { message: 'Không thể tạo tài khoản với role Quản trị viên' },
-        { status: 403 }
-      )
-    }
-
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
       where: { email }
@@ -147,7 +138,6 @@ export async function POST(request: NextRequest) {
         email: newUser.email,
         name: newUser.name,
         role: newUser.role,
-        householdId: newUser.householdId,
         createdAt: newUser.createdAt,
         updatedAt: newUser.updatedAt
       }
