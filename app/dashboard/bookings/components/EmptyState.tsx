@@ -1,16 +1,14 @@
 'use client'
 
 import { Calendar } from 'lucide-react'
-import { BookingStatus } from '../types'
 
 interface EmptyStateProps {
   searchTerm: string
-  statusFilter: BookingStatus
   onClearFilters: () => void
 }
 
-export default function EmptyState({ searchTerm, statusFilter, onClearFilters }: EmptyStateProps) {
-  const hasFilters = searchTerm || statusFilter !== 'ALL'
+export default function EmptyState({ searchTerm, onClearFilters }: EmptyStateProps) {
+  const hasFilters = !!searchTerm
 
   return (
     <div className="text-center py-16 bg-white rounded-[15px] shadow-drop border border-gray-100">
@@ -23,7 +21,7 @@ export default function EmptyState({ searchTerm, statusFilter, onClearFilters }:
       </h3>
       <p className="text-sm text-gray-500 max-w-md mx-auto mb-6">
         {hasFilters
-          ? `Không tìm thấy lịch đặt nào phù hợp với bộ lọc hiện tại. Hãy thử điều chỉnh từ khóa tìm kiếm hoặc bộ lọc trạng thái.`
+          ? `Không tìm thấy lịch đặt nào phù hợp với từ khóa tìm kiếm. Hãy thử điều chỉnh từ khóa tìm kiếm.`
           : 'Bắt đầu bằng cách đặt lịch đầu tiên cho nhà văn hóa.'}
       </p>
       {hasFilters && (

@@ -1,9 +1,8 @@
 'use client'
 
-import { Calendar, Building, Clock, User, Eye, EyeOff, Edit, Trash2 } from 'lucide-react'
+import { Calendar, Building, Clock, User, Edit, Trash2 } from 'lucide-react'
 import { Booking } from '../types'
 import { formatDateTime } from '../utils/dateUtils'
-import { getStatusInfo } from '../utils/statusUtils'
 
 interface BookingCardProps {
   booking: Booking
@@ -12,28 +11,19 @@ interface BookingCardProps {
 }
 
 export default function BookingCard({ booking, onEdit, onDelete }: BookingCardProps) {
-  const statusInfo = getStatusInfo(booking.status)
-  const StatusIcon = statusInfo.icon
   const startDateTime = formatDateTime(booking.startTime)
   const endDateTime = formatDateTime(booking.endTime)
   const createdDateTime = formatDateTime(booking.createdAt)
 
   return (
     <div className="group relative bg-white rounded-[15px] shadow-drop hover:shadow-drop-lg transition-all duration-300 transform hover:-translate-y-1 overflow-hidden border border-gray-100">
-      {/* Status Badge */}
-      <div className={`absolute top-4 right-4 ${statusInfo.bgColor} ${statusInfo.borderColor} border rounded-[8px] px-3 py-1.5 flex items-center gap-2`}>
-        <StatusIcon className={`h-4 w-4 ${statusInfo.color}`} />
-        <span className={`text-xs font-semibold ${statusInfo.color}`}>
-          {statusInfo.label}
-        </span>
-      </div>
 
       {/* Decorative gradient overlay on hover */}
       <div className="absolute inset-0 bg-gradient-to-br from-navy-1/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
       <div className="relative p-6">
         {/* Header */}
-        <div className="flex items-start gap-4 mb-4 pr-24">
+        <div className="flex items-start gap-4 mb-4">
           <div className="p-4 rounded-[12px] bg-gradient-to-br from-navy-1 to-navy-2 shadow-drop group-hover:scale-110 transition-transform duration-300 flex-shrink-0">
             <Calendar className="h-7 w-7 text-white" />
           </div>
@@ -90,19 +80,6 @@ export default function BookingCard({ booking, onEdit, onDelete }: BookingCardPr
             <div className="flex items-center gap-1">
               <Clock className="h-3 w-3" />
               <span>Tạo lúc: {createdDateTime.full}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              {booking.visibility === 'PUBLIC' ? (
-                <>
-                  <Eye className="h-3 w-3 text-green-600" />
-                  <span className="text-green-600">Công khai</span>
-                </>
-              ) : (
-                <>
-                  <EyeOff className="h-3 w-3 text-gray-400" />
-                  <span>Riêng tư</span>
-                </>
-              )}
             </div>
           </div>
           <div className="flex items-center gap-2">

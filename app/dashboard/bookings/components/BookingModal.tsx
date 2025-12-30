@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo } from 'react'
-import { Calendar, XCircle, Eye, EyeOff } from 'lucide-react'
+import { Calendar, XCircle } from 'lucide-react'
 import { Booking, CulturalCenter, BookingFormData } from '../types'
 
 interface BookingModalProps {
@@ -237,48 +237,6 @@ export default function BookingModal({
                       value={formData.endTime}
                       onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
                     />
-                  </div>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-3">
-                    Chế độ hiển thị
-                  </label>
-                  <div className="space-y-3">
-                    <label className="flex items-center p-3 border border-gray-200 rounded-[8px] hover:bg-gray-50 cursor-pointer transition-colors">
-                      <input
-                        type="radio"
-                        name="visibility"
-                        value="PUBLIC"
-                        checked={formData.visibility === 'PUBLIC'}
-                        onChange={(e) => setFormData({ ...formData, visibility: e.target.value as 'PUBLIC' | 'PRIVATE' })}
-                        className="mr-3 text-navy-1 focus:ring-navy-1"
-                      />
-                      <div className="flex items-center gap-2">
-                        <Eye className="h-4 w-4 text-green-600" />
-                        <div>
-                          <span className="text-sm font-medium text-gray-900">Công khai</span>
-                          <p className="text-xs text-gray-500">Mọi người có thể xem lịch đặt này</p>
-                        </div>
-                      </div>
-                    </label>
-                    <label className="flex items-center p-3 border border-gray-200 rounded-[8px] hover:bg-gray-50 cursor-pointer transition-colors">
-                      <input
-                        type="radio"
-                        name="visibility"
-                        value="PRIVATE"
-                        checked={formData.visibility === 'PRIVATE'}
-                        onChange={(e) => setFormData({ ...formData, visibility: e.target.value as 'PUBLIC' | 'PRIVATE' })}
-                        className="mr-3 text-navy-1 focus:ring-navy-1"
-                      />
-                      <div className="flex items-center gap-2">
-                        <EyeOff className="h-4 w-4 text-gray-400" />
-                        <div>
-                          <span className="text-sm font-medium text-gray-900">Riêng tư</span>
-                          <p className="text-xs text-gray-500">Chỉ bạn có thể xem lịch đặt này</p>
-                        </div>
-                      </div>
-                    </label>
                   </div>
                 </div>
               </div>

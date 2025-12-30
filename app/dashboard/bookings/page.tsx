@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { Plus, Calendar, History as HistoryIcon } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 import toast from 'react-hot-toast'
-import { Booking, BookingFormData, BookingStatus } from './types'
+import { Booking, BookingFormData } from './types'
 import { useBookings } from './hooks/useBookings'
 import { useCenters } from './hooks/useCenters'
 import { filterBookings } from './utils/filterUtils'
@@ -20,7 +20,6 @@ export default function BookingsPage() {
   const { bookings, loading, fetchBookings } = useBookings()
   const { centers } = useCenters()
   const [searchTerm, setSearchTerm] = useState('')
-  const [statusFilter, setStatusFilter] = useState<BookingStatus>('ALL')
   const [showModal, setShowModal] = useState(false)
   const [editingBooking, setEditingBooking] = useState<Booking | null>(null)
   
@@ -209,18 +208,13 @@ export default function BookingsPage() {
 
   const handleClearFilters = () => {
     setSearchTerm('')
-    setStatusFilter('ALL')
   }
 
-  // Calculate statistics (Added logic to support StatisticsCards)
+  // Calculate statistics
   const totalBookings = bookings.length
-  const pendingBookings = bookings.filter(b => b.status === 'PENDING').length
-  const pendingPaymentBookings = bookings.filter(b => b.status === 'PENDING_PAYMENT').length
-  const approvedBookings = bookings.filter(b => b.status === 'APPROVED').length
-  const rejectedBookings = bookings.filter(b => b.status === 'REJECTED').length
 
   // Filter bookings using utility
-  const filteredBookings = filterBookings(bookings, searchTerm, statusFilter)
+  const filteredBookings = filterBookings(bookings, searchTerm)
 
   if (loading) {
     return (
@@ -266,18 +260,12 @@ export default function BookingsPage() {
       {/* Statistics Cards */}
       <StatisticsCards
         totalBookings={totalBookings}
-        pendingBookings={pendingBookings}
-        pendingPaymentBookings={pendingPaymentBookings}
-        approvedBookings={approvedBookings}
-        rejectedBookings={rejectedBookings}
       />
 
       {/* Search and Filter Bar */}
       <SearchAndFilterBar
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
-        statusFilter={statusFilter}
-        onStatusFilterChange={setStatusFilter}
       />
 
       {/* Bookings List */}
@@ -290,7 +278,6 @@ export default function BookingsPage() {
       ) : (
         <EmptyState
           searchTerm={searchTerm}
-          statusFilter={statusFilter}
           onClearFilters={handleClearFilters}
         />
       )}

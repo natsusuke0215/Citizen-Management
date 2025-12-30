@@ -1,20 +1,15 @@
 'use client'
 
-import { Search, Filter } from 'lucide-react'
-import { BookingStatus } from '../types'
+import { Search } from 'lucide-react'
 
 interface SearchAndFilterBarProps {
   searchTerm: string
   onSearchChange: (value: string) => void
-  statusFilter: BookingStatus
-  onStatusFilterChange: (value: BookingStatus) => void
 }
 
 export default function SearchAndFilterBar({
   searchTerm,
-  onSearchChange,
-  statusFilter,
-  onStatusFilterChange
+  onSearchChange
 }: SearchAndFilterBarProps) {
   return (
     <div className="bg-white rounded-[15px] shadow-drop p-4">
@@ -31,21 +26,6 @@ export default function SearchAndFilterBar({
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
           />
-        </div>
-
-        {/* Status Filter */}
-        <div className="flex items-center gap-2">
-          <Filter className="h-5 w-5 text-gray-400" />
-          <select
-            value={statusFilter}
-            onChange={(e) => onStatusFilterChange(e.target.value as BookingStatus)}
-            className="px-4 py-3 border border-gray-200 rounded-[8px] bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-navy-1 focus:border-transparent transition-all duration-200 cursor-pointer min-w-[160px]"
-          >
-            <option value="ALL">Tất cả trạng thái</option>
-            <option value="PENDING">Chờ duyệt</option>
-            <option value="APPROVED">Đã duyệt</option>
-            <option value="REJECTED">Đã từ chối</option>
-          </select>
         </div>
       </div>
     </div>
