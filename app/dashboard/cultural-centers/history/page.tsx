@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useMemo } from 'react'
-import { FileSpreadsheet, ArrowLeft, Calendar, DollarSign, CheckCircle2, Clock, XCircle, MapPin, TrendingUp } from 'lucide-react'
+import { FileSpreadsheet, ArrowLeft, Calendar, CheckCircle2, Clock, XCircle, MapPin, TrendingUp } from 'lucide-react'
 import { exportBookingsToCsv } from '@/app/lib/exportCsv'
 import { useRouter } from 'next/navigation'
 
@@ -34,7 +34,8 @@ export default function TransactionHistoryPage() {
   const totalRevenue = useMemo(() => {
     return bookings.reduce((sum, b) => {
       const fee = typeof b.fee === 'number' ? b.fee : 0
-      return sum + (b.feePaid ? fee : 0)
+      // Tính tổng doanh thu của tất cả giao dịch (trừ những giao dịch bị từ chối)
+      return sum + (b.status === 'REJECTED' ? 0 : fee)
     }, 0)
   }, [bookings])
  
@@ -105,16 +106,12 @@ export default function TransactionHistoryPage() {
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-sm font-medium text-gray-600 mb-2 flex items-center gap-2">
-                    <Calendar className="h-4 w-4 text-blue-500" />
+                  <div className="text-sm font-medium text-gray-600 mb-2">
                     Số lượng đặt
                   </div>
                   <div className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
                     {totalBookings}
                   </div>
-                </div>
-                <div className="p-3 bg-blue-100 rounded-xl">
-                  <Calendar className="h-8 w-8 text-blue-600" />
                 </div>
               </div>
               <div className="mt-4 pt-4 border-t border-blue-100">
@@ -133,22 +130,18 @@ export default function TransactionHistoryPage() {
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-sm font-medium text-gray-600 mb-2 flex items-center gap-2">
-                    <DollarSign className="h-4 w-4 text-emerald-500" />
+                  <div className="text-sm font-medium text-gray-600 mb-2">
                     Tổng doanh thu
                   </div>
                   <div className="text-4xl font-bold bg-gradient-to-r from-emerald-600 to-emerald-800 bg-clip-text text-transparent">
                     {formatCurrency(totalRevenue)}
                   </div>
                 </div>
-                <div className="p-3 bg-emerald-100 rounded-xl">
-                  <DollarSign className="h-8 w-8 text-emerald-600" />
-                </div>
               </div>
               <div className="mt-4 pt-4 border-t border-emerald-100">
                 <div className="flex items-center gap-2 text-xs text-gray-500">
                   <TrendingUp className="h-3 w-3" />
-                  <span>Doanh thu đã thanh toán</span>
+                  <span>Tổng doanh thu</span>
                 </div>
               </div>
             </div>
@@ -179,27 +172,21 @@ export default function TransactionHistoryPage() {
                 <div className="space-y-3">
                   {sortedBookings.map((b, index) => {
                     const amount = typeof b.fee === 'number' ? b.fee : 0
-                    const statusLabel = b.feePaid ? 'Thành công' : (b.status === 'REJECTED' ? 'Thất bại' : 'Chờ xử lý')
-                    const statusConfig = b.feePaid 
+                    // Hiển thị tất cả giao dịch không bị từ chối như "Thành công"
+                    const statusLabel = b.status === 'REJECTED' ? 'Thất bại' : 'Thành công'
+                    const statusConfig = b.status === 'REJECTED'
                       ? { 
+                          bg: 'bg-rose-50', 
+                          text: 'text-rose-700', 
+                          border: 'border-rose-200',
+                          icon: <XCircle className="h-4 w-4" />
+                        }
+                      : { 
                           bg: 'bg-emerald-50', 
                           text: 'text-emerald-700', 
                           border: 'border-emerald-200',
                           icon: <CheckCircle2 className="h-4 w-4" />
                         }
-                      : (b.status === 'REJECTED' 
-                        ? { 
-                            bg: 'bg-rose-50', 
-                            text: 'text-rose-700', 
-                            border: 'border-rose-200',
-                            icon: <XCircle className="h-4 w-4" />
-                          }
-                        : { 
-                            bg: 'bg-amber-50', 
-                            text: 'text-amber-700', 
-                            border: 'border-amber-200',
-                            icon: <Clock className="h-4 w-4" />
-                          })
 
                     return (
                       <div 

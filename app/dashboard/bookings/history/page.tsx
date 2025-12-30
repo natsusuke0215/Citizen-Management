@@ -72,8 +72,9 @@ export default function BookingHistoryPage() {
             <div className="space-y-4">
               {bookings.map((b) => {
                 const amount = typeof b.fee === 'number' ? b.fee : 0
-                const statusLabel = b.feePaid ? 'Thành công' : (b.status === 'REJECTED' ? 'Thất bại' : 'Chờ')
-                const statusClass = b.feePaid ? 'bg-emerald-100 text-emerald-800' : (b.status === 'REJECTED' ? 'bg-rose-100 text-rose-800' : 'bg-yellow-100 text-yellow-800')
+                // Hiển thị tất cả giao dịch không bị từ chối như "Thành công"
+                const statusLabel = b.status === 'REJECTED' ? 'Thất bại' : 'Thành công'
+                const statusClass = b.status === 'REJECTED' ? 'bg-rose-100 text-rose-800' : 'bg-emerald-100 text-emerald-800'
 
                 return (
                   <div key={b.id} className="bg-white p-4 rounded-lg shadow-sm border">
