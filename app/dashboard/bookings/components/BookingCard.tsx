@@ -57,17 +57,14 @@ export default function BookingCard({ booking, onEdit, onDelete }: BookingCardPr
 
         {/* Info Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          {/* Time */}
+          {/* Booking time (created at) */}
           <div className="p-3 bg-yellow-2 rounded-[8px] border border-yellow-1">
             <div className="flex items-start gap-2">
               <Clock className="h-4 w-4 text-navy-1 mt-0.5 flex-shrink-0" />
               <div className="flex-1">
-                <div className="text-xs text-gray-500 mb-1">Thời gian</div>
+                <div className="text-xs text-gray-500 mb-1">Thời điểm đặt</div>
                 <div className="text-sm font-semibold text-gray-900">
-                  {startDateTime.date} {startDateTime.time}
-                </div>
-                <div className="text-xs text-gray-600 mt-1">
-                  đến {endDateTime.date} {endDateTime.time}
+                  {createdDateTime.date} {createdDateTime.time}
                 </div>
               </div>
             </div>

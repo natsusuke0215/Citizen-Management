@@ -1,5 +1,6 @@
 'use client'
 
+import { useMemo } from 'react'
 import { Calendar, XCircle, Eye, EyeOff } from 'lucide-react'
 import { Booking, CulturalCenter, BookingFormData } from '../types'
 
@@ -23,6 +24,72 @@ export default function BookingModal({
   editingBooking
 }: BookingModalProps) {
   if (!isOpen) return null
+ 
+  const rateMap: Record<string, number> = {
+    'Hội trường tầng 1': 120000,
+    'Phòng chức năng 3': 120000,
+    'Sân bóng chuyền': 60000,
+    'Sân cầu lông': 50000,
+    'Sân cầu lông 2': 50000,
+    'Phòng họp nhỏ tầng 1': 70000,
+    'Phòng đa năng tầng 3': 70000,
+    'Phòng chức năng 1': 40000,
+    'Phòng chức năng 2': 40000,
+    'Phòng thư viện': 30000
+  }
+
+  const {
+    hours,
+    unit,
+    rawTotal,
+    roundedTotal,
+    hoursDisplay,
+    unitDisplay,
+    totalDisplay
+  } = useMemo(() => {
+    const selected = centers.find(c => c.id === formData.culturalCenterId) || null
+    const unitRate = selected ? (rateMap[selected.name] ?? selected.baseHourlyRate ?? 0) : 0
+
+    if (!formData.startTime || !formData.endTime || !selected) {
+      return {
+        hours: null,
+        unit: unitRate,
+        rawTotal: 0,
+        roundedTotal: 0,
+        hoursDisplay: '—',
+        unitDisplay: unitRate ? `${new Intl.NumberFormat('vi-VN').format(unitRate)}đ` : '—',
+        totalDisplay: '—'
+      }
+    }
+
+    const start = new Date(formData.startTime)
+    const end = new Date(formData.endTime)
+    if (isNaN(start.getTime()) || isNaN(end.getTime()) || end <= start) {
+      return {
+        hours: null,
+        unit: unitRate,
+        rawTotal: 0,
+        roundedTotal: 0,
+        hoursDisplay: '—',
+        unitDisplay: unitRate ? `${new Intl.NumberFormat('vi-VN').format(unitRate)}đ` : '—',
+        totalDisplay: '—'
+      }
+    }
+
+    const hrs = (end.getTime() - start.getTime()) / (1000 * 60 * 60)
+    const raw = hrs * unitRate
+    const rounded = Math.ceil(raw / 1000) * 1000
+
+    return {
+      hours: hrs,
+      unit: unitRate,
+      rawTotal: raw,
+      roundedTotal: rounded,
+      hoursDisplay: hrs % 1 === 0 ? `${hrs}` : `${hrs.toFixed(2)}`,
+      unitDisplay: `${new Intl.NumberFormat('vi-VN').format(unitRate)}đ`,
+      totalDisplay: `${new Intl.NumberFormat('vi-VN').format(rounded)}đ`
+    }
+  }, [formData.startTime, formData.endTime, formData.culturalCenterId, centers])
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
@@ -96,6 +163,53 @@ export default function BookingModal({
                       </option>
                     ))}
                   </select>
+                  {/* Unit price info */}
+                  {formData.culturalCenterId && (
+                    <div className="mt-2 text-sm text-gray-600">
+                      {(() => {
+                        const rateMap: Record<string, number> = {
+                          'Hội trường tầng 1': 120000,
+                          'Phòng chức năng 3': 120000,
+                          'Sân bóng chuyền': 60000,
+                          'Sân cầu lông': 50000,
+                          'Sân cầu lông 2': 50000,
+                          'Phòng họp nhỏ tầng 1': 70000,
+                          'Phòng đa năng tầng 3': 70000,
+                          'Phòng chức năng 1': 40000,
+                          'Phòng chức năng 2': 40000,
+                          'Phòng thư viện': 30000
+                        }
+
+                        const selected = centers.find(c => c.id === formData.culturalCenterId)
+                        const unit = selected ? (rateMap[selected.name] ?? selected.baseHourlyRate ?? 0) : 0
+                        return `Đơn giá: ${new Intl.NumberFormat('vi-VN').format(unit)}đ/giờ`
+                      })()}
+                    </div>
+                  )}
+                </div>
+                
+                {/* Booker info */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Người đặt (tên)</label>
+                    <input
+                      type="text"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-[8px] bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-navy-1 focus:border-transparent transition-all duration-200"
+                      value={formData.bookerName || ''}
+                      onChange={(e) => setFormData({ ...formData, bookerName: e.target.value })}
+                      placeholder="Tên người đặt"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Số điện thoại</label>
+                    <input
+                      type="tel"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-[8px] bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-navy-1 focus:border-transparent transition-all duration-200"
+                      value={formData.bookerPhone || ''}
+                      onChange={(e) => setFormData({ ...formData, bookerPhone: e.target.value })}
+                      placeholder="Số điện thoại người đặt"
+                    />
+                  </div>
                 </div>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -170,6 +284,30 @@ export default function BookingModal({
               </div>
             </div>
             
+            {/* Payment summary */}
+            <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
+              <div className="max-w-3xl mx-auto">
+                <div className="text-sm text-gray-600 mb-3">Tóm tắt thanh toán</div>
+                <div className="bg-white p-4 rounded-[10px] border flex flex-col sm:flex-row items-center sm:items-start justify-between gap-4">
+                  <div className="flex gap-8 items-center">
+                    <div>
+                      <div className="text-sm text-gray-500">Số giờ thuê</div>
+                      <div className="text-2xl font-semibold text-gray-900">{hoursDisplay}</div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-gray-500">Đơn giá</div>
+                      <div className="text-2xl font-semibold text-gray-900">{unitDisplay}</div>
+                    </div>
+                  </div>
+
+                  <div className="w-full sm:w-auto text-right">
+                    <div className="text-sm text-gray-500">Tổng cộng</div>
+                    <div className="text-3xl font-bold text-black">{totalDisplay}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div className="bg-gray-50 px-6 py-4 flex flex-row-reverse gap-3 border-t border-gray-200">
               <button
                 type="submit"

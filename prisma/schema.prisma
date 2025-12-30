@@ -141,6 +141,7 @@ model CulturalCenter {
   area            Float?  // Diện tích (m2)
   yearBuilt       Int?    // Năm xây dựng
   imageUrl        String? // Đường dẫn hình ảnh phòng/sân
+  baseHourlyRate  Float @default(300) // Giá cơ bản theo giờ (VND), range 100-900
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -159,7 +160,7 @@ model CulturalCenterBooking {
   startTime         DateTime
   endTime           DateTime
   visibility        String             @default("PUBLIC")
-  status            String             @default("PENDING") // PENDING, APPROVED, REJECTED
+  status            String             @default("PENDING") // PENDING, PENDING_PAYMENT, APPROVED, REJECTED
   type              String             @default("EVENT") // EVENT, WEDDING, MEETING, ACTIVITY
   fee               Float?             // Phí sử dụng
   feePaid           Boolean            @default(false)

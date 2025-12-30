@@ -5,6 +5,7 @@ export interface CulturalCenter {
   floor: number | null
   room: string | null
   capacity: number
+  baseHourlyRate: number
 }
 
 export interface Booking {
@@ -14,16 +15,18 @@ export interface Booking {
   startTime: string
   endTime: string
   visibility: 'PUBLIC' | 'PRIVATE'
-  status: 'PENDING' | 'APPROVED' | 'REJECTED'
+  status: 'PENDING' | 'PENDING_PAYMENT' | 'APPROVED' | 'REJECTED'
   culturalCenter: CulturalCenter
   user: {
     id: string
     name: string
   }
+  fee?: number | null
+  feePaid?: boolean
   createdAt: string
 }
 
-export type BookingStatus = 'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED'
+export type BookingStatus = 'ALL' | 'PENDING' | 'PENDING_PAYMENT' | 'APPROVED' | 'REJECTED'
 
 export interface BookingFormData {
   title: string
@@ -32,5 +35,7 @@ export interface BookingFormData {
   endTime: string
   culturalCenterId: string
   visibility: 'PUBLIC' | 'PRIVATE'
+  bookerName?: string
+  bookerPhone?: string
 }
 

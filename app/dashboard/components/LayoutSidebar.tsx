@@ -62,6 +62,11 @@ const personSubMenu: NavigationSubItem[] = [
   { name: 'Cấp giấy tạm vắng', href: '/dashboard/persons/temporary-absence', icon: FileDown },
 ]
 
+const culturalCenterSubMenu: NavigationSubItem[] = [
+  { name: 'Thêm lịch mới', href: '/dashboard/bookings', icon: Plus },
+  { name: 'Lịch sử giao dịch', href: '/dashboard/cultural-centers/history', icon: FileText },
+]
+
 const allMenuItems: NavigationItem[] = [
   { name: 'Tổng quan', href: '/dashboard', icon: Home },
   {
@@ -78,8 +83,7 @@ const allMenuItems: NavigationItem[] = [
   },
   { name: 'Thống kê nhân khẩu', href: '/dashboard/statistics', icon: BarChart3 },
   { name: 'Quản lý tài khoản', href: '/dashboard/accounts', icon: Shield },
-  { name: 'Nhà văn hóa', href: '/dashboard/cultural-centers', icon: Building },
-  { name: 'Thêm lịch', href: '/dashboard/bookings', icon: Calendar },
+  { name: 'Nhà văn hóa', href: '/dashboard/cultural-centers', icon: Building, subItems: culturalCenterSubMenu },
   { name: 'Cài đặt', href: '/dashboard/settings', icon: Settings },
 ]
 
@@ -98,7 +102,7 @@ const filterMenuByRole = (role: string): NavigationItem[] => {
   }
 
   if (role === 'CALENDAR_MANAGER') {
-    const allowedItems = ['Tổng quan', 'Thêm lịch', 'Cài đặt']
+    const allowedItems = ['Tổng quan', 'Nhà văn hóa', 'Cài đặt']
     return allMenuItems.filter(item => allowedItems.includes(item.name))
   }
 
