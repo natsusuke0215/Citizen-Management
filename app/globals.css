@@ -8,6 +8,11 @@
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
   --background-end-rgb: 255, 255, 255;
+  --tooltip-bg: white;
+  --tooltip-border: #e5e7eb;
+  --tooltip-text: #111827;
+  --axis-text: #374151;
+  --label-text: #374151;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -16,6 +21,14 @@
     --background-start-rgb: 0, 0, 0;
     --background-end-rgb: 0, 0, 0;
   }
+}
+
+.dark {
+  --tooltip-bg: #1f2937;
+  --tooltip-border: #4b5563;
+  --tooltip-text: #f9fafb;
+  --axis-text: #d1d5db;
+  --label-text: #d1d5db;
 }
 
 * {
@@ -43,6 +56,17 @@ body {
     );
   background-size: 400% 400%;
   animation: gradientShift 15s ease infinite;
+}
+
+.dark body {
+  background: linear-gradient(
+      135deg,
+      #111827 0%,
+      #1f2937 25%,
+      #111827 50%,
+      #1f2937 75%,
+      #111827 100%
+    );
 }
 
 @keyframes gradientShift {
@@ -113,11 +137,25 @@ select {
   border-color: #d1d5db; /* tailwind gray-300 */
 }
 
+.dark input,
+.dark textarea,
+.dark select {
+  background-color: #1f2937; /* gray-800 */
+  color: #f9fafb; /* gray-50 */
+  border-color: #4b5563; /* gray-600 */
+}
+
 input::placeholder,
 textarea::placeholder {
   /* Make placeholder darker so it's readable before user types */
   color: #000000;
   opacity: 0.6;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #9ca3af; /* gray-400 */
+  opacity: 0.8;
 }
 
 input:focus,
@@ -126,6 +164,13 @@ select:focus {
   outline: none;
   box-shadow: 0 0 0 3px rgba(81, 96, 137, 0.2); /* navy-1 at 20% */
   border-color: #516089; /* navy-1 */
+}
+
+.dark input:focus,
+.dark textarea:focus,
+.dark select:focus {
+  box-shadow: 0 0 0 3px rgba(120, 116, 249, 0.3); /* navy-3 at 30% */
+  border-color: #7874F9; /* navy-3 */
 }
 
 /* Target inputs that have Tailwind utility classes (higher specificity) */
@@ -138,10 +183,24 @@ select[class] {
   border-color: #d1d5db; /* tailwind gray-300 */
 }
 
+.dark input[class],
+.dark textarea[class],
+.dark select[class] {
+  background-color: #1f2937; /* gray-800 */
+  color: #f9fafb; /* gray-50 */
+  border-color: #4b5563; /* gray-600 */
+}
+
 input[class]::placeholder,
 textarea[class]::placeholder {
   color: #6b7280; /* tailwind gray-500 */
   opacity: 1;
+}
+
+.dark input[class]::placeholder,
+.dark textarea[class]::placeholder {
+  color: #9ca3af; /* gray-400 */
+  opacity: 0.8;
 }
 
 input[class]:focus,
@@ -150,6 +209,13 @@ select[class]:focus {
   outline: none;
   box-shadow: 0 0 0 3px rgba(81, 96, 137, 0.15); /* navy-1 with opacity */
   border-color: #516089; /* navy-1 */
+}
+
+.dark input[class]:focus,
+.dark textarea[class]:focus,
+.dark select[class]:focus {
+  box-shadow: 0 0 0 3px rgba(120, 116, 249, 0.3); /* navy-3 with opacity */
+  border-color: #7874F9; /* navy-3 */
 }
 
 .card {
@@ -258,10 +324,26 @@ select:-webkit-autofill:focus {
   transition: background-color 5000s ease-in-out 0s !important;
 }
 
+.dark input:-webkit-autofill,
+.dark textarea:-webkit-autofill,
+.dark select:-webkit-autofill,
+.dark input:-webkit-autofill:focus,
+.dark textarea:-webkit-autofill:focus,
+.dark select:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #1f2937 inset !important;
+  box-shadow: 0 0 0 1000px #1f2937 inset !important;
+  -webkit-text-fill-color: #f9fafb !important;
+}
+
 /* Edge internal autofill (non-standard) */
 input:-internal-autofill-selected {
   background-color: #f3f4f6 !important;
   color: #111827 !important;
+}
+
+.dark input:-internal-autofill-selected {
+  background-color: #1f2937 !important;
+  color: #f9fafb !important;
 }
 
 /* Style number input spinners: make arrows lighter and less prominent */

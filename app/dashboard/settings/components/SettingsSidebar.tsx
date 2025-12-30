@@ -1,6 +1,6 @@
 'use client'
 
-import { User, Lock, Bell, Shield, Palette, Database } from 'lucide-react'
+import { User, Lock, Bell, Shield, Database } from 'lucide-react'
 
 interface Tab {
   id: string
@@ -18,7 +18,6 @@ const tabs: Tab[] = [
   { id: 'security', name: 'Bảo mật', icon: Lock },
   { id: 'notifications', name: 'Thông báo', icon: Bell },
   { id: 'privacy', name: 'Quyền riêng tư', icon: Shield },
-  { id: 'appearance', name: 'Giao diện', icon: Palette },
   { id: 'data', name: 'Dữ liệu', icon: Database }
 ]
 

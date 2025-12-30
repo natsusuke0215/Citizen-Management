@@ -26,10 +26,10 @@ function AgeGroupsChart({ ageGroups, totalPersons }: AgeGroupsChartProps) {
   }, [ageGroups, totalPersons])
 
   return (
-    <div className="bg-white rounded-[20px] shadow-drop p-6 hover:shadow-drop-lg transition-all duration-300 animate-fadeIn">
+    <div className="bg-white dark:bg-gray-800 rounded-[20px] shadow-drop p-6 hover:shadow-drop-lg transition-all duration-300 animate-fadeIn border border-gray-200 dark:border-gray-700">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-bold text-gray-900">Phân bố theo độ tuổi</h3>
-        <div className="text-xs text-gray-500 bg-yellow-2 px-3 py-1.5 rounded-[8px] font-medium">
+        <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Phân bố theo độ tuổi</h3>
+        <div className="text-xs text-gray-500 dark:text-gray-300 bg-yellow-2 dark:bg-navy-1/30 px-3 py-1.5 rounded-[8px] font-medium">
           {totalPersons} người
         </div>
       </div>
@@ -37,15 +37,16 @@ function AgeGroupsChart({ ageGroups, totalPersons }: AgeGroupsChartProps) {
       <div className="mb-6 h-56">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-            <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-            <YAxis tick={{ fontSize: 12 }} />
+            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" className="dark:stroke-gray-700" />
+            <XAxis dataKey="name" tick={{ fontSize: 12, fill: 'var(--axis-text, #374151)' }} />
+            <YAxis tick={{ fontSize: 12, fill: 'var(--axis-text, #374151)' }} />
             <Tooltip
               contentStyle={{
-                backgroundColor: 'white',
-                border: '1px solid #e5e7eb',
+                backgroundColor: 'var(--tooltip-bg, white)',
+                border: '1px solid var(--tooltip-border, #e5e7eb)',
                 borderRadius: '12px',
-                boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+                boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                color: 'var(--tooltip-text, #111827)'
               }}
               formatter={(value: number | undefined, _name: string | undefined, props: any) => {
                 const val = value || 0
@@ -64,22 +65,22 @@ function AgeGroupsChart({ ageGroups, totalPersons }: AgeGroupsChartProps) {
         </ResponsiveContainer>
       </div>
 
-      <div className="space-y-3 border-t pt-4">
+      <div className="space-y-3 border-t border-gray-200 dark:border-gray-700 pt-4">
         {Object.entries(ageGroups).map(([age, count], index) => {
           const percentage = totalPersons > 0 ? (count / totalPersons) * 100 : 0
           return (
             <div key={age} className="group">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-semibold text-gray-700">{age} tuổi</span>
-                <span className="text-sm font-bold text-gray-900">{count.toLocaleString()}</span>
+                <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">{age} tuổi</span>
+                <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{count.toLocaleString()}</span>
               </div>
-              <div className="w-full bg-yellow-2 rounded-full h-3 overflow-hidden">
+              <div className="w-full bg-yellow-2 dark:bg-gray-700 rounded-full h-3 overflow-hidden">
                 <div
                   className="bg-gradient-to-r from-navy-1 to-navy-3 h-3 rounded-full transition-all duration-1000 ease-out"
                   style={{ width: `${percentage}%` }}
                 ></div>
               </div>
-              <div className="text-xs text-gray-500 mt-1">{percentage.toFixed(1)}%</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">{percentage.toFixed(1)}%</div>
             </div>
           )
         })}

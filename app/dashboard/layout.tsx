@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { X } from 'lucide-react'
 import AudioPlayer from '@/components/AudioPlayer'
 import Sidebar from './components/LayoutSidebar'
@@ -15,7 +15,29 @@ export default function DashboardLayout({
   const { user, loading } = useUser()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [expandedMenus, setExpandedMenus] = useState<Set<string>>(new Set())
-  const [notifications] = useState(0)
+  const [notifications, setNotifications] = useState(0)
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const response = await fetch('/api/notifications')
+        if (response.ok) {
+          const data = await response.json()
+          const unreadCount = data.filter((n: { read: boolean }) => !n.read).length
+          setNotifications(unreadCount)
+        }
+      } catch (error) {
+        console.error('Error fetching notifications:', error)
+      }
+    }
+
+    if (user) {
+      fetchNotifications()
+      // Refresh notifications every 30 seconds
+      const interval = setInterval(fetchNotifications, 30000)
+      return () => clearInterval(interval)
+    }
+  }, [user])
 
   const toggleMenu = useCallback((menuName: string) => {
     setExpandedMenus(prev => {

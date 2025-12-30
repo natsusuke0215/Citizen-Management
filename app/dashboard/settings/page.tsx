@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useTheme } from 'next-themes'
 import { Settings } from 'lucide-react'
 import toast from 'react-hot-toast'
 import SettingsSidebar from './components/SettingsSidebar'
@@ -10,7 +9,6 @@ import ProfileTab from './components/ProfileTab'
 import SecurityTab from './components/SecurityTab'
 import NotificationsTab from './components/NotificationsTab'
 import PrivacyTab from './components/PrivacyTab'
-import AppearanceTab from './components/AppearanceTab'
 import DataTab from './components/DataTab'
 import DeleteAccountModal from './components/DeleteAccountModal'
 
@@ -24,13 +22,10 @@ interface UserData {
   isEmailNotificationEnabled?: boolean
   isPushNotificationEnabled?: boolean
   isPublicProfile?: boolean
-  theme?: string
 }
 
 export default function SettingsPage() {
   const router = useRouter()
-  const { theme, setTheme } = useTheme()
-  const [mounted, setMounted] = useState(false)
   const [user, setUser] = useState<UserData | null>(null)
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('profile')
@@ -71,16 +66,8 @@ export default function SettingsPage() {
   const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
-    setMounted(true)
     fetchUserData()
   }, [])
-
-  // Sync theme from user data when it loads
-  useEffect(() => {
-    if (user?.theme && mounted) {
-      setTheme(user.theme as 'light' | 'dark' | 'system')
-    }
-  }, [user?.theme, mounted, setTheme])
 
   const fetchUserData = async () => {
     try {
@@ -276,37 +263,6 @@ export default function SettingsPage() {
     }
   }
 
-  const handleThemeChange = async (newTheme: 'light' | 'dark' | 'system') => {
-    const previousTheme = theme
-    setTheme(newTheme)
-
-    try {
-      const response = await fetch('/api/users/me/settings', {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          theme: newTheme
-        })
-      })
-
-      if (!response.ok) {
-        setTheme(previousTheme || 'system')
-        const error = await response.json()
-        toast.error(error.message || 'Có lỗi xảy ra')
-      } else {
-        if (user) {
-          setUser({ ...user, theme: newTheme })
-        }
-      }
-    } catch (error) {
-      setTheme(previousTheme || 'system')
-      toast.error('Có lỗi xảy ra')
-    }
-  }
-
   const handleExportData = async (format: 'json' | 'csv') => {
     try {
       toast.loading('Đang xuất dữ liệu...')
@@ -436,14 +392,6 @@ export default function SettingsPage() {
             <PrivacyTab
               isPublicProfile={isPublicProfile}
               onToggle={handlePrivacyToggle}
-            />
-          )}
-
-          {activeTab === 'appearance' && (
-            <AppearanceTab
-              theme={theme}
-              mounted={mounted}
-              onThemeChange={handleThemeChange}
             />
           )}
 

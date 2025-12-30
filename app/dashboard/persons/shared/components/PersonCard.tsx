@@ -45,7 +45,7 @@ export default function PersonCard({
 
   return (
     <div
-      className="group bg-white rounded-[15px] shadow-drop hover:shadow-drop-lg transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 overflow-hidden animate-slideUp"
+      className="group bg-white dark:bg-gray-800 rounded-[15px] shadow-drop hover:shadow-drop-lg transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 dark:border-gray-700 overflow-hidden animate-slideUp"
       style={{ animationDelay: `${(index % 9) * 0.05}s` }}
     >
       {/* Card Header */}
@@ -81,40 +81,40 @@ export default function PersonCard({
 
       {/* Card Body */}
       <div className="p-5 space-y-4">
-        <div className="flex items-center gap-3 p-3 bg-yellow-2 rounded-[8px]">
-          <div className="p-2 bg-yellow-1 rounded-[6px]">
-            <Calendar className="h-4 w-4 text-navy-1" />
+        <div className="flex items-center gap-3 p-3 bg-yellow-2 dark:bg-navy-1/20 rounded-[8px]">
+          <div className="p-2 bg-yellow-1 dark:bg-navy-2 rounded-[6px]">
+            <Calendar className="h-4 w-4 text-navy-1 dark:text-navy-3" />
           </div>
           <div>
-            <div className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Ngày sinh</div>
-            <div className="text-sm font-semibold text-navy-1">
+            <div className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">Ngày sinh</div>
+            <div className="text-sm font-semibold text-navy-1 dark:text-navy-3">
               {new Date(person.dateOfBirth).toLocaleDateString('vi-VN')}
             </div>
           </div>
         </div>
 
         {person.idNumber && (
-          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-[8px]">
-            <div className="p-2 bg-gray-200 rounded-[6px]">
-              <CreditCard className="h-4 w-4 text-gray-600" />
+          <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-[8px]">
+            <div className="p-2 bg-gray-200 dark:bg-gray-600 rounded-[6px]">
+              <CreditCard className="h-4 w-4 text-gray-600 dark:text-gray-300" />
             </div>
             <div>
-              <div className="text-xs font-semibold text-gray-600 uppercase tracking-wide">CMND/CCCD</div>
-              <div className="text-sm font-semibold text-gray-900">{person.idNumber}</div>
+              <div className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">CMND/CCCD</div>
+              <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{person.idNumber}</div>
             </div>
           </div>
         )}
 
         <div>
-          <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 flex items-center gap-1">
+          <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1 flex items-center gap-1">
             <Home className="h-3 w-3" />
             Hộ khẩu
           </div>
-          <div className="text-sm font-semibold text-gray-900">{person.household.householdId}</div>
-          <div className="text-xs text-gray-600 mt-1">{person.household.address}</div>
+          <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{person.household.householdId}</div>
+          <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">{person.household.address}</div>
         </div>
 
-        <div className="pt-3 border-t border-gray-200">
+        <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
           <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-semibold ${statusInfo.color}`}>
             <span>{statusInfo.icon}</span>
             <span>{statusInfo.label}</span>

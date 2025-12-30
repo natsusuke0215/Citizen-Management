@@ -79,14 +79,14 @@ export default function RequestCard({
             </div>
           </div>
           <div className="ml-4">
-            <h3 className="text-lg font-medium text-gray-900">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
               {REQUEST_TYPES[request.type as keyof typeof REQUEST_TYPES]}
             </h3>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               {request.user.name} - {request.user.email}
             </p>
             {request.household && (
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
                 Hộ khẩu: {request.household.householdId} - {request.household.address}
               </p>
             )}
@@ -98,7 +98,7 @@ export default function RequestCard({
           </span>
           <button
             onClick={() => onView(request)}
-            className="text-indigo-600 hover:text-indigo-900"
+            className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300"
           >
             <Eye className="h-4 w-4" />
           </button>
@@ -106,11 +106,11 @@ export default function RequestCard({
       </div>
       
       <div className="mt-4">
-        <p className="text-sm text-gray-600">{request.description}</p>
+        <p className="text-sm text-gray-600 dark:text-gray-300">{request.description}</p>
       </div>
       
       <div className="mt-4 flex items-center justify-between">
-        <div className="text-xs text-gray-500">
+        <div className="text-xs text-gray-500 dark:text-gray-400">
           Tạo lúc: {new Date(request.createdAt).toLocaleString('vi-VN')}
           {request.updatedAt !== request.createdAt && (
             <span className="ml-2">

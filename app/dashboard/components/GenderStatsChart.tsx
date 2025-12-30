@@ -30,10 +30,10 @@ function GenderStatsChart({ genderStats, totalPersons }: GenderStatsChartProps) 
   }, [genderStats, totalPersons])
 
   return (
-    <div className="bg-white rounded-[20px] shadow-drop p-6 hover:shadow-drop-lg transition-all duration-300 animate-fadeIn">
+    <div className="bg-white dark:bg-gray-800 rounded-[20px] shadow-drop p-6 hover:shadow-drop-lg transition-all duration-300 animate-fadeIn border border-gray-200 dark:border-gray-700">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-bold text-gray-900">Phân bố theo giới tính</h3>
-        <div className="text-xs text-gray-500 bg-yellow-2 px-3 py-1.5 rounded-[8px] font-medium">
+        <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Phân bố theo giới tính</h3>
+        <div className="text-xs text-gray-500 dark:text-gray-300 bg-yellow-2 dark:bg-navy-1/30 px-3 py-1.5 rounded-[8px] font-medium">
           {totalPersons} người
         </div>
       </div>
@@ -58,7 +58,7 @@ function GenderStatsChart({ genderStats, totalPersons }: GenderStatsChartProps) 
                   <text
                     x={x}
                     y={y}
-                    fill="#374151"
+                    fill="var(--label-text, #374151)"
                     textAnchor={x > cx ? 'start' : 'end'}
                     dominantBaseline="central"
                     className="text-sm font-semibold"
@@ -80,10 +80,11 @@ function GenderStatsChart({ genderStats, totalPersons }: GenderStatsChartProps) 
             </Pie>
             <Tooltip
               contentStyle={{
-                backgroundColor: 'white',
-                border: '1px solid #e5e7eb',
+                backgroundColor: 'var(--tooltip-bg, white)',
+                border: '1px solid var(--tooltip-border, #e5e7eb)',
                 borderRadius: '12px',
-                boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+                boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                color: 'var(--tooltip-text, #111827)'
               }}
               formatter={(value: number | undefined, _name: string | undefined, props: any) => {
                 const val = value || 0
@@ -97,23 +98,23 @@ function GenderStatsChart({ genderStats, totalPersons }: GenderStatsChartProps) 
         </ResponsiveContainer>
       </div>
 
-      <div className="space-y-3 border-t pt-4">
+      <div className="space-y-3 border-t border-gray-200 dark:border-gray-700 pt-4">
         {Object.entries(genderStats).map(([gender, count]) => {
           const percentage = totalPersons > 0 ? (count / totalPersons) * 100 : 0
           const colorClass = gender === 'Nam' ? 'from-navy-1 to-navy-2' : gender === 'Nữ' ? 'from-navy-3 to-navy-2' : 'from-yellow-1 to-yellow-2'
           return (
             <div key={gender} className="group">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-semibold text-gray-700">{gender}</span>
-                <span className="text-sm font-bold text-gray-900">{count.toLocaleString()}</span>
+                <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">{gender}</span>
+                <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{count.toLocaleString()}</span>
               </div>
-              <div className="w-full bg-yellow-2 rounded-full h-3 overflow-hidden">
+              <div className="w-full bg-yellow-2 dark:bg-gray-700 rounded-full h-3 overflow-hidden">
                 <div
                   className={`bg-gradient-to-r ${colorClass} h-3 rounded-full transition-all duration-1000 ease-out`}
                   style={{ width: `${percentage}%` }}
                 ></div>
               </div>
-              <div className="text-xs text-gray-500 mt-1">{percentage.toFixed(1)}%</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">{percentage.toFixed(1)}%</div>
             </div>
           )
         })}

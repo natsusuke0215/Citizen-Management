@@ -198,8 +198,8 @@ export default function DashboardPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-navy-1 mx-auto mb-4"></div>
-          <p className="text-gray-600">Đang tải dữ liệu...</p>
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-navy-1 dark:border-navy-3 mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-300">Đang tải dữ liệu...</p>
         </div>
       </div>
     )
@@ -217,17 +217,17 @@ export default function DashboardPage() {
       </div>
 
       {/* Enhanced Calendar - Full Width */}
-      <div className="bg-white rounded-[20px] shadow-drop p-6 animate-fadeIn">
+      <div className="bg-white dark:bg-gray-800 rounded-[20px] shadow-drop p-6 animate-fadeIn border border-gray-200 dark:border-gray-700">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-gradient-to-br from-navy-1 to-navy-2 rounded-[10px]">
+            <div className="p-2 bg-gradient-to-br from-navy-1 to-navy-2 dark:from-navy-2 dark:to-navy-3 rounded-[10px]">
               <Calendar className="h-6 w-6 text-white" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900">Lịch trình sự kiện</h2>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Lịch trình sự kiện</h2>
           </div>
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-yellow-2 rounded-[8px]">
-            <Zap className="h-4 w-4 text-navy-1" />
-            <span className="text-sm font-medium text-navy-1">{events.length} sự kiện</span>
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-yellow-2 dark:bg-navy-1/30 rounded-[8px]">
+            <Zap className="h-4 w-4 text-navy-1 dark:text-navy-3" />
+            <span className="text-sm font-medium text-navy-1 dark:text-navy-3">{events.length} sự kiện</span>
           </div>
         </div>
         <CalendarView events={events} loading={eventsLoading} />
@@ -237,10 +237,10 @@ export default function DashboardPage() {
       <div>
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-gradient-to-br from-navy-1 to-navy-2 rounded-[10px]">
+            <div className="p-2 bg-gradient-to-br from-navy-1 to-navy-2 dark:from-navy-2 dark:to-navy-3 rounded-[10px]">
               <TrendingUp className="h-6 w-6 text-white" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900">Thống kê dân cư</h2>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Thống kê dân cư</h2>
           </div>
         </div>
         
