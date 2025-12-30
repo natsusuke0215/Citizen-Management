@@ -20,6 +20,14 @@ export default function BookingHistory({ isOpen, onClose, bookings }: BookingHis
       return sum
     }, 0)
   }, [bookings])
+ 
+  const sortedBookings = useMemo(() => {
+    return bookings.slice().sort((a, b) => {
+      const aCreated = new Date(a.createdAt).getTime()
+      const bCreated = new Date(b.createdAt).getTime()
+      return bCreated - aCreated
+    })
+  }, [bookings])
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('vi-VN', {
@@ -53,10 +61,10 @@ export default function BookingHistory({ isOpen, onClose, bookings }: BookingHis
         </div>
 
         <div className="p-4 max-h-[70vh] overflow-y-auto space-y-3">
-          {bookings.length === 0 ? (
+          {sortedBookings.length === 0 ? (
             <div className="text-sm text-gray-500">Chưa có lịch sử đặt lịch.</div>
           ) : (
-            bookings.map((b) => {
+            sortedBookings.map((b) => {
               const amount = typeof b.fee === 'number' ? b.fee : 0
               const statusLabel = b.feePaid ? 'Thành công' : (b.status === 'REJECTED' ? 'Thất bại' : 'Chờ')
               const statusClass = b.feePaid ? 'bg-emerald-100 text-emerald-800' : (b.status === 'REJECTED' ? 'bg-rose-100 text-rose-800' : 'bg-yellow-100 text-yellow-800')

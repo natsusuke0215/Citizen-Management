@@ -35,6 +35,14 @@ export default function TransactionHistoryPage() {
       return sum + (b.feePaid ? fee : 0)
     }, 0)
   }, [bookings])
+ 
+  const sortedBookings = useMemo(() => {
+    return bookings.slice().sort((a, b) => {
+      const aCreated = new Date(a.createdAt).getTime()
+      const bCreated = new Date(b.createdAt).getTime()
+      return bCreated - aCreated
+    })
+  }, [bookings])
 
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount)
@@ -95,7 +103,7 @@ export default function TransactionHistoryPage() {
               <div className="py-10 text-center text-gray-500">Chưa có giao dịch.</div>
             ) : (
               <div className="space-y-3">
-                {bookings.map((b) => {
+                {sortedBookings.map((b) => {
                   const amount = typeof b.fee === 'number' ? b.fee : 0
                   const statusLabel = b.feePaid ? 'Thành công' : (b.status === 'REJECTED' ? 'Thất bại' : 'Chờ')
                   const statusClass = b.feePaid ? 'bg-emerald-100 text-emerald-800' : (b.status === 'REJECTED' ? 'bg-rose-100 text-rose-800' : 'bg-yellow-100 text-yellow-800')

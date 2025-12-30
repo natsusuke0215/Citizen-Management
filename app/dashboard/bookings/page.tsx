@@ -48,12 +48,30 @@ export default function BookingsPage() {
     const center = centers.find(c => c.id === culturalCenterId)
     if (!center) return 0
 
+    // room-specific rate map (VND/hour)
+    const rateMap: Record<string, number> = {
+      'Hội trường tầng 1': 120000,
+      'Phòng chức năng 3': 120000,
+      'Sân bóng chuyền': 60000,
+      'Sân cầu lông': 50000,
+      'Sân cầu lông 2': 50000,
+      'Phòng họp nhỏ tầng 1': 70000,
+      'Phòng đa năng tầng 3': 70000,
+      'Phòng chức năng 1': 40000,
+      'Phòng chức năng 2': 40000,
+      'Phòng thư viện': 30000
+    }
+
     const start = new Date(startTime)
     const end = new Date(endTime)
     const hours = (end.getTime() - start.getTime()) / (1000 * 60 * 60)
 
-    // Calculate amount based on hourly rate
-    return Math.ceil(hours * center.baseHourlyRate)
+    // Determine unit rate: mapping by name overrides center.baseHourlyRate
+    const unit = rateMap[center.name] ?? center.baseHourlyRate ?? 0
+    const raw = hours * unit
+    // Round up to nearest 1000 VND
+    const rounded = Math.ceil(raw / 1000) * 1000
+    return rounded
   }
 
   const handleSubmit = async (e: React.FormEvent) => {

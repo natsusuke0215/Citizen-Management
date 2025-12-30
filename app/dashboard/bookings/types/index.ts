@@ -35,5 +35,7 @@ export interface BookingFormData {
   endTime: string
   culturalCenterId: string
   visibility: 'PUBLIC' | 'PRIVATE'
+  bookerName?: string
+  bookerPhone?: string
 }
 
