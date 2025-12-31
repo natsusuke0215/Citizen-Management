@@ -5,6 +5,9 @@ export interface Person {
   placeOfBirth?: string
   origin?: string
   ethnicity?: string
+  religion?: string
+  nationality?: string
+  education?: string
   gender: string
   occupation?: string
   workplace?: string

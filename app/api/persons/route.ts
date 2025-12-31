@@ -39,6 +39,40 @@ export async function GET(request: NextRequest) {
         changeHistory: {
           orderBy: { changeDate: 'desc' },
           take: 5
+        },
+        temporaryResidences: {
+          where: {
+            status: 'ACTIVE'
+          },
+          orderBy: {
+            startDate: 'desc'
+          },
+          take: 1,
+          select: {
+            id: true,
+            status: true,
+            startDate: true,
+            endDate: true,
+            originalAddress: true,
+            householdId: true
+          }
+        },
+        temporaryAbsences: {
+          where: {
+            status: 'ACTIVE'
+          },
+          orderBy: {
+            startDate: 'desc'
+          },
+          take: 1,
+          select: {
+            id: true,
+            status: true,
+            startDate: true,
+            endDate: true,
+            reason: true,
+            destination: true
+          }
         }
       },
       orderBy: {

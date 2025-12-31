@@ -141,8 +141,22 @@ export default function HouseholdsPage() {
     setModalType('add')
   }
 
-  const handleView = (household: Household) => {
-    setSelectedHousehold(household)
+  const handleView = async (household: Household) => {
+    try {
+      // Fetch full household details with all members from API
+      const response = await fetch(`/api/households/${household.id}`)
+      if (response.ok) {
+        const fullHouseholdData = await response.json()
+        setSelectedHousehold(fullHouseholdData)
+      } else {
+        // Fallback to the household from list if API fails
+        setSelectedHousehold(household)
+      }
+    } catch (error) {
+      console.error('Error fetching household details:', error)
+      // Fallback to the household from list if API fails
+      setSelectedHousehold(household)
+    }
     setModalType('view')
   }
 

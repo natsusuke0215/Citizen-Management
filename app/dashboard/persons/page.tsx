@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Plus, Search, Users } from 'lucide-react'
+import { Plus, Search, Users, Home, MapPin, Calendar } from 'lucide-react'
 import toast from 'react-hot-toast'
 import PersonStatistics from './shared/components/PersonStatistics'
 import SearchBar from '../households/shared/components/SearchBar'
@@ -9,6 +9,7 @@ import PaginationControls from './shared/components/PaginationControls'
 import PersonGrid from './shared/components/PersonGrid'
 import AddPersonModal from './shared/components/AddPersonModal'
 import ChangePersonModal from './shared/components/ChangePersonModal'
+import DeletePersonModal from './shared/components/DeletePersonModal'
 
 interface Person {
   id: string
@@ -27,13 +28,32 @@ interface Person {
       name: string
     }
   }
+  temporaryResidences?: Array<{
+    id: string
+    status: string
+    startDate: string
+    endDate: string | null
+    originalAddress: string | null
+    householdId: string | null
+  }>
+  temporaryAbsences?: Array<{
+    id: string
+    status: string
+    startDate: string
+    endDate: string | null
+    reason: string | null
+    destination: string | null
+  }>
   createdAt: string
 }
+
+type ResidenceFilter = 'all' | 'permanent' | 'temporary_residence' | 'temporary_absence'
 
 export default function PersonsPage() {
   const [persons, setPersons] = useState<Person[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
+  const [residenceFilter, setResidenceFilter] = useState<ResidenceFilter>('all')
   const [showModal, setShowModal] = useState(false)
   const [editingPerson, setEditingPerson] = useState<Person | null>(null)
   const [formData, setFormData] = useState({
@@ -46,6 +66,7 @@ export default function PersonsPage() {
   })
 
   const [showChangeModal, setShowChangeModal] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [selectedPerson, setSelectedPerson] = useState<Person | null>(null)
   const [changeForm, setChangeForm] = useState({
     changeType: 'MOVE_OUT' as 'MOVE_OUT' | 'DECEASED',
@@ -146,22 +167,52 @@ export default function PersonsPage() {
     }
   }
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Bạn có chắc chắn muốn xóa nhân khẩu này?')) return
+  const handleDelete = (person: Person) => {
+    setSelectedPerson(person)
+    setChangeForm({
+      changeType: 'MOVE_OUT',
+      changeDate: new Date().toISOString().split('T')[0],
+      moveOutDate: '',
+      moveOutPlace: '',
+      notes: ''
+    })
+    setShowDeleteModal(true)
+  }
+
+  const handleDeleteConfirm = async (changeType: 'MOVE_OUT' | 'DECEASED') => {
+    if (!selectedPerson) return
 
     try {
-      const response = await fetch(`/api/persons/${id}`, {
-        method: 'DELETE'
+      const body: any = {
+        changeType,
+        changeDate: changeForm.changeDate
+      }
+
+      if (changeType === 'MOVE_OUT') {
+        body.moveOutDate = changeForm.moveOutDate || changeForm.changeDate
+        body.moveOutPlace = changeForm.moveOutPlace || undefined
+        body.notes = changeForm.notes || undefined
+      }
+
+      const response = await fetch(`/api/persons/${selectedPerson.id}/changes`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
       })
 
       if (response.ok) {
-        toast.success('Xóa nhân khẩu thành công!')
+        toast.success(changeType === 'MOVE_OUT' ? 'Đã cập nhật: Chuyển đi' : 'Đã cập nhật: Đã mất')
+        setShowDeleteModal(false)
+        setSelectedPerson(null)
         fetchPersons()
       } else {
-        toast.error('Có lỗi xảy ra khi xóa nhân khẩu')
+        const data = await response.json()
+        toast.error(data.message || 'Có lỗi xảy ra khi cập nhật nhân khẩu')
       }
     } catch (error) {
-      toast.error('Có lỗi xảy ra khi xóa nhân khẩu')
+      toast.error('Có lỗi xảy ra khi cập nhật nhân khẩu')
     }
   }
 
@@ -216,18 +267,36 @@ export default function PersonsPage() {
   }
 
   const filteredPersons = persons.filter(person => {
+    // Filter by search term
     const searchLower = (searchTerm || '').toLowerCase()
-
-    const valuesToSearch = [
+    const matchesSearch = !searchLower || [
       person.fullName,
       person.idNumber,
       person.household?.householdId,
       person.household?.address
-    ]
+    ].some(value => (value || '').toLowerCase().includes(searchLower))
 
-    return valuesToSearch.some(value =>
-      (value || '').toLowerCase().includes(searchLower)
-    )
+    if (!matchesSearch) return false
+
+    // Filter by residence type
+    if (residenceFilter === 'all') return true
+
+    const hasActiveTemporaryResidence = person.temporaryResidences && person.temporaryResidences.length > 0
+    const hasActiveTemporaryAbsence = person.temporaryAbsences && person.temporaryAbsences.length > 0
+
+    switch (residenceFilter) {
+      case 'permanent':
+        // Thường trú: status ACTIVE và không có tạm trú/tạm vắng active
+        return person.status === 'ACTIVE' && !hasActiveTemporaryResidence && !hasActiveTemporaryAbsence
+      case 'temporary_residence':
+        // Tạm trú: có temporaryResidence ACTIVE
+        return hasActiveTemporaryResidence
+      case 'temporary_absence':
+        // Tạm vắng: có temporaryAbsence ACTIVE
+        return hasActiveTemporaryAbsence
+      default:
+        return true
+    }
   })
 
   // Pagination calculations
@@ -236,10 +305,10 @@ export default function PersonsPage() {
   const endIndex = startIndex + itemsPerPage
   const paginatedPersons = filteredPersons.slice(startIndex, endIndex)
 
-  // Reset to page 1 when search term or items per page changes
+  // Reset to page 1 when search term, filter, or items per page changes
   useEffect(() => {
     setCurrentPage(1)
-  }, [searchTerm, itemsPerPage])
+  }, [searchTerm, residenceFilter, itemsPerPage])
 
   // Calculate statistics
   const totalPersons = persons.length
@@ -292,6 +361,54 @@ export default function PersonsPage() {
         placeholder="Tìm kiếm theo tên, số CMND/CCCD, số hộ khẩu hoặc địa chỉ..."
       />
 
+      {/* Residence Filter */}
+      <div className="flex flex-wrap gap-3">
+        <button
+          onClick={() => setResidenceFilter('all')}
+          className={`px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-2 ${
+            residenceFilter === 'all'
+              ? 'bg-navy-1 text-white shadow-md'
+              : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+          }`}
+        >
+          <Users className="h-4 w-4" />
+          Tất cả
+        </button>
+        <button
+          onClick={() => setResidenceFilter('permanent')}
+          className={`px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-2 ${
+            residenceFilter === 'permanent'
+              ? 'bg-blue-500 text-white shadow-md'
+              : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+          }`}
+        >
+          <Home className="h-4 w-4" />
+          Thường trú
+        </button>
+        <button
+          onClick={() => setResidenceFilter('temporary_residence')}
+          className={`px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-2 ${
+            residenceFilter === 'temporary_residence'
+              ? 'bg-green-500 text-white shadow-md'
+              : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+          }`}
+        >
+          <MapPin className="h-4 w-4" />
+          Đang tạm trú
+        </button>
+        <button
+          onClick={() => setResidenceFilter('temporary_absence')}
+          className={`px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-2 ${
+            residenceFilter === 'temporary_absence'
+              ? 'bg-orange-500 text-white shadow-md'
+              : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+          }`}
+        >
+          <Calendar className="h-4 w-4" />
+          Tạm vắng
+        </button>
+      </div>
+
       {/* Pagination Controls */}
       <PaginationControls
         currentPage={currentPage}
@@ -306,7 +423,7 @@ export default function PersonsPage() {
       <PersonGrid
         persons={paginatedPersons}
         onEdit={openChangeModal}
-        onDelete={handleDelete}
+        onDelete={(person) => handleDelete(person)}
         onAdd={() => setShowModal(true)}
         searchTerm={searchTerm}
       />
@@ -340,6 +457,20 @@ export default function PersonsPage() {
           onSubmit={handleChangeSubmit}
           onClose={() => {
             setShowChangeModal(false)
+            setSelectedPerson(null)
+          }}
+        />
+      )}
+
+      {/* Delete/Change Status Modal */}
+      {showDeleteModal && selectedPerson && (
+        <DeletePersonModal
+          person={selectedPerson}
+          changeForm={changeForm}
+          setChangeForm={setChangeForm}
+          onConfirm={handleDeleteConfirm}
+          onClose={() => {
+            setShowDeleteModal(false)
             setSelectedPerson(null)
           }}
         />
