@@ -44,8 +44,36 @@ export default function SplitHouseholdPage() {
           ...prev,
           ward: household.ward,
           district: household.district,
-          ownerName: ''
+          ownerName: '',
+          newHouseholdId: '' // Reset để tự động điền
         }))
+        
+        // Tự động tìm và điền số hộ khẩu mới
+        const fetchNextHouseholdId = async () => {
+          try {
+            const response = await fetch('/api/households/next-id', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ oldHouseholdId: household.householdId })
+            })
+
+            if (response.ok) {
+              const data = await response.json()
+              setFormData(prev => ({
+                ...prev,
+                newHouseholdId: data.newHouseholdId
+              }))
+            } else {
+              console.error('Không thể tìm số hộ khẩu mới')
+            }
+          } catch (error) {
+            console.error('Lỗi khi tìm số hộ khẩu mới:', error)
+          }
+        }
+
+        fetchNextHouseholdId()
       }
     } else {
       setSelectedHousehold(null)
@@ -225,4 +253,5 @@ export default function SplitHouseholdPage() {
     </div>
   )
 }
+
 

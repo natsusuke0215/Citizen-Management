@@ -7,6 +7,7 @@ interface ProfileTabProps {
   user: {
     name: string
     email: string
+    avatarUrl?: string
   } | null
   profileData: {
     name: string
@@ -45,6 +46,7 @@ export default function ProfileTab({
         <AvatarUpload
           userName={user?.name || ''}
           userEmail={user?.email || ''}
+          avatarUrl={user?.avatarUrl}
         />
 
         {/* Form Fields */}
@@ -66,10 +68,10 @@ export default function ProfileTab({
               Email *
             </label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none z-10" />
               <input
                 type="email"
-                className="input w-full pl-10"
+                className="input w-full !pl-10"
                 value={profileData.email}
                 onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
                 placeholder="email@example.com"
@@ -81,10 +83,10 @@ export default function ProfileTab({
               Số điện thoại
             </label>
             <div className="relative">
-              <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none z-10" />
               <input
                 type="tel"
-                className="input w-full pl-10"
+                className="input w-full !pl-10"
                 value={profileData.phone}
                 onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
                 placeholder="0123456789"
@@ -96,10 +98,10 @@ export default function ProfileTab({
               Địa chỉ
             </label>
             <div className="relative">
-              <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none z-10" />
               <input
                 type="text"
-                className="input w-full pl-10"
+                className="input w-full !pl-10"
                 value={profileData.address}
                 onChange={(e) => setProfileData({ ...profileData, address: e.target.value })}
                 placeholder="Nhập địa chỉ"

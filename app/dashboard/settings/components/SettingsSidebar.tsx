@@ -1,6 +1,6 @@
 'use client'
 
-import { User, Lock, Bell, Shield, Database } from 'lucide-react'
+import { User, Lock, Bell } from 'lucide-react'
 
 interface Tab {
   id: string
@@ -16,9 +16,7 @@ interface SettingsSidebarProps {
 const tabs: Tab[] = [
   { id: 'profile', name: 'Hồ sơ', icon: User },
   { id: 'security', name: 'Bảo mật', icon: Lock },
-  { id: 'notifications', name: 'Thông báo', icon: Bell },
-  { id: 'privacy', name: 'Quyền riêng tư', icon: Shield },
-  { id: 'data', name: 'Dữ liệu', icon: Database }
+  { id: 'notifications', name: 'Thông báo', icon: Bell }
 ]
 
 export default function SettingsSidebar({ activeTab, onTabChange }: SettingsSidebarProps) {

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyToken } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { writeFile, mkdir } from 'fs/promises'
+import { writeFile, mkdir, unlink } from 'fs/promises'
 import { join } from 'path'
 import { existsSync } from 'fs'
 
@@ -65,6 +65,12 @@ export async function POST(request: NextRequest) {
       await mkdir(uploadsDir, { recursive: true })
     }
 
+    // Get current user to check for existing avatar
+    const currentUser = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: { avatarUrl: true }
+    })
+
     // Save file
     const filePath = join(uploadsDir, fileName)
     await writeFile(filePath, buffer)
@@ -72,26 +78,55 @@ export async function POST(request: NextRequest) {
     // Update user with avatar URL
     const avatarUrl = `/uploads/avatars/${fileName}`
     
-    // Note: This assumes the User model has an avatarUrl field
-    // If not, you may need to add it to the schema
     try {
+      // Update database - this is critical, if it fails, we should delete the file
       await prisma.user.update({
         where: { id: user.id },
         data: {
-          // @ts-ignore - avatarUrl might not be in the schema yet
           avatarUrl: avatarUrl
         }
       })
-    } catch (error) {
-      // If avatarUrl field doesn't exist, just return the URL
-      // The frontend can handle it
-      console.warn('Avatar URL field might not exist in schema:', error)
-    }
 
-    return NextResponse.json({
-      message: 'Tải ảnh đại diện thành công',
-      avatarUrl: avatarUrl
-    })
+      // Delete old avatar file if it exists and is different from the new one
+      if (currentUser?.avatarUrl && currentUser.avatarUrl !== avatarUrl) {
+        const oldFilePath = join(process.cwd(), 'public', currentUser.avatarUrl)
+        if (existsSync(oldFilePath)) {
+          try {
+            await unlink(oldFilePath)
+          } catch (unlinkError) {
+            // Log but don't fail if old file deletion fails
+            console.warn('Failed to delete old avatar file:', unlinkError)
+          }
+        }
+      }
+
+      return NextResponse.json({
+        message: 'Tải ảnh đại diện thành công',
+        avatarUrl: avatarUrl
+      })
+    } catch (dbError: any) {
+      // If database update fails, delete the uploaded file to prevent orphaned files
+      try {
+        await unlink(filePath)
+      } catch (unlinkError) {
+        console.error('Failed to delete uploaded file after DB error:', unlinkError)
+      }
+
+      console.error('Database update error:', dbError)
+      
+      // Handle specific Prisma errors
+      if (dbError.code === 'P2025') {
+        return NextResponse.json(
+          { message: 'Người dùng không tồn tại' },
+          { status: 404 }
+        )
+      }
+
+      return NextResponse.json(
+        { message: 'Có lỗi xảy ra khi cập nhật thông tin người dùng trong cơ sở dữ liệu' },
+        { status: 500 }
+      )
+    }
   } catch (error) {
     console.error('Upload avatar error:', error)
     return NextResponse.json(

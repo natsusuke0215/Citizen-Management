@@ -8,8 +8,6 @@ import SettingsSidebar from './components/SettingsSidebar'
 import ProfileTab from './components/ProfileTab'
 import SecurityTab from './components/SecurityTab'
 import NotificationsTab from './components/NotificationsTab'
-import PrivacyTab from './components/PrivacyTab'
-import DataTab from './components/DataTab'
 import DeleteAccountModal from './components/DeleteAccountModal'
 
 interface UserData {
@@ -19,9 +17,9 @@ interface UserData {
   role: string
   phone?: string
   address?: string
+  avatarUrl?: string
   isEmailNotificationEnabled?: boolean
   isPushNotificationEnabled?: boolean
-  isPublicProfile?: boolean
 }
 
 export default function SettingsPage() {
@@ -57,9 +55,6 @@ export default function SettingsPage() {
     push: true
   })
   
-  // Privacy settings
-  const [isPublicProfile, setIsPublicProfile] = useState(false)
-  
   // Delete account modal
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [deletePassword, setDeletePassword] = useState('')
@@ -67,6 +62,17 @@ export default function SettingsPage() {
 
   useEffect(() => {
     fetchUserData()
+    
+    // Listen for avatar updates
+    const handleProfileUpdate = () => {
+      fetchUserData()
+    }
+    
+    window.addEventListener('userProfileUpdated', handleProfileUpdate)
+    
+    return () => {
+      window.removeEventListener('userProfileUpdated', handleProfileUpdate)
+    }
   }, [])
 
   const fetchUserData = async () => {
@@ -87,7 +93,6 @@ export default function SettingsPage() {
           email: userData.isEmailNotificationEnabled ?? true,
           push: userData.isPushNotificationEnabled ?? true
         })
-        setIsPublicProfile(userData.isPublicProfile ?? false)
       } else {
         const error = await response.json().catch(() => ({ message: 'Không thể tải thông tin người dùng' }))
         toast.error(error.message || 'Không thể tải thông tin người dùng')
@@ -235,64 +240,6 @@ export default function SettingsPage() {
     }
   }
 
-  const handlePrivacyToggle = async (value: boolean) => {
-    setIsPublicProfile(value)
-
-    try {
-      const response = await fetch('/api/users/me/settings', {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          isPublicProfile: value
-        })
-      })
-
-      if (response.ok) {
-        toast.success('Đã cập nhật cài đặt quyền riêng tư')
-      } else {
-        setIsPublicProfile(!value)
-        const error = await response.json()
-        toast.error(error.message || 'Có lỗi xảy ra')
-      }
-    } catch (error) {
-      setIsPublicProfile(!value)
-      toast.error('Có lỗi xảy ra')
-    }
-  }
-
-  const handleExportData = async (format: 'json' | 'csv') => {
-    try {
-      toast.loading('Đang xuất dữ liệu...')
-      const response = await fetch(`/api/users/me/export?format=${format}`, {
-        credentials: 'include'
-      })
-
-      if (response.ok) {
-        const blob = await response.blob()
-        const url = window.URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url
-        a.download = `user-data-${user?.id || 'export'}.${format}`
-        document.body.appendChild(a)
-        a.click()
-        window.URL.revokeObjectURL(url)
-        document.body.removeChild(a)
-        toast.dismiss()
-        toast.success('Đã xuất dữ liệu thành công!')
-      } else {
-        toast.dismiss()
-        const error = await response.json()
-        toast.error(error.message || 'Có lỗi xảy ra khi xuất dữ liệu')
-      }
-    } catch (error) {
-      toast.dismiss()
-      toast.error('Có lỗi xảy ra khi xuất dữ liệu')
-    }
-  }
-
   const handleDeleteAccount = async () => {
     if (!deletePassword) {
       toast.error('Vui lòng nhập mật khẩu để xác nhận')
@@ -385,21 +332,6 @@ export default function SettingsPage() {
             <NotificationsTab
               notifications={notifications}
               onToggle={handleNotificationToggle}
-            />
-          )}
-
-          {activeTab === 'privacy' && (
-            <PrivacyTab
-              isPublicProfile={isPublicProfile}
-              onToggle={handlePrivacyToggle}
-            />
-          )}
-
-          {activeTab === 'data' && (
-            <DataTab
-              userId={user?.id}
-              onExportData={handleExportData}
-              onDeleteClick={() => setShowDeleteModal(true)}
             />
           )}
         </div>

@@ -118,12 +118,13 @@ export default function DashboardLayout({
         </main>
       </div>
 
-      {/* Dashboard Background Music Player */}
+      {/* Dashboard Background Music Player - UI hidden, controlled by TopBar */}
       <AudioPlayer
         src="/assets/audio/background-dashboard.mp3"
         storageKey="dashboardMusicEnabled"
         loop={true}
         volume={0.3}
+        hideUI={true}
       />
     </div>
   )

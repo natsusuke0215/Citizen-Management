@@ -508,6 +508,33 @@ export default function HouseholdsPage() {
               setSelectedPersons(new Set())
               setPersonRelationships({})
               setModalType('split')
+              
+              // Tự động tìm và điền số hộ khẩu mới
+              const fetchNextHouseholdId = async () => {
+                try {
+                  const response = await fetch('/api/households/next-id', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ oldHouseholdId: selectedHousehold.householdId })
+                  })
+
+                  if (response.ok) {
+                    const data = await response.json()
+                    setSplitFormData(prev => ({
+                      ...prev,
+                      newHouseholdId: data.newHouseholdId
+                    }))
+                  } else {
+                    console.error('Không thể tìm số hộ khẩu mới')
+                  }
+                } catch (error) {
+                  console.error('Lỗi khi tìm số hộ khẩu mới:', error)
+                }
+              }
+
+              fetchNextHouseholdId()
             }
           }}
         />
