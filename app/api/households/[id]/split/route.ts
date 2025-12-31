@@ -20,11 +20,36 @@ export async function POST(
       splitDate
     } = await request.json()
 
-    if (!newHouseholdId || !ownerName || !address || !ward || !district || !personIds || !Array.isArray(personIds) || personIds.length === 0) {
+    if (!ownerName || !address || !ward || !district || !personIds || !Array.isArray(personIds) || personIds.length === 0) {
       return NextResponse.json(
         { message: 'Thông tin hộ khẩu mới và danh sách nhân khẩu là bắt buộc' },
         { status: 400 }
       )
+    }
+
+    // If newHouseholdId was not provided, auto-generate from the latest existing householdId
+    let finalHouseholdId = newHouseholdId && String(newHouseholdId).trim() !== '' ? String(newHouseholdId).trim() : null
+    if (!finalHouseholdId) {
+      // Find the household with the highest householdId (lexicographic)
+      const lastHousehold = await prisma.household.findFirst({
+        orderBy: { householdId: 'desc' }
+      })
+
+      if (!lastHousehold || !lastHousehold.householdId) {
+        finalHouseholdId = 'HK0001'
+      } else {
+        const lastId = lastHousehold.householdId
+        const m = lastId.match(/^(.*?)(\d+)$/)
+        if (m) {
+          const prefix = m[1]
+          const numStr = m[2]
+          const nextNum = parseInt(numStr, 10) + 1
+          finalHouseholdId = prefix + String(nextNum).padStart(numStr.length, '0')
+        } else {
+          // fallback: append -1
+          finalHouseholdId = `${lastId}-1`
+        }
+      }
     }
 
     // Get original household
@@ -40,14 +65,14 @@ export async function POST(
       )
     }
 
-    // Check if new household ID already exists
+    // Check if finalHouseholdId already exists (should be rare)
     const existingHousehold = await prisma.household.findUnique({
-      where: { householdId: newHouseholdId }
+      where: { householdId: finalHouseholdId }
     })
 
     if (existingHousehold) {
       return NextResponse.json(
-        { message: 'Số hộ khẩu mới đã tồn tại' },
+        { message: `Số hộ khẩu mới đã tồn tại: ${finalHouseholdId}` },
         { status: 400 }
       )
     }
@@ -55,7 +80,7 @@ export async function POST(
     // Create new household
     const newHousehold = await prisma.household.create({
       data: {
-        householdId: newHouseholdId,
+        householdId: finalHouseholdId,
         ownerName,
         address,
         street: street || null,
