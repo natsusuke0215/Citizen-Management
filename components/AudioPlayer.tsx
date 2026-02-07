@@ -9,13 +9,15 @@ interface AudioPlayerProps {
   storageKey: string
   loop?: boolean
   volume?: number
+  hideUI?: boolean
 }
 
 export default function AudioPlayer({ 
   src, 
   storageKey, 
   loop = true, 
-  volume: initialVolume = 0.3 
+  volume: initialVolume = 0.3,
+  hideUI = false
 }: AudioPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(true) // Default to playing
   const [currentVolume, setCurrentVolume] = useState(initialVolume)
@@ -230,6 +232,11 @@ export default function AudioPlayer({
       }
     }
   }, [])
+
+  // Hide UI if hideUI prop is true
+  if (hideUI) {
+    return null
+  }
 
   return (
     <div 

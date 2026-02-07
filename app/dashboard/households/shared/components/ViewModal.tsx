@@ -17,10 +17,10 @@ export default function ViewModal({
   onSplit
 }: ViewModalProps) {
   const owner = getOwner(household)
+  // Filter out the owner to show only other members
   const otherMembers = household.persons.filter(p => {
-    if (!p.relationship) return false // Skip owner
-    if (owner && p.id === owner.id) return false // Skip if already shown as owner
-    return true
+    // Exclude the owner - show all other members
+    return owner ? p.id !== owner.id : true
   })
 
   return (
@@ -71,13 +71,33 @@ export default function ViewModal({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <span className="text-sm font-medium text-gray-700">Họ và tên:</span>
-                  <span className="ml-2 text-sm text-gray-900">{owner.fullName}</span>
+                  <span className="ml-2 text-sm text-gray-900">{owner.fullName || 'Chưa có'}</span>
                 </div>
                 <div>
                   <span className="text-sm font-medium text-gray-700">Ngày sinh:</span>
                   <span className="ml-2 text-sm text-gray-900">
-                    {new Date(owner.dateOfBirth).toLocaleDateString('vi-VN')}
+                    {owner.dateOfBirth ? new Date(owner.dateOfBirth).toLocaleDateString('vi-VN') : 'Chưa có'}
                   </span>
+                </div>
+                <div>
+                  <span className="text-sm font-medium text-gray-700">Giới tính:</span>
+                  <span className="ml-2 text-sm text-gray-900">{owner.gender || 'Chưa có'}</span>
+                </div>
+                <div>
+                  <span className="text-sm font-medium text-gray-700">Nguyên quán:</span>
+                  <span className="ml-2 text-sm text-gray-900">{owner.origin || 'Chưa có'}</span>
+                </div>
+                <div>
+                  <span className="text-sm font-medium text-gray-700">Dân tộc:</span>
+                  <span className="ml-2 text-sm text-gray-900">{owner.ethnicity || 'Chưa có'}</span>
+                </div>
+                <div>
+                  <span className="text-sm font-medium text-gray-700">Nghề nghiệp:</span>
+                  <span className="ml-2 text-sm text-gray-900">{owner.occupation || 'Chưa có'}</span>
+                </div>
+                <div>
+                  <span className="text-sm font-medium text-gray-700">Số {owner.idType || 'CCCD'}:</span>
+                  <span className="ml-2 text-sm text-gray-900">{owner.idNumber || 'Chưa có'}</span>
                 </div>
                 {owner.placeOfBirth && (
                   <div>
@@ -85,26 +105,22 @@ export default function ViewModal({
                     <span className="ml-2 text-sm text-gray-900">{owner.placeOfBirth}</span>
                   </div>
                 )}
-                {owner.origin && (
+                {owner.religion && (
                   <div>
-                    <span className="text-sm font-medium text-gray-700">Nguyên quán:</span>
-                    <span className="ml-2 text-sm text-gray-900">{owner.origin}</span>
+                    <span className="text-sm font-medium text-gray-700">Tôn giáo:</span>
+                    <span className="ml-2 text-sm text-gray-900">{owner.religion}</span>
                   </div>
                 )}
-                {owner.ethnicity && (
+                {owner.nationality && (
                   <div>
-                    <span className="text-sm font-medium text-gray-700">Dân tộc:</span>
-                    <span className="ml-2 text-sm text-gray-900">{owner.ethnicity}</span>
+                    <span className="text-sm font-medium text-gray-700">Quốc tịch:</span>
+                    <span className="ml-2 text-sm text-gray-900">{owner.nationality}</span>
                   </div>
                 )}
-                <div>
-                  <span className="text-sm font-medium text-gray-700">Giới tính:</span>
-                  <span className="ml-2 text-sm text-gray-900">{owner.gender}</span>
-                </div>
-                {owner.occupation && (
+                {owner.education && (
                   <div>
-                    <span className="text-sm font-medium text-gray-700">Nghề nghiệp:</span>
-                    <span className="ml-2 text-sm text-gray-900">{owner.occupation}</span>
+                    <span className="text-sm font-medium text-gray-700">Trình độ học vấn:</span>
+                    <span className="ml-2 text-sm text-gray-900">{owner.education}</span>
                   </div>
                 )}
                 {owner.workplace && (
@@ -113,27 +129,19 @@ export default function ViewModal({
                     <span className="ml-2 text-sm text-gray-900">{owner.workplace}</span>
                   </div>
                 )}
-                {owner.idNumber && (
-                  <>
-                    <div>
-                      <span className="text-sm font-medium text-gray-700">Số {owner.idType || 'CMND/CCCD'}:</span>
-                      <span className="ml-2 text-sm text-gray-900">{owner.idNumber}</span>
-                    </div>
-                    {owner.idIssueDate && (
-                      <div>
-                        <span className="text-sm font-medium text-gray-700">Ngày cấp:</span>
-                        <span className="ml-2 text-sm text-gray-900">
-                          {new Date(owner.idIssueDate).toLocaleDateString('vi-VN')}
-                        </span>
-                      </div>
-                    )}
-                    {owner.idIssuePlace && (
-                      <div>
-                        <span className="text-sm font-medium text-gray-700">Nơi cấp:</span>
-                        <span className="ml-2 text-sm text-gray-900">{owner.idIssuePlace}</span>
-                      </div>
-                    )}
-                  </>
+                {owner.idNumber && owner.idIssueDate && (
+                  <div>
+                    <span className="text-sm font-medium text-gray-700">Ngày cấp:</span>
+                    <span className="ml-2 text-sm text-gray-900">
+                      {new Date(owner.idIssueDate).toLocaleDateString('vi-VN')}
+                    </span>
+                  </div>
+                )}
+                {owner.idNumber && owner.idIssuePlace && (
+                  <div>
+                    <span className="text-sm font-medium text-gray-700">Nơi cấp:</span>
+                    <span className="ml-2 text-sm text-gray-900">{owner.idIssuePlace}</span>
+                  </div>
                 )}
                 {owner.registrationDate && (
                   <div>
@@ -155,11 +163,11 @@ export default function ViewModal({
         )}
 
         {/* Members Info */}
-        {otherMembers.length > 0 && (
-          <div>
-            <h4 className="text-md font-semibold text-gray-900 mb-3">
-              Thành viên khác trong hộ ({otherMembers.length} người)
-            </h4>
+        <div className="mb-6">
+          <h4 className="text-md font-semibold text-gray-900 mb-3">
+            Danh sách thành viên ({household.persons.length} người)
+          </h4>
+          {otherMembers.length > 0 ? (
             <div className="space-y-4">
               {otherMembers.map((person, index) => (
                 <div key={person.id} className="bg-gray-50 p-4 rounded-lg">
@@ -175,10 +183,34 @@ export default function ViewModal({
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                     <div>
+                      <span className="text-gray-700">Họ và tên:</span>
+                      <span className="ml-2 text-gray-900">{person.fullName || 'Chưa có'}</span>
+                    </div>
+                    <div>
                       <span className="text-gray-700">Ngày sinh:</span>
                       <span className="ml-2 text-gray-900">
-                        {new Date(person.dateOfBirth).toLocaleDateString('vi-VN')}
+                        {person.dateOfBirth ? new Date(person.dateOfBirth).toLocaleDateString('vi-VN') : 'Chưa có'}
                       </span>
+                    </div>
+                    <div>
+                      <span className="text-gray-700">Giới tính:</span>
+                      <span className="ml-2 text-gray-900">{person.gender || 'Chưa có'}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-700">Nguyên quán:</span>
+                      <span className="ml-2 text-gray-900">{person.origin || 'Chưa có'}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-700">Dân tộc:</span>
+                      <span className="ml-2 text-gray-900">{person.ethnicity || 'Chưa có'}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-700">Nghề nghiệp:</span>
+                      <span className="ml-2 text-gray-900">{person.occupation || 'Chưa có'}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-700">Số {person.idType || 'CCCD'}:</span>
+                      <span className="ml-2 text-gray-900">{person.idNumber || 'Chưa có'}</span>
                     </div>
                     {person.placeOfBirth && (
                       <div>
@@ -186,26 +218,22 @@ export default function ViewModal({
                         <span className="ml-2 text-gray-900">{person.placeOfBirth}</span>
                       </div>
                     )}
-                    {person.origin && (
+                    {person.religion && (
                       <div>
-                        <span className="text-gray-700">Nguyên quán:</span>
-                        <span className="ml-2 text-gray-900">{person.origin}</span>
+                        <span className="text-gray-700">Tôn giáo:</span>
+                        <span className="ml-2 text-gray-900">{person.religion}</span>
                       </div>
                     )}
-                    {person.ethnicity && (
+                    {person.nationality && (
                       <div>
-                        <span className="text-gray-700">Dân tộc:</span>
-                        <span className="ml-2 text-gray-900">{person.ethnicity}</span>
+                        <span className="text-gray-700">Quốc tịch:</span>
+                        <span className="ml-2 text-gray-900">{person.nationality}</span>
                       </div>
                     )}
-                    <div>
-                      <span className="text-gray-700">Giới tính:</span>
-                      <span className="ml-2 text-gray-900">{person.gender}</span>
-                    </div>
-                    {person.occupation && (
+                    {person.education && (
                       <div>
-                        <span className="text-gray-700">Nghề nghiệp:</span>
-                        <span className="ml-2 text-gray-900">{person.occupation}</span>
+                        <span className="text-gray-700">Trình độ học vấn:</span>
+                        <span className="ml-2 text-gray-900">{person.education}</span>
                       </div>
                     )}
                     {person.workplace && (
@@ -214,27 +242,19 @@ export default function ViewModal({
                         <span className="ml-2 text-gray-900">{person.workplace}</span>
                       </div>
                     )}
-                    {person.idNumber && (
-                      <>
-                        <div>
-                          <span className="text-gray-700">Số {person.idType || 'CMND/CCCD'}:</span>
-                          <span className="ml-2 text-gray-900">{person.idNumber}</span>
-                        </div>
-                        {person.idIssueDate && (
-                          <div>
-                            <span className="text-gray-700">Ngày cấp:</span>
-                            <span className="ml-2 text-gray-900">
-                              {new Date(person.idIssueDate).toLocaleDateString('vi-VN')}
-                            </span>
-                          </div>
-                        )}
-                        {person.idIssuePlace && (
-                          <div>
-                            <span className="text-gray-700">Nơi cấp:</span>
-                            <span className="ml-2 text-gray-900">{person.idIssuePlace}</span>
-                          </div>
-                        )}
-                      </>
+                    {person.idNumber && person.idIssueDate && (
+                      <div>
+                        <span className="text-gray-700">Ngày cấp:</span>
+                        <span className="ml-2 text-gray-900">
+                          {new Date(person.idIssueDate).toLocaleDateString('vi-VN')}
+                        </span>
+                      </div>
+                    )}
+                    {person.idNumber && person.idIssuePlace && (
+                      <div>
+                        <span className="text-gray-700">Nơi cấp:</span>
+                        <span className="ml-2 text-gray-900">{person.idIssuePlace}</span>
+                      </div>
                     )}
                     {person.registrationDate && (
                       <div>
@@ -254,8 +274,12 @@ export default function ViewModal({
                 </div>
               ))}
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="bg-gray-50 p-4 rounded-lg text-center text-gray-500">
+              <p>Hộ khẩu này chỉ có chủ hộ, không có thành viên khác.</p>
+            </div>
+          )}
+        </div>
         
         <div className="flex justify-between mt-6 pt-6 border-t">
           <button

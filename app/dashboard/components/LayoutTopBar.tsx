@@ -4,6 +4,7 @@ import { memo } from 'react'
 import { Menu, Bell, LogOut } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
+import VolumeControl from './VolumeControl'
 
 interface TopBarProps {
   userName: string
@@ -40,6 +41,10 @@ function TopBar({ userName, notifications, onMenuClick }: TopBarProps) {
           </span>
         </div>
         <div className="flex items-center gap-3">
+          <VolumeControl 
+            storageKey="dashboardMusicEnabled"
+            initialVolume={0.3}
+          />
           <button
             type="button"
             onClick={() => router.push('/dashboard/notifications')}

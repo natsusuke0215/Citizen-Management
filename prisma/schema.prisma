@@ -18,6 +18,7 @@ model User {
   role      String   @default("FACILITY_MANAGER") // TEAM_LEADER, DEPUTY, FACILITY_MANAGER, CALENDAR_MANAGER, GROUP_LEADER, ADMIN
   phone     String?
   address   String?
+  avatarUrl String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

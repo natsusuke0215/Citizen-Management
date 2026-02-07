@@ -1,6 +1,6 @@
 'use client'
 
-import { Users, Edit, Trash2, Calendar, CreditCard, Home } from 'lucide-react'
+import { Users, Edit, Trash2, Calendar, CreditCard, Home, MapPin } from 'lucide-react'
 
 interface Person {
   id: string
@@ -14,13 +14,29 @@ interface Person {
     householdId: string
     address: string
   }
+  temporaryResidences?: Array<{
+    id: string
+    status: string
+    startDate: string
+    endDate: string | null
+    originalAddress: string | null
+    householdId: string | null
+  }>
+  temporaryAbsences?: Array<{
+    id: string
+    status: string
+    startDate: string
+    endDate: string | null
+    reason: string | null
+    destination: string | null
+  }>
 }
 
 interface PersonCardProps {
   person: Person
   index: number
   onEdit: (person: Person) => void
-  onDelete: (id: string) => void
+  onDelete: (person: Person) => void
 }
 
 export default function PersonCard({
@@ -30,8 +46,18 @@ export default function PersonCard({
   onDelete
 }: PersonCardProps) {
   const getStatusInfo = () => {
+    // Kiểm tra nếu có tạm trú hoặc tạm vắng active
+    const hasActiveTemporaryResidence = person.temporaryResidences && person.temporaryResidences.length > 0
+    const hasActiveTemporaryAbsence = person.temporaryAbsences && person.temporaryAbsences.length > 0
+    
     switch (person.status) {
       case 'ACTIVE':
+        if (hasActiveTemporaryResidence) {
+          return { label: 'Đang tạm trú', color: 'bg-green-50 text-green-700 border-green-200', icon: '📍' }
+        }
+        if (hasActiveTemporaryAbsence) {
+          return { label: 'Đang tạm vắng', color: 'bg-orange-50 text-orange-700 border-orange-200', icon: '📅' }
+        }
         return { label: 'Đang thường trú', color: 'bg-emerald-50 text-emerald-700 border-emerald-200', icon: '✓' }
       case 'MOVED_OUT':
         return { label: 'Đã chuyển đi', color: 'bg-amber-50 text-amber-700 border-amber-200', icon: '→' }
@@ -69,7 +95,7 @@ export default function PersonCard({
               <Edit className="h-4 w-4" />
             </button>
             <button
-              onClick={() => onDelete(person.id)}
+              onClick={() => onDelete(person)}
               className="p-2 hover:bg-white hover:bg-opacity-20 rounded-[8px] transition-colors"
               title="Xóa"
             >
@@ -106,12 +132,69 @@ export default function PersonCard({
         )}
 
         <div>
-          <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1 flex items-center gap-1">
-            <Home className="h-3 w-3" />
-            Hộ khẩu
-          </div>
-          <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{person.household.householdId}</div>
-          <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">{person.household.address}</div>
+          {person.temporaryResidences && person.temporaryResidences.length > 0 ? (
+            <>
+              <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1 flex items-center gap-1">
+                <Home className="h-3 w-3" />
+                Địa chỉ tạm trú
+              </div>
+              <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                {person.temporaryResidences[0].originalAddress || 'Chưa có thông tin'}
+              </div>
+              <div className="text-xs text-gray-600 dark:text-gray-400 mt-2 space-y-1">
+                <div>
+                  <span className="font-medium">Ngày bắt đầu:</span>{' '}
+                  {person.temporaryResidences[0].startDate 
+                    ? new Date(person.temporaryResidences[0].startDate).toLocaleDateString('vi-VN')
+                    : 'Chưa có'}
+                </div>
+                <div>
+                  <span className="font-medium">Ngày kết thúc:</span>{' '}
+                  {person.temporaryResidences[0].endDate 
+                    ? new Date(person.temporaryResidences[0].endDate).toLocaleDateString('vi-VN')
+                    : 'Chưa xác định'}
+                </div>
+              </div>
+            </>
+          ) : person.temporaryAbsences && person.temporaryAbsences.length > 0 ? (
+            <>
+              <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1 flex items-center gap-1">
+                <MapPin className="h-3 w-3" />
+                Lý do tạm vắng
+              </div>
+              <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                {person.temporaryAbsences[0].reason || person.temporaryAbsences[0].destination || 'Chưa có thông tin'}
+              </div>
+              {person.temporaryAbsences[0].destination && person.temporaryAbsences[0].reason && (
+                <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                  Nơi đến: {person.temporaryAbsences[0].destination}
+                </div>
+              )}
+              <div className="text-xs text-gray-600 dark:text-gray-400 mt-2 space-y-1">
+                <div>
+                  <span className="font-medium">Ngày bắt đầu:</span>{' '}
+                  {person.temporaryAbsences[0].startDate 
+                    ? new Date(person.temporaryAbsences[0].startDate).toLocaleDateString('vi-VN')
+                    : 'Chưa có'}
+                </div>
+                <div>
+                  <span className="font-medium">Ngày kết thúc:</span>{' '}
+                  {person.temporaryAbsences[0].endDate 
+                    ? new Date(person.temporaryAbsences[0].endDate).toLocaleDateString('vi-VN')
+                    : 'Chưa xác định'}
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1 flex items-center gap-1">
+                <Home className="h-3 w-3" />
+                Hộ khẩu
+              </div>
+              <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{person.household.householdId}</div>
+              <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">{person.household.address}</div>
+            </>
+          )}
         </div>
 
         <div className="pt-3 border-t border-gray-200 dark:border-gray-700">

@@ -16,6 +16,10 @@ class AudioManager {
     return audio
   }
 
+  getAudio(key: string): HTMLAudioElement | undefined {
+    return this.audioInstances.get(key)
+  }
+
   stopAll() {
     this.audioInstances.forEach((audio) => {
       audio.pause()

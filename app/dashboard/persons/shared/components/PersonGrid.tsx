@@ -15,12 +15,28 @@ interface Person {
     householdId: string
     address: string
   }
+  temporaryResidences?: Array<{
+    id: string
+    status: string
+    startDate: string
+    endDate: string | null
+    originalAddress: string | null
+    householdId: string | null
+  }>
+  temporaryAbsences?: Array<{
+    id: string
+    status: string
+    startDate: string
+    endDate: string | null
+    reason: string | null
+    destination: string | null
+  }>
 }
 
 interface PersonGridProps {
   persons: Person[]
   onEdit: (person: Person) => void
-  onDelete: (id: string) => void
+  onDelete: (person: Person) => void
   onAdd: () => void
   searchTerm: string
 }
