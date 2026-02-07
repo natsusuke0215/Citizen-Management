@@ -103,20 +103,7 @@ export default function HistoryList({
                         <span>{new Date(item.changeDate).toLocaleString('vi-VN')}</span>
                       </div>
                     </div>
-                    {item.oldData && item.newData && (
-                      <div className="mt-3 p-3 bg-gray-50 rounded-[8px] border border-gray-200 text-xs">
-                        <div className="grid grid-cols-2 gap-3">
-                          <div>
-                            <span className="font-semibold text-gray-600">Trước:</span>
-                            <p className="text-gray-700 mt-1">{item.oldData}</p>
-                          </div>
-                          <div>
-                            <span className="font-semibold text-gray-600">Sau:</span>
-                            <p className="text-gray-700 mt-1">{item.newData}</p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
+                    
                     {item.changedBy && (
                       <p className="text-xs text-gray-500 mt-2">
                         Thay đổi bởi: {item.changedBy}
