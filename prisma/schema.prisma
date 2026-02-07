@@ -164,6 +164,8 @@ model CulturalCenterBooking {
   type              String             @default("EVENT") // EVENT, WEDDING, MEETING, ACTIVITY
   fee               Float?             // Phí sử dụng
   feePaid           Boolean            @default(false)
+  bookerName        String?
+  bookerPhone       String?
   culturalCenterId  String
   userId            String
   createdAt         DateTime           @default(now())
