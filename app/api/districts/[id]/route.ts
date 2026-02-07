@@ -18,7 +18,7 @@ export async function PUT(
     // Check if district name already exists (excluding current district)
     const existingDistrict = await prisma.district.findFirst({
       where: {
-        name: { equals: name, mode: 'insensitive' },
+        name: { equals: name },
         id: { not: params.id }
       }
     })
