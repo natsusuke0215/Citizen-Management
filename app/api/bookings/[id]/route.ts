@@ -23,7 +23,7 @@ export async function PUT(
       )
     }
 
-    const { title, description, startTime, endTime, culturalCenterId, visibility } = await request.json()
+    const { title, description, startTime, endTime, culturalCenterId, visibility, type, fee } = await request.json()
 
     if (!title || !startTime || !endTime || !culturalCenterId) {
       return NextResponse.json(
@@ -61,7 +61,7 @@ export async function PUT(
       )
     }
 
-    if (existingBooking.userId !== user.id && user.role !== 'ADMIN') {
+    if (existingBooking.userId !== user.id && user.role !== 'TEAM_LEADER' && user.role !== 'ADMIN' && user.role !== 'LEADER' && user.role !== 'DEPUTY') {
       return NextResponse.json(
         { message: 'Bạn không có quyền chỉnh sửa lịch đặt này' },
         { status: 403 }
@@ -69,31 +69,14 @@ export async function PUT(
     }
 
     // Check for overlapping bookings (excluding current booking)
+    // Two bookings overlap if: start1 < end2 AND end1 > start2
     const overlappingBooking = await prisma.culturalCenterBooking.findFirst({
       where: {
         culturalCenterId,
         status: 'APPROVED',
         id: { not: params.id },
-        OR: [
-          {
-            AND: [
-              { startTime: { lte: start } },
-              { endTime: { gt: start } }
-            ]
-          },
-          {
-            AND: [
-              { startTime: { lt: end } },
-              { endTime: { gte: end } }
-            ]
-          },
-          {
-            AND: [
-              { startTime: { gte: start } },
-              { endTime: { lte: end } }
-            ]
-          }
-        ]
+        startTime: { lt: end },
+        endTime: { gt: start }
       }
     })
 
@@ -112,7 +95,9 @@ export async function PUT(
         startTime: start,
         endTime: end,
         culturalCenterId,
-        visibility: visibility || 'PUBLIC'
+        visibility: visibility || 'PUBLIC',
+        type: type || undefined,
+        fee: fee !== undefined && fee !== null ? (typeof fee === 'number' ? fee : parseFloat(String(fee))) : undefined
       },
       include: {
         culturalCenter: {
@@ -176,7 +161,7 @@ export async function DELETE(
       )
     }
 
-    if (booking.userId !== user.id && user.role !== 'ADMIN') {
+    if (booking.userId !== user.id && user.role !== 'TEAM_LEADER' && user.role !== 'ADMIN' && user.role !== 'LEADER' && user.role !== 'DEPUTY') {
       return NextResponse.json(
         { message: 'Bạn không có quyền xóa lịch đặt này' },
         { status: 403 }

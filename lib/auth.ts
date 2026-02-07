@@ -1,4 +1,3 @@
-import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { prisma } from './prisma'
 
@@ -8,15 +7,12 @@ export interface UserPayload {
   id: string
   email: string
   name: string
-  role: 'ADMIN' | 'USER'
+  role: string
 }
 
-export async function hashPassword(password: string): Promise<string> {
-  return bcrypt.hash(password, 12)
-}
-
-export async function verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
-  return bcrypt.compare(password, hashedPassword)
+// Plain text password comparison (no hashing)
+export function verifyPassword(password: string, storedPassword: string): boolean {
+  return password === storedPassword
 }
 
 export function generateToken(payload: UserPayload): string {
@@ -31,19 +27,21 @@ export function verifyToken(token: string): UserPayload | null {
   }
 }
 
+// Hàm an toàn dùng cho Middleware (chỉ decode, không verify signature để tránh lỗi trên Edge)
+export function decodeTokenOnly(token: string): UserPayload | null {
+  try {
+    return jwt.decode(token) as UserPayload
+  } catch {
+    return null
+  }
+}
+
 export async function authenticateUser(email: string, password: string) {
   const user = await prisma.user.findUnique({
-    where: { email },
-    include: {
-      household: {
-        include: {
-          district: true
-        }
-      }
-    }
+    where: { email }
   })
 
-  if (!user || !await verifyPassword(password, user.password)) {
+  if (!user || !verifyPassword(password, user.password)) {
     return null
   }
 
@@ -51,13 +49,12 @@ export async function authenticateUser(email: string, password: string) {
   return userWithoutPassword
 }
 
-export async function createUser(email: string, password: string, name: string, role: 'ADMIN' | 'USER' = 'USER') {
-  const hashedPassword = await hashPassword(password)
-  
+export async function createUser(email: string, password: string, name: string, role: string = 'USER') {
+  // Store password as plain text (no hashing)
   return prisma.user.create({
     data: {
       email,
-      password: hashedPassword,
+      password: password, // Plain text password
       name,
       role
     }

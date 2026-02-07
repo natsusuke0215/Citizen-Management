@@ -6,7 +6,7 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { name, description, capacity, location, building, floor, room, amenities } = await request.json()
+    const { name, description, capacity, location, building, floor, room, amenities, imageUrl } = await request.json()
 
     if (!name || !capacity || !building) {
       return NextResponse.json(
@@ -25,7 +25,8 @@ export async function PUT(
         building,
         floor: floor ? parseInt(floor) : null,
         room: room || null,
-        amenities: amenities ? JSON.stringify(amenities) : null
+        amenities: amenities ? JSON.stringify(amenities) : null,
+        imageUrl: imageUrl || null
       },
       include: {
         _count: {

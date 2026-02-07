@@ -30,7 +30,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { name, description, capacity, location, building, floor, room, amenities } = await request.json()
+    const { name, description, capacity, location, building, floor, room, amenities, area, yearBuilt, imageUrl } = await request.json()
 
     if (!name || !capacity || !building) {
       return NextResponse.json(
@@ -39,17 +39,27 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    const centerData: any = {
+      name,
+      description: description || null,
+      capacity: parseInt(capacity),
+      location: location || '',
+      building,
+      floor: floor ? parseInt(floor) : null,
+      room: room || null,
+      amenities: amenities ? JSON.stringify(amenities) : null,
+      imageUrl: imageUrl || null
+    }
+
+    if (area !== undefined) {
+      centerData.area = parseFloat(area)
+    }
+    if (yearBuilt !== undefined) {
+      centerData.yearBuilt = parseInt(yearBuilt)
+    }
+
     const center = await prisma.culturalCenter.create({
-      data: {
-        name,
-        description: description || null,
-        capacity: parseInt(capacity),
-        location: location || '',
-        building,
-        floor: floor ? parseInt(floor) : null,
-        room: room || null,
-        amenities: amenities ? JSON.stringify(amenities) : null
-      },
+      data: centerData,
       include: {
         _count: {
           select: {

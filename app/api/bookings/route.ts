@@ -2,10 +2,41 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { verifyToken } from '@/lib/auth'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const token = request.cookies.get('auth-token')?.value
+    if (!token) {
+      return NextResponse.json(
+        { message: 'Không có quyền truy cập' },
+        { status: 401 }
+      )
+    }
+
+    const user = verifyToken(token)
+    if (!user) {
+      return NextResponse.json(
+        { message: 'Token không hợp lệ' },
+        { status: 401 }
+      )
+    }
+
+    // Optimize query with select instead of include for better performance
     const bookings = await prisma.culturalCenterBooking.findMany({
-      include: {
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        startTime: true,
+        endTime: true,
+        status: true,
+        visibility: true,
+        type: true,
+        fee: true,
+        bookerName: true,
+        bookerPhone: true,
+        feePaid: true,
+        createdAt: true,
+        updatedAt: true,
         culturalCenter: {
           select: {
             id: true,
@@ -21,10 +52,11 @@ export async function GET() {
             id: true,
             name: true
           }
-        }
+        },
+        usageFee: true
       },
       orderBy: {
-        startTime: 'desc'
+        createdAt: 'desc'
       }
     })
 
@@ -56,7 +88,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { title, description, startTime, endTime, culturalCenterId, visibility } = await request.json()
+    const { title, description, startTime, endTime, culturalCenterId, visibility, type, fee, bookerName, bookerPhone } = await request.json()
 
     if (!title || !startTime || !endTime || !culturalCenterId) {
       return NextResponse.json(
@@ -83,30 +115,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Check for overlapping bookings
+    // Two bookings overlap if: start1 < end2 AND end1 > start2
     const overlappingBooking = await prisma.culturalCenterBooking.findFirst({
       where: {
         culturalCenterId,
         status: 'APPROVED',
-        OR: [
-          {
-            AND: [
-              { startTime: { lte: start } },
-              { endTime: { gt: start } }
-            ]
-          },
-          {
-            AND: [
-              { startTime: { lt: end } },
-              { endTime: { gte: end } }
-            ]
-          },
-          {
-            AND: [
-              { startTime: { gte: start } },
-              { endTime: { lte: end } }
-            ]
-          }
-        ]
+        startTime: { lt: end },
+        endTime: { gt: start }
       }
     })
 
@@ -117,6 +132,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Check if this is a payment-required booking
+    const isPaymentRequired = true // All bookings now require payment
+
     const booking = await prisma.culturalCenterBooking.create({
       data: {
         title,
@@ -125,7 +143,13 @@ export async function POST(request: NextRequest) {
         endTime: end,
         culturalCenterId,
         userId: user.id,
-        visibility: visibility || 'PUBLIC'
+        visibility: visibility || 'PUBLIC',
+        status: isPaymentRequired ? 'PENDING_PAYMENT' : 'APPROVED',
+        type: type || 'EVENT',
+        fee: fee !== undefined && fee !== null ? (typeof fee === 'number' ? fee : parseFloat(String(fee))) : null,
+        bookerName: bookerName ? String(bookerName) : null,
+        bookerPhone: bookerPhone ? String(bookerPhone) : null,
+        feePaid: false
       },
       include: {
         culturalCenter: {

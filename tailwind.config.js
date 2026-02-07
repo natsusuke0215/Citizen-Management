@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: ['class'],
   content: [
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
     './components/**/*.{js,ts,jsx,tsx,mdx}',
@@ -31,10 +32,31 @@ module.exports = {
           700: '#334155',
           800: '#1e293b',
           900: '#0f172a',
+        },
+        // New color palette from Ink Wireframe
+        navy: {
+          1: '#516089',
+          2: '#586995',
+          3: '#7874F9',
+        },
+        yellow: {
+          1: '#E9B880',
+          2: '#F1E4D2',
+        },
+        gradient: {
+          1: '#FFFFFF',
         }
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
+      },
+      borderRadius: {
+        '8': '8px',
+        '15': '15px',
+      },
+      boxShadow: {
+        'drop': '0px 4px 6px rgba(0, 0, 0, 0.1), 0px 2px 4px rgba(0, 0, 0, 0.06)',
+        'drop-lg': '0px 10px 15px rgba(0, 0, 0, 0.1), 0px 4px 6px rgba(0, 0, 0, 0.05)',
       },
     },
   },

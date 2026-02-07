@@ -12,6 +12,15 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      return NextResponse.json(
+        { message: 'Email không hợp lệ' },
+        { status: 400 }
+      )
+    }
+
     const user = await authenticateUser(email, password)
 
     if (!user) {
@@ -47,7 +56,6 @@ export async function POST(request: NextRequest) {
       path: '/'
     })
 
-    console.log('Cookie set:', token.substring(0, 20) + '...')
     return response
   } catch (error) {
     console.error('Login error:', error)

@@ -1,226 +1,131 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { 
-  Home, 
-  Users, 
-  Building, 
-  Calendar, 
-  FileText, 
-  Settings,
-  LogOut,
-  Menu,
-  X,
-  Bell
-} from 'lucide-react'
-import toast from 'react-hot-toast'
-
-interface User {
-  id: string
-  email: string
-  name: string
-  role: 'ADMIN' | 'USER'
-}
+import { useState, useCallback, useEffect } from 'react'
+import { X } from 'lucide-react'
+import AudioPlayer from '@/components/AudioPlayer'
+import Sidebar from './components/LayoutSidebar'
+import TopBar from './components/LayoutTopBar'
+import { useUser } from './components/useLayoutUser'
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const [user, setUser] = useState<User | null>(null)
+  const { user, loading } = useUser()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [expandedMenus, setExpandedMenus] = useState<Set<string>>(new Set())
   const [notifications, setNotifications] = useState(0)
-  const router = useRouter()
 
   useEffect(() => {
-    // Get user info from API
-    const fetchUser = async () => {
+    const fetchNotifications = async () => {
       try {
-        console.log('Fetching user info...')
-        const response = await fetch('/api/auth/me', {
-          credentials: 'include'
-        })
-        
+        const response = await fetch('/api/notifications')
         if (response.ok) {
-          const userData = await response.json()
-          console.log('User data received:', userData)
-          setUser(userData)
-        } else {
-          console.log('Failed to get user info, redirecting to login')
-          router.push('/login')
+          const data = await response.json()
+          const unreadCount = data.filter((n: { read: boolean }) => !n.read).length
+          setNotifications(unreadCount)
         }
       } catch (error) {
-        console.log('Error fetching user info:', error)
-        router.push('/login')
+        console.error('Error fetching notifications:', error)
       }
     }
 
-    fetchUser()
-  }, [router])
-
-  const handleLogout = async () => {
-    try {
-      await fetch('/api/auth/logout', { method: 'POST' })
-      toast.success('Đăng xuất thành công!')
-      router.push('/')
-    } catch (error) {
-      toast.error('Có lỗi xảy ra khi đăng xuất!')
+    if (user) {
+      fetchNotifications()
+      // Refresh notifications every 30 seconds
+      const interval = setInterval(fetchNotifications, 30000)
+      return () => clearInterval(interval)
     }
-  }
+  }, [user])
 
-  const navigation = user?.role === 'ADMIN' ? [
-    { name: 'Tổng quan', href: '/dashboard', icon: Home },
-    { name: 'Quản lý hộ khẩu', href: '/dashboard/households', icon: Users },
-    { name: 'Quản lý nhân khẩu', href: '/dashboard/persons', icon: Users },
-    { name: 'Khu phố', href: '/dashboard/districts', icon: Building },
-    { name: 'Nhà văn hóa', href: '/dashboard/cultural-centers', icon: Building },
-    { name: 'Yêu cầu', href: '/dashboard/requests', icon: FileText },
-    { name: 'Đặt lịch', href: '/dashboard/bookings', icon: Calendar },
-    { name: 'Cài đặt', href: '/dashboard/settings', icon: Settings },
-  ] : [
-    { name: 'Tổng quan', href: '/dashboard', icon: Home },
-    { name: 'Hộ khẩu của tôi', href: '/dashboard/my-household', icon: Users },
-    { name: 'Yêu cầu', href: '/dashboard/my-requests', icon: FileText },
-    { name: 'Nhà văn hóa', href: '/dashboard/cultural-centers', icon: Building },
-    { name: 'Đặt lịch', href: '/dashboard/bookings', icon: Calendar },
-    { name: 'Cài đặt', href: '/dashboard/settings', icon: Settings },
-  ]
+  const toggleMenu = useCallback((menuName: string) => {
+    setExpandedMenus(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(menuName)) {
+        newSet.delete(menuName)
+      } else {
+        newSet.add(menuName)
+      }
+      return newSet
+    })
+  }, [])
 
-  if (!user) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>
+  if (loading || !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-navy-1"></div>
+      </div>
+    )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-yellow-2 via-white to-yellow-2 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 lg:flex">
       {/* Mobile sidebar */}
-      <div className={`fixed inset-0 z-50 lg:hidden ${sidebarOpen ? 'block' : 'hidden'}`}>
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-75" onClick={() => setSidebarOpen(false)} />
-        <div className="relative flex-1 flex flex-col max-w-xs w-full bg-white">
-          <div className="absolute top-0 right-0 -mr-12 pt-2">
+      <div className={`fixed inset-0 z-50 lg:hidden transition-opacity duration-300 ${sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+        <div
+          className="fixed inset-0 bg-gray-900 dark:bg-black bg-opacity-50 dark:bg-opacity-70 backdrop-blur-sm"
+          onClick={() => setSidebarOpen(false)}
+        />
+        <div className={`relative flex-1 flex flex-col w-80 max-w-[85vw] bg-white dark:bg-gray-900 h-full transform transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+          <div className="flex-shrink-0 flex items-center justify-between px-6 py-5 border-b border-gray-200 dark:border-gray-800">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-gradient-to-br from-navy-1 to-navy-2 rounded-[10px] shadow-drop">
+                <X className="h-6 w-6 text-white" />
+              </div>
+            </div>
             <button
               type="button"
-              className="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+              className="p-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-[8px] transition-colors"
               onClick={() => setSidebarOpen(false)}
             >
-              <X className="h-6 w-6 text-white" />
+              <X className="h-6 w-6" />
             </button>
           </div>
-          <div className="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
-            <div className="flex-shrink-0 flex items-center px-4">
-              <Building className="h-8 w-8 text-primary-600" />
-              <span className="ml-2 text-xl font-bold text-gray-900">Quản lý nhân khẩu</span>
-            </div>
-            <nav className="mt-5 px-2 space-y-1">
-              {navigation.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className="nav-link group flex items-center px-2 py-2 text-base font-medium rounded-md"
-                >
-                  <item.icon className="mr-4 h-6 w-6" />
-                  {item.name}
-                </Link>
-              ))}
-            </nav>
-          </div>
+          <Sidebar
+            user={user}
+            expandedMenus={expandedMenus}
+            onToggleMenu={toggleMenu}
+            onClose={() => setSidebarOpen(false)}
+            isMobile={true}
+          />
         </div>
       </div>
 
       {/* Desktop sidebar */}
-      <div className="hidden lg:flex lg:flex-shrink-0">
-        <div className="flex flex-col w-64">
-          <div className="flex flex-col h-0 flex-1 sidebar">
-            <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
-              <div className="flex items-center flex-shrink-0 px-4">
-                <Building className="h-8 w-8 text-primary-600" />
-                <span className="ml-2 text-xl font-bold text-gray-900">Quản lý nhân khẩu</span>
-              </div>
-              <nav className="mt-5 flex-1 px-2 space-y-1">
-                {navigation.map((item) => (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    className="nav-link group flex items-center px-2 py-2 text-sm font-medium rounded-md"
-                  >
-                    <item.icon className="mr-3 h-5 w-5" />
-                    {item.name}
-                  </Link>
-                ))}
-              </nav>
-            </div>
-            <div className="flex-shrink-0 flex border-t border-gray-200 p-4">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className="h-8 w-8 rounded-full bg-primary-600 flex items-center justify-center">
-                    <span className="text-sm font-medium text-white">
-                      {user.name.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
-                </div>
-                <div className="ml-3">
-                  <p className="text-sm font-medium text-gray-700">{user.name}</p>
-                  <p className="text-xs text-gray-500">{user.role === 'ADMIN' ? 'Quản trị viên' : 'Người dùng'}</p>
-                </div>
-              </div>
-            </div>
-          </div>
+      <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
+        <div className="flex flex-col flex-grow w-72 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 sidebar h-full">
+          <Sidebar
+            user={user}
+            expandedMenus={expandedMenus}
+            onToggleMenu={toggleMenu}
+          />
         </div>
       </div>
 
       {/* Main content */}
-      <div className="lg:pl-64 flex flex-col flex-1">
-        {/* Top bar */}
-        <div className="sticky top-0 z-10 flex-shrink-0 flex h-16 bg-white shadow">
-          <button
-            type="button"
-            className="px-4 border-r border-gray-200 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500 lg:hidden"
-            onClick={() => setSidebarOpen(true)}
-          >
-            <Menu className="h-6 w-6" />
-          </button>
-          <div className="flex-1 px-4 flex justify-between">
-            <div className="flex-1 flex">
-              <div className="w-full flex md:ml-0">
-                <div className="relative w-full text-gray-400 focus-within:text-gray-600">
-                  <div className="absolute inset-y-0 left-0 flex items-center pointer-events-none">
-                    <span className="text-sm text-gray-500">Chào mừng, {user.name}!</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="ml-4 flex items-center md:ml-6">
-              <button
-                type="button"
-                className="bg-white p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-              >
-                <Bell className="h-6 w-6" />
-                {notifications > 0 && (
-                  <span className="absolute -mt-1 -mr-1 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                    {notifications}
-                  </span>
-                )}
-              </button>
-              <button
-                onClick={handleLogout}
-                className="ml-3 bg-white p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-              >
-                <LogOut className="h-6 w-6" />
-              </button>
-            </div>
-          </div>
-        </div>
+      <div className="flex flex-col flex-1 min-h-screen lg:pl-72">
+        <TopBar
+          userName={user.name}
+          notifications={notifications}
+          onMenuClick={() => setSidebarOpen(true)}
+        />
 
-        {/* Page content */}
-        <main className="flex-1">
-          <div className="py-6">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-              {children}
-            </div>
+        <main className="flex-1 bg-gradient-to-br from-yellow-2 via-white to-yellow-2 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 min-h-screen">
+          <div className="px-4 sm:px-6 md:px-8 py-6">
+            {children}
           </div>
         </main>
       </div>
+
+      {/* Dashboard Background Music Player - UI hidden, controlled by TopBar */}
+      <AudioPlayer
+        src="/assets/audio/background-dashboard.mp3"
+        storageKey="dashboardMusicEnabled"
+        loop={true}
+        volume={0.3}
+        hideUI={true}
+      />
     </div>
   )
 }

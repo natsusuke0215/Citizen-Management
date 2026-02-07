@@ -29,7 +29,7 @@ Hệ thống quản lý nhân khẩu hiện đại với tính năng quản lý 
 - **Frontend**: Next.js 14, React 18, TypeScript
 - **Styling**: Tailwind CSS, Headless UI
 - **Database**: SQLite với Prisma ORM
-- **Authentication**: JWT với bcryptjs
+- **Authentication**: JWT với plain text passwords
 - **Icons**: Lucide React
 - **Notifications**: React Hot Toast
 
@@ -65,6 +65,11 @@ Tạo file `.env.local`:
 JWT_SECRET=your-secret-key-here
 DATABASE_URL="file:./prisma/dev.db"
 ```
+// Tạo dữ liệu mẫu (với plain text passwords)
+npm run db:seed
+
+// Lưu ý: Nếu database đã có dữ liệu cũ với mật khẩu hash, 
+// chạy thêm: npx tsx scripts/update-passwords-to-plaintext.ts
 
 ### Bước 5: Chạy ứng dụng
 ```bash
@@ -173,7 +178,7 @@ UPDATE User SET role = 'ADMIN' WHERE email = 'your-email@example.com';
 
 - **JWT Authentication**: Xác thực bằng JWT token
 - **Role-based Access**: Phân quyền Admin/User
-- **Password Hashing**: Mã hóa mật khẩu với bcryptjs
+- **Password Storage**: Lưu trữ mật khẩu dưới dạng plain text
 - **Input Validation**: Kiểm tra dữ liệu đầu vào
 - **SQL Injection Protection**: Sử dụng Prisma ORM
 

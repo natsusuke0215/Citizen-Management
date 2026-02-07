@@ -9,7 +9,11 @@ export async function GET(
     const household = await prisma.household.findUnique({
       where: { id: params.id },
       include: {
-        district: true,
+        districtRelation: true,
+        persons: true,
+        changeHistory: {
+          orderBy: { changeDate: 'desc' }
+        },
         members: {
           select: {
             id: true,
@@ -43,14 +47,29 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { householdId, address, districtId } = await request.json()
+    const { 
+      householdId, 
+      ownerName, 
+      address, 
+      street, 
+      ward, 
+      district, 
+      districtId,
+      householdType,
+      issueDate
+    } = await request.json()
 
-    if (!householdId || !address || !districtId) {
+    if (!householdId || !ownerName || !address || !ward || !district || !districtId) {
       return NextResponse.json(
-        { message: 'Tất cả các trường là bắt buộc' },
+        { message: 'Số hộ khẩu, tên chủ hộ, địa chỉ, phường, quận và khu phố là bắt buộc' },
         { status: 400 }
       )
     }
+
+    // Get old data for history
+    const oldHousehold = await prisma.household.findUnique({
+      where: { id: params.id }
+    })
 
     // Check if household ID already exists (excluding current household)
     const existingHousehold = await prisma.household.findFirst({
@@ -71,12 +90,30 @@ export async function PUT(
       where: { id: params.id },
       data: {
         householdId,
+        ownerName,
         address,
-        districtId
+        street: street || null,
+        ward,
+        district,
+        districtId,
+        householdType: householdType || null,
+        issueDate: issueDate ? new Date(issueDate) : null
       },
       include: {
-        district: true,
+        districtRelation: true,
         members: true
+      }
+    })
+
+    // Ghi lịch sử thay đổi
+    await prisma.householdChangeHistory.create({
+      data: {
+        householdId: household.id,
+        changeType: 'UPDATE',
+        changeDate: new Date(),
+        description: 'Cập nhật thông tin hộ khẩu',
+        oldData: oldHousehold ? JSON.stringify(oldHousehold) : null,
+        newData: JSON.stringify(household)
       }
     })
 
