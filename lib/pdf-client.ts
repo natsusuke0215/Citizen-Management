@@ -13,10 +13,11 @@
 export {
   exportHouseholdPdf,
   exportTemporaryAbsencePdf,
+  exportTemporaryResidencePdf,
 } from './pdf-puppeteer'
 
 // Re-export types
-export type { HouseholdData, TemporaryAbsenceData } from './pdf-puppeteer'
+export type { HouseholdData, TemporaryAbsenceData, TemporaryResidenceData } from './pdf-puppeteer'
 
 // Legacy interfaces for backward compatibility
 export interface Household {
@@ -378,8 +379,10 @@ export function exportChangeResidenceInfoPdf(data: {
 
 /**
  * Hàm xuất PDF cho form "PHIẾU KHAI BÁO TẠM TRÚ"
+ * REMOVED - Now exported from pdf-puppeteer
+ * This function is kept for reference but not exported
  */
-export function exportTemporaryResidencePdf(data: {
+function _legacyExportTemporaryResidencePdf(data: {
   fullName: string
   dateOfBirth: string
   gender: string

@@ -70,13 +70,13 @@ export default function TemporaryResidencePage() {
 
       const created = await res.json()
       
-      // Tạo và tải PDF sử dụng jsPDF
+      // Tạo và tải PDF sử dụng Puppeteer (hỗ trợ font tiếng Việt)
       exportTemporaryResidencePdf({
         fullName: form.fullName,
         dateOfBirth: form.dateOfBirth,
         gender: form.gender,
         idNumber: form.idNumber || '',
-        permanentAddress: form.originalAddress || '',
+        originalAddress: form.originalAddress || '',
         temporaryAddress: form.temporaryAddress || '',
       })
       

@@ -6,8 +6,10 @@
 import {
   generateHouseholdTemplate,
   generateTemporaryAbsenceTemplate,
+  generateTemporaryResidenceTemplate,
   type HouseholdData,
   type TemporaryAbsenceData,
+  type TemporaryResidenceData,
 } from './pdf-templates'
 
 /**
@@ -107,6 +109,38 @@ export async function exportTemporaryAbsencePdf(data: {
   await generatePdfFromHtml(html, filename)
 }
 
+/**
+ * Export PDF phiếu khai báo tạm trú
+ * Compatible với signature cũ từ pdf-client.ts
+ * Frontend có thể truyền permanentAddress hoặc originalAddress
+ */
+export async function exportTemporaryResidencePdf(data: {
+  fullName: string
+  dateOfBirth: string
+  gender: string
+  idNumber: string
+  permanentAddress?: string // Từ frontend
+  originalAddress?: string // Từ frontend
+  temporaryAddress: string
+  recipient?: string
+}): Promise<void> {
+  // Map permanentAddress (từ frontend) thành originalAddress (cho template)
+  const residenceData: TemporaryResidenceData = {
+    fullName: data.fullName,
+    dateOfBirth: data.dateOfBirth,
+    gender: data.gender,
+    idNumber: data.idNumber,
+    originalAddress: data.originalAddress || data.permanentAddress || '',
+    temporaryAddress: data.temporaryAddress,
+    recipient: data.recipient,
+  }
+  
+  const html = generateTemporaryResidenceTemplate(residenceData)
+  const safeIdNumber = (data.idNumber || 'unknown').replace(/[^a-zA-Z0-9]/g, '_')
+  const filename = `phieu-khai-bao-tam-tru-${safeIdNumber}.pdf`
+  await generatePdfFromHtml(html, filename)
+}
+
 // Re-export types for convenience
-export type { HouseholdData, TemporaryAbsenceData }
+export type { HouseholdData, TemporaryAbsenceData, TemporaryResidenceData }
 
